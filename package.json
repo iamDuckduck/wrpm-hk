@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev:web": "pnpm --dir apps/web dev",
+    "dev:studio": "pnpm --dir apps/studio dev",
+    "build:web": "pnpm --dir apps/web build",
+    "build:studio": "pnpm --dir apps/studio build",
+    "build": "pnpm run build:web && pnpm run build:studio"
   },
   "keywords": [],
   "author": "",
