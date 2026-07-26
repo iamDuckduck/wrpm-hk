@@ -1,5 +1,13 @@
 ---
+import {sanityClient} from '../lib/sanity'
+import {
+  INTEGRATION_TEST_QUERY,
+  type IntegrationTest,
+} from '../queries/integration-test'
 
+const integrationTest = await sanityClient.fetch<IntegrationTest | null>(
+  INTEGRATION_TEST_QUERY,
+)
 ---
 
 <html lang="en">
@@ -9,9 +17,16 @@
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		<title>WRPM Sanity Integration Test</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
+		<main>
+			<h1>WRPM Sanity Integration Test</h1>
+			{integrationTest ? (
+				<p>{integrationTest.message}</p>
+			) : (
+				<p>No published integration document found.</p>
+			)}
+		</main>
 	</body>
 </html>
