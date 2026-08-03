@@ -25,3 +25,17 @@ export function buildSanityImageUrl(
     .auto('format')
     .url()
 }
+
+export function buildSanityImageSrcSet(
+  source: SanityImageSource | null | undefined,
+  widths: number[],
+) {
+  const entries = widths
+    .map((width) => {
+      const url = buildSanityImageUrl(source, {width})
+      return url ? `${url} ${width}w` : null
+    })
+    .filter((entry): entry is string => entry !== null)
+
+  return entries.length > 0 ? entries.join(', ') : null
+}

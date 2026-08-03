@@ -1,0 +1,437 @@
+---
+import {
+  buildSanityImageSrcSet,
+  buildSanityImageUrl,
+} from '../lib/sanity-image'
+import type {HeroSlide} from '../queries/home-page'
+
+interface Props {
+  slides: HeroSlide[]
+}
+
+const {slides} = Astro.props
+const imageWidths = [640, 960, 1280, 1600]
+
+function slideTitle(slide: HeroSlide) {
+  return slide.title?.trim() || 'WRPM'
+}
+
+function slideDescription(slide: HeroSlide) {
+  return slide.description?.trim() || ''
+}
+---
+
+<section
+  class="hero-carousel container"
+  data-hero-carousel
+  aria-label="首頁主視覺"
+  tabindex="0"
+>
+  {slides.length === 0 ? (
+    <div class="hero-carousel__empty" role="status">
+      <p class="hero-carousel__eyebrow">WRPM / HOME</p>
+      <h1>首頁內容準備中</h1>
+      <p>請稍後回來查看最新內容。</p>
+    </div>
+  ) : (
+    <div class="hero-carousel__viewport" data-carousel-viewport>
+      {slides.map((slide, index) => {
+        const title = slideTitle(slide)
+        const description = slideDescription(slide)
+        const imageUrl = buildSanityImageUrl(slide.image, {width: 1600})
+        const imageSrcSet = buildSanityImageSrcSet(slide.image, imageWidths)
+        const imageAlt = slide.image?.alt?.trim() || title
+
+        return (
+          <article
+            class="hero-carousel__slide"
+            data-carousel-slide
+            data-title={title}
+            aria-hidden={index !== 0}
+            hidden={index !== 0}
+          >
+            <div class="hero-carousel__media">
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  srcset={imageSrcSet || undefined}
+                  sizes="(min-width: 80rem) 1280px, 100vw"
+                  alt={imageAlt}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={index === 0 ? 'high' : 'auto'}
+                />
+              ) : (
+                <div class="hero-carousel__media-fallback"></div>
+              )}
+            </div>
+
+            <div class="hero-carousel__content">
+              <p class="hero-carousel__eyebrow">
+                WRPM / {String(index + 1).padStart(2, '0')}
+              </p>
+              {index === 0 ? <h1>{title}</h1> : <h2>{title}</h2>}
+              {description && <p class="hero-carousel__description">{description}</p>}
+            </div>
+          </article>
+        )
+      })}
+
+      {slides.length > 1 && (
+        <div class="hero-carousel__controls" aria-label="主視覺控制">
+          <button
+            class="hero-carousel__arrow"
+            type="button"
+            data-carousel-prev
+            aria-label="上一張主視覺"
+          >
+            <span aria-hidden="true">←</span>
+          </button>
+
+          <div class="hero-carousel__dots" aria-label="選擇主視覺">
+            {slides.map((_, index) => (
+              <button
+                class="hero-carousel__dot"
+                type="button"
+                data-carousel-dot={index}
+                aria-label={`顯示第 ${index + 1} 張主視覺`}
+                aria-current={index === 0 ? 'true' : undefined}
+              >
+                <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+              </button>
+            ))}
+          </div>
+
+          <button
+            class="hero-carousel__arrow"
+            type="button"
+            data-carousel-next
+            aria-label="下一張主視覺"
+          >
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      )}
+    </div>
+  )}
+
+  {slides.length > 0 && (
+    <p class="hero-carousel__status" data-carousel-status aria-live="polite">
+      第 1 張，共 {slides.length} 張：{slideTitle(slides[0])}
+    </p>
+  )}
+</section>
+
+<script>
+  import {getNextCarouselIndex} from '../lib/carousel'
+
+  document.querySelectorAll<HTMLElement>('[data-hero-carousel]').forEach((carousel) => {
+    const slides = Array.from(
+      carousel.querySelectorAll<HTMLElement>('[data-carousel-slide]'),
+    )
+    const dots = Array.from(
+      carousel.querySelectorAll<HTMLButtonElement>('[data-carousel-dot]'),
+    )
+    const previous = carousel.querySelector<HTMLButtonElement>('[data-carousel-prev]')
+    const next = carousel.querySelector<HTMLButtonElement>('[data-carousel-next]')
+    const status = carousel.querySelector<HTMLElement>('[data-carousel-status]')
+    const viewport = carousel.querySelector<HTMLElement>('[data-carousel-viewport]')
+
+    if (slides.length === 0) {
+      return
+    }
+
+    let activeIndex = 0
+    let pointerStartX: number | null = null
+
+    const selectSlide = (index: number) => {
+      activeIndex = (index + slides.length) % slides.length
+
+      slides.forEach((slide, slideIndex) => {
+        const isActive = slideIndex === activeIndex
+        slide.hidden = !isActive
+        slide.setAttribute('aria-hidden', String(!isActive))
+      })
+
+      dots.forEach((dot, dotIndex) => {
+        if (dotIndex === activeIndex) {
+          dot.setAttribute('aria-current', 'true')
+        } else {
+          dot.removeAttribute('aria-current')
+        }
+      })
+
+      if (status) {
+        status.textContent = `第 ${activeIndex + 1} 張，共 ${slides.length} 張：${slides[activeIndex].dataset.title || 'WRPM'}`
+      }
+    }
+
+    previous?.addEventListener('click', () => {
+      selectSlide(getNextCarouselIndex(activeIndex, slides.length, -1))
+    })
+
+    next?.addEventListener('click', () => {
+      selectSlide(getNextCarouselIndex(activeIndex, slides.length, 1))
+    })
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        const index = Number(dot.dataset.carouselDot)
+        if (Number.isInteger(index)) {
+          selectSlide(index)
+        }
+      })
+    })
+
+    carousel.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault()
+        selectSlide(getNextCarouselIndex(activeIndex, slides.length, -1))
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault()
+        selectSlide(getNextCarouselIndex(activeIndex, slides.length, 1))
+      }
+
+      if (event.key === 'Home') {
+        event.preventDefault()
+        selectSlide(0)
+      }
+
+      if (event.key === 'End') {
+        event.preventDefault()
+        selectSlide(slides.length - 1)
+      }
+    })
+
+    viewport?.addEventListener('pointerdown', (event) => {
+      pointerStartX = event.clientX
+    })
+
+    viewport?.addEventListener('pointerup', (event) => {
+      if (pointerStartX === null) {
+        return
+      }
+
+      const distance = event.clientX - pointerStartX
+      pointerStartX = null
+
+      if (Math.abs(distance) < 40) {
+        return
+      }
+
+      selectSlide(
+        getNextCarouselIndex(activeIndex, slides.length, distance < 0 ? 1 : -1),
+      )
+    })
+
+    viewport?.addEventListener('pointercancel', () => {
+      pointerStartX = null
+    })
+  })
+</script>
+
+<style>
+  .hero-carousel {
+    padding-block: var(--space-4);
+  }
+
+  .hero-carousel__viewport {
+    position: relative;
+    min-height: clamp(30rem, 72svh, 46rem);
+    overflow: hidden;
+    background: var(--color-surface-lowest);
+  }
+
+  .hero-carousel__slide {
+    position: relative;
+    min-height: clamp(30rem, 72svh, 46rem);
+    isolation: isolate;
+  }
+
+  .hero-carousel__slide[hidden] {
+    display: none;
+  }
+
+  .hero-carousel__media,
+  .hero-carousel__media-fallback {
+    position: absolute;
+    inset: 0;
+  }
+
+  .hero-carousel__media::after {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgb(14 14 14 / 92%) 0%, rgb(14 14 14 / 62%) 45%, rgb(14 14 14 / 12%) 100%),
+      linear-gradient(0deg, rgb(14 14 14 / 72%) 0%, transparent 45%);
+    content: '';
+  }
+
+  .hero-carousel__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .hero-carousel__media-fallback {
+    background:
+      linear-gradient(135deg, var(--color-primary), transparent 58%),
+      var(--color-surface-high);
+  }
+
+  .hero-carousel__content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: clamp(30rem, 72svh, 46rem);
+    max-width: 48rem;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: clamp(2rem, 8vw, 6rem) var(--space-4) 7rem;
+  }
+
+  .hero-carousel__eyebrow {
+    margin: 0 0 var(--space-2);
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .hero-carousel h1,
+  .hero-carousel h2 {
+    max-width: 12ch;
+    margin: 0;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 9vw, 6rem);
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    line-height: 0.98;
+    text-wrap: balance;
+  }
+
+  .hero-carousel__description {
+    max-width: 32rem;
+    margin: var(--space-4) 0 0;
+    color: var(--color-on-background);
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  .hero-carousel__controls {
+    position: absolute;
+    z-index: 2;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    left: var(--space-4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .hero-carousel__arrow,
+  .hero-carousel__dot {
+    border: 0;
+    cursor: pointer;
+  }
+
+  .hero-carousel__arrow {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    background: var(--color-primary);
+    color: white;
+    font-size: 1.25rem;
+  }
+
+  .hero-carousel__arrow:hover {
+    background: var(--color-primary-hover);
+  }
+
+  .hero-carousel__dots {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .hero-carousel__dot {
+    min-width: 2.5rem;
+    min-height: 2.75rem;
+    padding: 0 var(--space-1);
+    background: transparent;
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .hero-carousel__dot[aria-current='true'] {
+    color: var(--color-on-background);
+    text-decoration: underline;
+    text-decoration-color: var(--color-primary);
+    text-decoration-thickness: 0.2rem;
+    text-underline-offset: 0.45rem;
+  }
+
+  .hero-carousel__empty {
+    min-height: clamp(22rem, 60svh, 36rem);
+    border-left: 4px solid var(--color-primary);
+    padding: clamp(2rem, 8vw, 6rem) var(--space-4);
+    background: linear-gradient(135deg, rgb(230 0 18 / 14%), var(--color-surface-lowest));
+  }
+
+  .hero-carousel__empty h1 {
+    max-width: 12ch;
+    margin: 0;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 8vw, 4rem);
+    line-height: 1;
+  }
+
+  .hero-carousel__empty > p:last-child {
+    margin: var(--space-4) 0 0;
+    color: var(--color-on-surface-variant);
+  }
+
+  .hero-carousel__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (min-width: 48rem) {
+    .hero-carousel {
+      padding-block: var(--space-6);
+    }
+
+    .hero-carousel__viewport,
+    .hero-carousel__slide,
+    .hero-carousel__content {
+      min-height: min(72svh, 46rem);
+    }
+
+    .hero-carousel__content {
+      padding-inline: clamp(2rem, 6vw, 6rem);
+    }
+
+    .hero-carousel__controls {
+      right: clamp(2rem, 6vw, 6rem);
+      bottom: var(--space-6);
+      left: clamp(2rem, 6vw, 6rem);
+    }
+  }
+</style>

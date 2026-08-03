@@ -4,7 +4,7 @@ vi.stubEnv('SANITY_PROJECT_ID', 'uw34v0nm')
 vi.stubEnv('SANITY_DATASET', 'production')
 vi.stubEnv('SANITY_API_VERSION', '2026-07-26')
 
-const {buildSanityImageUrl} = await import('./sanity-image')
+const {buildSanityImageSrcSet, buildSanityImageUrl} = await import('./sanity-image')
 
 const image = {
   asset: {
@@ -35,5 +35,12 @@ describe('buildSanityImageUrl', () => {
     expect(small).not.toBe(large)
     expect(small).toContain('w=480')
     expect(large).toContain('w=1280')
+  })
+
+  it('builds a responsive srcset with width descriptors', () => {
+    const srcSet = buildSanityImageSrcSet(image, [480, 960])
+
+    expect(srcSet).toContain('w=480&fit=max&auto=format 480w')
+    expect(srcSet).toContain('w=960&fit=max&auto=format 960w')
   })
 })
