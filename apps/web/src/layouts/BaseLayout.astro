@@ -1,0 +1,45 @@
+---
+import Footer from '../components/Footer.astro'
+import Navbar from '../components/Navbar.astro'
+import {resolveSiteBranding} from '../lib/site-branding'
+import type {SiteSettings} from '../queries/home-page'
+import '../styles/global.css'
+
+interface Props {
+  title: string
+  siteSettings: SiteSettings | null
+}
+
+const {title, siteSettings} = Astro.props
+const branding = resolveSiteBranding(siteSettings)
+const pageTitle = `${title} | ${branding.organizationName}`
+---
+
+<!doctype html>
+<html lang="zh-HK">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={`${branding.organizationName} 官方網站`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;600;700&family=Sora:wght@700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">跳至主要內容</a>
+    <div class="site-shell">
+      <Navbar branding={branding} />
+      <main id="main-content">
+        <slot />
+      </main>
+      <Footer branding={branding} />
+    </div>
+  </body>
+</html>

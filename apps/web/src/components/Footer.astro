@@ -1,0 +1,17 @@
+---
+import type {SiteBranding} from '../lib/site-branding'
+
+interface Props {
+  branding: SiteBranding
+}
+
+const {branding} = Astro.props
+const currentYear = new Date().getFullYear()
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner container">
+    <p class="site-footer__brand">{branding.organizationName}</p>
+    <p>&copy; {currentYear} ALL RIGHTS RESERVED</p>
+  </div>
+</footer>

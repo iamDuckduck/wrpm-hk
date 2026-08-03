@@ -1,0 +1,45 @@
+---
+import type {SiteBranding} from '../lib/site-branding'
+
+interface Props {
+  branding: SiteBranding
+}
+
+const {branding} = Astro.props
+---
+
+<header class="site-header">
+  <div class="site-header__inner container">
+    <details class="mobile-navigation">
+      <summary aria-label="導覽選單">
+        <span class="menu-icon" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </summary>
+      <nav class="mobile-navigation__panel" aria-label="行動版導覽">
+        <a class="mobile-navigation__link" href="/" aria-current="page">
+          <span>首頁</span>
+          <span aria-hidden="true">01</span>
+        </a>
+      </nav>
+    </details>
+
+    <a class="site-brand" href="/" aria-label={`${branding.organizationName} 首頁`}>
+      {branding.logoUrl && (
+        <img
+          class="site-brand__logo"
+          src={branding.logoUrl}
+          alt={branding.logoAlt}
+          width="160"
+        />
+      )}
+      <span>{branding.organizationName}</span>
+    </a>
+
+    <nav class="desktop-navigation" aria-label="主要導覽">
+      <a class="nav-link" href="/" aria-current="page">首頁</a>
+    </nav>
+  </div>
+</header>
