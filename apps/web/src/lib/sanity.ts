@@ -10,10 +10,12 @@ if (!projectId || !dataset || !apiVersion) {
   )
 }
 
-export const sanityClient = createClient({
+export const sanityConfig = {
   projectId,
   dataset,
   apiVersion,
   perspective: 'published',
   useCdn: false,
-})
+} as const
+
+export const sanityClient = createClient(sanityConfig)
