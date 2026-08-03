@@ -5,6 +5,10 @@ const styles = readFileSync(
   new URL('../src/styles/global.css', import.meta.url),
   'utf8',
 )
+const heroStyles = readFileSync(
+  new URL('../src/components/HeroCarousel.astro', import.meta.url),
+  'utf8',
+)
 
 describe('WRPM visual foundation', () => {
   it('keeps the approved dark sports-broadcast color tokens', () => {
@@ -23,5 +27,14 @@ describe('WRPM visual foundation', () => {
   it('uses the fixed translucent navigation treatment', () => {
     expect(styles).toMatch(/\.site-header\s*{[^}]*position:\s*fixed/s)
     expect(styles).toContain('backdrop-filter: blur(12px)')
+  })
+
+  it('uses a compact mobile hero ratio instead of a tall crop box', () => {
+    expect(heroStyles).toMatch(
+      /@media\s*\(max-width:\s*47\.999rem\)[\s\S]*?\.hero-carousel__slide\s*{[\s\S]*?aspect-ratio:\s*16\s*\/\s*9/s,
+    )
+    expect(heroStyles).toMatch(
+      /@media\s*\(max-width:\s*47\.999rem\)[\s\S]*?\.hero-carousel__viewport[\s\S]*?min-height:\s*0/s,
+    )
   })
 })

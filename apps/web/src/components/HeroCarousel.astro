@@ -413,6 +413,23 @@ function slideDescription(slide: HeroSlide) {
     white-space: nowrap;
   }
 
+  @media (max-width: 47.999rem) {
+    .hero-carousel__viewport,
+    .hero-carousel__slide,
+    .hero-carousel__content {
+      min-height: 0;
+    }
+
+    .hero-carousel__slide {
+      aspect-ratio: 16 / 9;
+    }
+
+    .hero-carousel__content {
+      height: 100%;
+      padding: clamp(1.5rem, 8vw, 3rem) var(--space-4) 5.5rem;
+    }
+  }
+
   @media (min-width: 48rem) {
     .hero-carousel {
       padding-block: var(--space-6);
