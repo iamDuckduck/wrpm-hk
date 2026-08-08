@@ -37,4 +37,13 @@ describe('WRPM visual foundation', () => {
       /@media\s*\(max-width:\s*47\.999rem\)[\s\S]*?\.hero-carousel__viewport[\s\S]*?min-height:\s*0/s,
     )
   })
+
+  it('scales mobile hero copy to fit inside the image frame', () => {
+    expect(heroStyles).toMatch(
+      /@media\s*\(max-width:\s*47\.999rem\)[\s\S]*?\.hero-carousel h1,[\s\S]*?\.hero-carousel h2\s*{[\s\S]*?font-size:\s*clamp\(1\.75rem,\s*8vw,\s*2\.75rem\)/s,
+    )
+    expect(heroStyles).toMatch(
+      /@media\s*\(max-width:\s*47\.999rem\)[\s\S]*?\.hero-carousel__description\s*{[\s\S]*?margin-top:\s*var\(--space-2\)/s,
+    )
+  })
 })

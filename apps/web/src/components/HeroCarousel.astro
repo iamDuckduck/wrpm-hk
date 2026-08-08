@@ -428,6 +428,19 @@ function slideDescription(slide: HeroSlide) {
       height: 100%;
       padding: clamp(1.5rem, 8vw, 3rem) var(--space-4) 5.5rem;
     }
+
+    .hero-carousel h1,
+    .hero-carousel h2 {
+      max-width: 100%;
+      font-size: clamp(1.75rem, 8vw, 2.75rem);
+      line-height: 1;
+    }
+
+    .hero-carousel__description {
+      margin-top: var(--space-2);
+      font-size: clamp(0.875rem, 3.5vw, 1rem);
+      line-height: 1.45;
+    }
   }
 
   @media (min-width: 48rem) {
