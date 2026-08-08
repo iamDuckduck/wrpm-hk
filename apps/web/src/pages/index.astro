@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
+import AboutSection from '../components/AboutSection.astro'
 import HeroCarousel from '../components/HeroCarousel.astro'
 import {sanityClient} from '../lib/sanity'
 import {
@@ -13,4 +14,10 @@ const heroSlides = homepage.homePage?.heroSlides ?? []
 
 <BaseLayout title="首頁" siteSettings={homepage.siteSettings}>
   <HeroCarousel slides={heroSlides} />
+  {(homepage.homePage?.aboutHeading?.trim() || homepage.homePage?.aboutText?.trim()) && (
+    <AboutSection
+      heading={homepage.homePage?.aboutHeading}
+      text={homepage.homePage?.aboutText}
+    />
+  )}
 </BaseLayout>
