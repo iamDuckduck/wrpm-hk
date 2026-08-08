@@ -1,11 +1,15 @@
 ---
+import {getLocaleCopy, type Locale} from '../lib/localization'
+
 interface Props {
   heading: string | null
+  locale: Locale
   text: string | null
 }
 
-const {heading, text} = Astro.props
-const aboutHeading = heading?.trim() || '關於我們'
+const {heading, locale, text} = Astro.props
+const copy = getLocaleCopy(locale)
+const aboutHeading = heading?.trim() || copy.about
 const aboutText = text?.trim() || ''
 ---
 
@@ -14,7 +18,7 @@ const aboutText = text?.trim() || ''
     <div class="about-section__decor" aria-hidden="true"></div>
 
     <div class="about-section__content">
-      <p class="about-section__eyebrow">ABOUT US</p>
+      <p class="about-section__eyebrow">{copy.about}</p>
       <h2 id="about-heading">{aboutHeading}</h2>
       {aboutText && <p class="about-section__text">{aboutText}</p>}
     </div>

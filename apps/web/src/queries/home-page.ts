@@ -4,7 +4,14 @@ export const HOME_PAGE_QUERY = defineQuery(/* groq */ `
   {
     "siteSettings": *[_id == "siteSettings"][0] {
       _id,
-      "organizationName": organizationName.zhHk,
+      "organizationName": coalesce(
+        select(
+          $locale == "en" => organizationName.en,
+          $locale == "ja" => organizationName.ja,
+          organizationName.zhHk
+        ),
+        organizationName.zhHk
+      ),
       logo {
         asset,
         alt,
@@ -22,11 +29,39 @@ export const HOME_PAGE_QUERY = defineQuery(/* groq */ `
           crop,
           hotspot
         },
-        "title": title.zhHk,
-        "description": description.zhHk
+        "title": coalesce(
+          select(
+            $locale == "en" => title.en,
+            $locale == "ja" => title.ja,
+            title.zhHk
+          ),
+          title.zhHk
+        ),
+        "description": coalesce(
+          select(
+            $locale == "en" => description.en,
+            $locale == "ja" => description.ja,
+            description.zhHk
+          ),
+          description.zhHk
+        )
       },
-      "aboutHeading": aboutHeading.zhHk,
-      "aboutText": aboutText.zhHk
+      "aboutHeading": coalesce(
+        select(
+          $locale == "en" => aboutHeading.en,
+          $locale == "ja" => aboutHeading.ja,
+          aboutHeading.zhHk
+        ),
+        aboutHeading.zhHk
+      ),
+      "aboutText": coalesce(
+        select(
+          $locale == "en" => aboutText.en,
+          $locale == "ja" => aboutText.ja,
+          aboutText.zhHk
+        ),
+        aboutText.zhHk
+      )
     }
   }
 `)

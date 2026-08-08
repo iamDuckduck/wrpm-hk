@@ -3,13 +3,16 @@ import {
   buildSanityImageSrcSet,
   buildSanityImageUrl,
 } from '../lib/sanity-image'
+import {getLocaleCopy, type Locale} from '../lib/localization'
 import type {HeroSlide} from '../queries/home-page'
 
 interface Props {
+  locale: Locale
   slides: HeroSlide[]
 }
 
-const {slides} = Astro.props
+const {locale, slides} = Astro.props
+const copy = getLocaleCopy(locale)
 const imageWidths = [640, 960, 1280, 1600]
 
 function slideTitle(slide: HeroSlide) {
@@ -24,14 +27,14 @@ function slideDescription(slide: HeroSlide) {
 <section
   class="hero-carousel container"
   data-hero-carousel
-  aria-label="首頁主視覺"
+  aria-label={copy.heroLabel}
   tabindex="0"
 >
   {slides.length === 0 ? (
     <div class="hero-carousel__empty" role="status">
-      <p class="hero-carousel__eyebrow">WRPM / HOME</p>
-      <h1>首頁內容準備中</h1>
-      <p>請稍後回來查看最新內容。</p>
+      <p class="hero-carousel__eyebrow">{copy.emptyEyebrow}</p>
+      <h1>{copy.emptyTitle}</h1>
+      <p>{copy.emptyDescription}</p>
     </div>
   ) : (
     <div class="hero-carousel__viewport" data-carousel-viewport>
@@ -74,23 +77,23 @@ function slideDescription(slide: HeroSlide) {
       })}
 
       {slides.length > 1 && (
-        <div class="hero-carousel__controls" aria-label="主視覺控制">
+        <div class="hero-carousel__controls" aria-label={copy.heroControls}>
           <button
             class="hero-carousel__arrow"
             type="button"
             data-carousel-prev
-            aria-label="上一張主視覺"
+            aria-label={copy.previousSlide}
           >
             <span aria-hidden="true">←</span>
           </button>
 
-          <div class="hero-carousel__dots" aria-label="選擇主視覺">
+          <div class="hero-carousel__dots" aria-label={copy.heroControls}>
             {slides.map((_, index) => (
               <button
                 class="hero-carousel__dot"
                 type="button"
                 data-carousel-dot={index}
-                aria-label={`顯示第 ${index + 1} 張主視覺`}
+                aria-label={copy.selectSlide(index)}
                 aria-current={index === 0 ? 'true' : undefined}
               >
                 <span class="hero-carousel__dash" aria-hidden="true"></span>
@@ -102,7 +105,7 @@ function slideDescription(slide: HeroSlide) {
             class="hero-carousel__arrow"
             type="button"
             data-carousel-next
-            aria-label="下一張主視覺"
+            aria-label={copy.nextSlide}
           >
             <span aria-hidden="true">→</span>
           </button>
@@ -112,8 +115,13 @@ function slideDescription(slide: HeroSlide) {
   )}
 
   {slides.length > 0 && (
-    <p class="hero-carousel__status" data-carousel-status aria-live="polite">
-      第 1 張，共 {slides.length} 張：{slideTitle(slides[0])}
+    <p
+      class="hero-carousel__status"
+      data-carousel-status
+      data-carousel-status-template={copy.slideStatusTemplate}
+      aria-live="polite"
+    >
+      {copy.slideStatus(0, slides.length, slideTitle(slides[0]))}
     </p>
   )}
 </section>
@@ -131,6 +139,7 @@ function slideDescription(slide: HeroSlide) {
     const previous = carousel.querySelector<HTMLButtonElement>('[data-carousel-prev]')
     const next = carousel.querySelector<HTMLButtonElement>('[data-carousel-next]')
     const status = carousel.querySelector<HTMLElement>('[data-carousel-status]')
+    const statusTemplate = status?.dataset.carouselStatusTemplate
     const viewport = carousel.querySelector<HTMLElement>('[data-carousel-viewport]')
 
     if (slides.length === 0) {
@@ -158,7 +167,11 @@ function slideDescription(slide: HeroSlide) {
       })
 
       if (status) {
-        status.textContent = `第 ${activeIndex + 1} 張，共 ${slides.length} 張：${slides[activeIndex].dataset.title || 'WRPM'}`
+        const title = slides[activeIndex].dataset.title || 'WRPM'
+        status.textContent = statusTemplate
+          ?.replace('__INDEX__', String(activeIndex + 1))
+          .replace('__TOTAL__', String(slides.length))
+          .replace('__TITLE__', title) || title
       }
     }
 

@@ -1,0 +1,42 @@
+---
+import AboutSection from './AboutSection.astro'
+import HeroCarousel from './HeroCarousel.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import {sanityClient} from '../lib/sanity'
+import {
+  getLocaleCopy,
+  getSanityLocaleKey,
+  type Locale,
+} from '../lib/localization'
+import {
+  HOME_PAGE_QUERY,
+  type HomePageQueryResult,
+} from '../queries/home-page'
+
+interface Props {
+  locale: Locale
+}
+
+const {locale} = Astro.props
+const copy = getLocaleCopy(locale)
+const homepage = await sanityClient.fetch<HomePageQueryResult>(
+  HOME_PAGE_QUERY,
+  {locale: getSanityLocaleKey(locale)},
+)
+const heroSlides = homepage.homePage?.heroSlides ?? []
+---
+
+<BaseLayout
+  title={copy.pageTitle}
+  locale={locale}
+  siteSettings={homepage.siteSettings}
+>
+  <HeroCarousel slides={heroSlides} locale={locale} />
+  {(homepage.homePage?.aboutHeading?.trim() || homepage.homePage?.aboutText?.trim()) && (
+    <AboutSection
+      heading={homepage.homePage?.aboutHeading}
+      locale={locale}
+      text={homepage.homePage?.aboutText}
+    />
+  )}
+</BaseLayout>

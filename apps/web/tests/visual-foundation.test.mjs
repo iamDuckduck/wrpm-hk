@@ -17,6 +17,10 @@ const homepageSource = readFileSync(
   new URL('../src/pages/index.astro', import.meta.url),
   'utf8',
 )
+const homepageComponentSource = readFileSync(
+  new URL('../src/components/HomePage.astro', import.meta.url),
+  'utf8',
+)
 
 describe('WRPM visual foundation', () => {
   it('keeps the approved dark sports-broadcast color tokens', () => {
@@ -103,10 +107,11 @@ describe('WRPM visual foundation', () => {
   })
 
   it('renders the CMS-backed About section on the homepage', () => {
-    expect(homepageSource).toContain("import AboutSection from '../components/AboutSection.astro'")
-    expect(homepageSource).toContain('<AboutSection')
-    expect(homepageSource).toContain('heading={homepage.homePage?.aboutHeading}')
-    expect(homepageSource).toContain('text={homepage.homePage?.aboutText}')
+    expect(homepageSource).toContain('<HomePage locale="zh-HK" />')
+    expect(homepageComponentSource).toContain("import AboutSection from './AboutSection.astro'")
+    expect(homepageComponentSource).toContain('<AboutSection')
+    expect(homepageComponentSource).toContain('heading={homepage.homePage?.aboutHeading}')
+    expect(homepageComponentSource).toContain('text={homepage.homePage?.aboutText}')
   })
 
   it('uses the approved About section layout and responsive typography', () => {

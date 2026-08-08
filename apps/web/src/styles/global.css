@@ -152,6 +152,28 @@ a {
   object-fit: contain;
 }
 
+.language-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.125rem;
+  margin-left: auto;
+}
+
+.language-switcher__link {
+  padding: 0.375rem 0.25rem;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.language-switcher__link:hover,
+.language-switcher__link--current {
+  color: var(--color-primary);
+}
+
 .mobile-navigation {
   position: relative;
 }

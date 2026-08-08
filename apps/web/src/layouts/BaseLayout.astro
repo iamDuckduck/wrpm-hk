@@ -1,27 +1,30 @@
 ---
 import Footer from '../components/Footer.astro'
 import Navbar from '../components/Navbar.astro'
+import {getLocaleCopy, type Locale} from '../lib/localization'
 import {resolveSiteBranding} from '../lib/site-branding'
 import type {SiteSettings} from '../queries/home-page'
 import '../styles/global.css'
 
 interface Props {
   title: string
+  locale: Locale
   siteSettings: SiteSettings | null
 }
 
-const {title, siteSettings} = Astro.props
+const {title, locale, siteSettings} = Astro.props
 const branding = resolveSiteBranding(siteSettings)
+const copy = getLocaleCopy(locale)
 const pageTitle = `${title} | ${branding.organizationName}`
 ---
 
 <!doctype html>
-<html lang="zh-HK">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={`${branding.organizationName} 官方網站`} />
+    <meta name="description" content={copy.pageDescription} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -33,13 +36,13 @@ const pageTitle = `${title} | ${branding.organizationName}`
     <title>{pageTitle}</title>
   </head>
   <body>
-    <a class="skip-link" href="#main-content">跳至主要內容</a>
+    <a class="skip-link" href="#main-content">{copy.skipLink}</a>
     <div class="site-shell">
-      <Navbar branding={branding} />
+      <Navbar branding={branding} locale={locale} />
       <main id="main-content">
         <slot />
       </main>
-      <Footer branding={branding} />
+      <Footer branding={branding} locale={locale} />
     </div>
   </body>
 </html>

@@ -1,32 +1,48 @@
 ---
 import type {SiteBranding} from '../lib/site-branding'
+import {
+  getLocaleCopy,
+  getLocalePath,
+  SUPPORTED_LOCALES,
+  type Locale,
+} from '../lib/localization'
 
 interface Props {
   branding: SiteBranding
+  locale: Locale
 }
 
-const {branding} = Astro.props
+const {branding, locale} = Astro.props
+const copy = getLocaleCopy(locale)
+
+function localeShortName(supportedLocale: Locale) {
+  return supportedLocale === 'zh-HK' ? '繁中' : supportedLocale.toUpperCase()
+}
 ---
 
 <header class="site-header">
   <div class="site-header__inner container">
     <details class="mobile-navigation">
-      <summary aria-label="導覽選單">
+      <summary aria-label={copy.home}>
         <span class="menu-icon" aria-hidden="true">
           <span></span>
           <span></span>
           <span></span>
         </span>
       </summary>
-      <nav class="mobile-navigation__panel" aria-label="行動版導覽">
-        <a class="mobile-navigation__link" href="/" aria-current="page">
-          <span>首頁</span>
+      <nav class="mobile-navigation__panel" aria-label={copy.home}>
+        <a class="mobile-navigation__link" href={getLocalePath(locale)} aria-current="page">
+          <span>{copy.home}</span>
           <span aria-hidden="true">01</span>
         </a>
       </nav>
     </details>
 
-    <a class="site-brand" href="/" aria-label={`${branding.organizationName} 首頁`}>
+    <a
+      class="site-brand"
+      href={getLocalePath(locale)}
+      aria-label={`${branding.organizationName} ${copy.home}`}
+    >
       {branding.logoUrl && (
         <img
           class="site-brand__logo"
@@ -37,6 +53,20 @@ const {branding} = Astro.props
       )}
       <span>{branding.organizationName}</span>
     </a>
+
+    <nav class="language-switcher" aria-label={copy.languageSwitcher}>
+      {SUPPORTED_LOCALES.map((supportedLocale) => (
+        <a
+          class="language-switcher__link"
+          class:language-switcher__link--current={supportedLocale === locale}
+          href={getLocalePath(supportedLocale)}
+          aria-label={copy.localeNames[supportedLocale]}
+          aria-current={supportedLocale === locale ? 'page' : undefined}
+        >
+          {localeShortName(supportedLocale)}
+        </a>
+      ))}
+    </nav>
 
   </div>
 </header>
