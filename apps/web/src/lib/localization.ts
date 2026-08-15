@@ -11,6 +11,8 @@ export interface LocaleCopy {
   skipLink: string
   home: string
   about: string
+  navigation: string
+  league: string
   members: string
   memberListTitle: string
   memberListDescription: string
@@ -43,6 +45,8 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     skipLink: '跳至主要內容',
     home: '首頁',
     about: '關於我們',
+    navigation: '網站導覽',
+    league: '聯賽',
     members: '成員',
     memberListTitle: 'WRPM 成員',
     memberListDescription: '認識 WRPM 香港分部的成員。',
@@ -78,6 +82,8 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     skipLink: 'Skip to main content',
     home: 'Home',
     about: 'About Us',
+    navigation: 'Site navigation',
+    league: 'League',
     members: 'Members',
     memberListTitle: 'WRPM Members',
     memberListDescription: 'Meet the members of WRPM Hong Kong Branch.',
@@ -113,6 +119,8 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     skipLink: 'メインコンテンツへスキップ',
     home: 'ホーム',
     about: '私たちについて',
+    navigation: 'サイトナビゲーション',
+    league: 'リーグ',
     members: 'メンバー',
     memberListTitle: 'WRPM メンバー',
     memberListDescription: 'WRPM 香港支部のメンバーをご紹介します。',

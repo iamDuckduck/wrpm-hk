@@ -2,6 +2,7 @@
 import type {SiteBranding} from '../lib/site-branding'
 import {
   getLocaleCopy,
+  getLocalizedPath,
   getLocalePath,
   SUPPORTED_LOCALES,
   type Locale,
@@ -24,17 +25,25 @@ function localeShortName(supportedLocale: Locale) {
 <header class="site-header">
   <div class="site-header__inner container">
     <details class="mobile-navigation">
-      <summary aria-label={copy.home}>
+      <summary aria-label={copy.navigation}>
         <span class="menu-icon" aria-hidden="true">
           <span></span>
           <span></span>
           <span></span>
         </span>
       </summary>
-      <nav class="mobile-navigation__panel" aria-label={copy.home}>
+      <nav class="mobile-navigation__panel" aria-label={copy.navigation}>
         <a class="mobile-navigation__link" href={getLocalePath(locale)} aria-current="page">
           <span>{copy.home}</span>
           <span aria-hidden="true">01</span>
+        </a>
+        <a class="mobile-navigation__link" href={getLocalizedPath(locale, '/members')}>
+          <span>{copy.members}</span>
+          <span aria-hidden="true">02</span>
+        </a>
+        <a class="mobile-navigation__link" href={getLocalizedPath(locale, '/league')}>
+          <span>{copy.league}</span>
+          <span aria-hidden="true">03</span>
         </a>
       </nav>
     </details>
