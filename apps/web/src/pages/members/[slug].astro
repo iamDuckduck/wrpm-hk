@@ -1,0 +1,18 @@
+---
+import MemberDetailPage from '../../components/MemberDetailPage.astro'
+import {sanityClient} from '../../lib/sanity'
+import {MEMBER_SLUGS_QUERY, type MemberSlug} from '../../queries/members'
+
+export async function getStaticPaths() {
+  const members = await sanityClient.fetch<MemberSlug[]>(MEMBER_SLUGS_QUERY)
+
+  return members.map(({slug}) => ({
+    params: {slug},
+    props: {slug},
+  }))
+}
+
+const {slug} = Astro.props as {slug: string}
+---
+
+<MemberDetailPage locale="zh-HK" slug={slug} />
