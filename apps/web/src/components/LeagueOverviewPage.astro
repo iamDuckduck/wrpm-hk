@@ -1,0 +1,256 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import {
+  getLocalizedPath,
+  getLocaleCopy,
+  getSanityLocaleKey,
+  type Locale,
+} from '../lib/localization'
+import {calculateLeagueStandings} from '../lib/league-ranking'
+import {sanityClient} from '../lib/sanity'
+import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
+import {CURRENT_LEAGUE_QUERY, type CurrentLeague} from '../queries/league'
+
+interface Props {
+  locale: Locale
+}
+
+const {locale} = Astro.props
+const copy = getLocaleCopy(locale)
+const localeKey = getSanityLocaleKey(locale)
+
+const [homepage, currentLeague] = await Promise.all([
+  sanityClient.fetch<HomePageQueryResult>(HOME_PAGE_QUERY, {locale: localeKey}),
+  sanityClient.fetch<CurrentLeague | null>(CURRENT_LEAGUE_QUERY, {locale: localeKey}),
+])
+
+const standings = currentLeague
+  ? calculateLeagueStandings(
+      (currentLeague.participants ?? []).map((participant) => ({
+        ...participant,
+        name: participant.name || copy.memberUnknown,
+      })),
+      (currentLeague.matches ?? []).map((match) => ({
+        id: match._id,
+        results: match.results ?? [],
+      })),
+    )
+  : []
+const hasRankedStandings = standings.some((standing) => standing.rank !== null)
+const pageTitle = currentLeague?.title?.trim() || copy.leagueOverview
+---
+
+<BaseLayout title={pageTitle} locale={locale} siteSettings={homepage.siteSettings}>
+  <section class="league-overview-page container" aria-labelledby="league-overview-title">
+    <header class="league-overview-page__header">
+      <p class="league-overview-page__eyebrow">{copy.league}</p>
+      <h1 id="league-overview-title">{pageTitle}</h1>
+      {currentLeague?.intro?.trim() && (
+        <p class="league-overview-page__intro">{currentLeague.intro}</p>
+      )}
+    </header>
+
+    {currentLeague ? (
+      <article class="league-overview">
+        {currentLeague.description?.trim() && (
+          <section class="league-overview__description" aria-labelledby="league-description-title">
+            <p class="league-overview__label">{copy.leagueOverview}</p>
+            <h2 id="league-description-title">{copy.leagueOverview}</h2>
+            <p>{currentLeague.description}</p>
+          </section>
+        )}
+
+        <section class="league-overview__ranking" aria-labelledby="league-ranking-title">
+          <div class="league-overview__section-heading">
+            <p class="league-overview__label">{copy.league}</p>
+            <h2 id="league-ranking-title">{copy.leagueRanking}</h2>
+          </div>
+
+          {hasRankedStandings ? (
+            <div class="league-overview__table-wrap">
+              <table>
+                <caption>{copy.leagueRanking}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">{copy.members}</th>
+                    <th scope="col">{copy.leagueScore}</th>
+                    <th scope="col">{copy.leagueMatchesPlayed}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {standings.map((standing) => (
+                    <tr>
+                      <td class="league-overview__rank">{standing.rank ?? '—'}</td>
+                      <th scope="row">
+                        <a href={getLocalizedPath(locale, `/members/${standing.slug}`)}>
+                          {standing.name || copy.memberUnknown}
+                        </a>
+                      </th>
+                      <td>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</td>
+                      <td>{standing.matchesPlayed > 0 ? standing.matchesPlayed : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p class="league-overview__empty">{copy.leagueNoRankings}</p>
+          )}
+        </section>
+      </article>
+    ) : (
+      <p class="league-overview__empty" role="status">{copy.leagueNotFound}</p>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .league-overview-page {
+    padding-block: 4rem 6rem;
+  }
+
+  .league-overview-page__header {
+    max-width: 48rem;
+    margin-bottom: 3rem;
+  }
+
+  .league-overview-page__eyebrow,
+  .league-overview__label {
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .league-overview-page h1 {
+    margin: 0.75rem 0 0;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 7vw, 5rem);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .league-overview-page__intro {
+    max-width: 36rem;
+    margin: 1.5rem 0 0;
+    border-left: 4px solid var(--color-primary);
+    padding-left: 1rem;
+    color: var(--color-on-surface-variant);
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  .league-overview {
+    display: grid;
+    gap: 1px;
+    background: var(--color-outline);
+  }
+
+  .league-overview__description,
+  .league-overview__ranking {
+    padding: 2rem 1.5rem;
+    background: var(--color-surface-container);
+  }
+
+  .league-overview__description h2,
+  .league-overview__ranking h2 {
+    margin: 0.5rem 0 0;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .league-overview__description > p:last-child {
+    max-width: 50rem;
+    margin: 1rem 0 0;
+    color: var(--color-on-surface-variant);
+    line-height: 1.7;
+    white-space: pre-line;
+  }
+
+  .league-overview__section-heading {
+    margin-bottom: 1.5rem;
+  }
+
+  .league-overview__table-wrap {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 36rem;
+  }
+
+  caption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  th,
+  td {
+    padding: 1rem 0.75rem;
+    border-bottom: 1px solid var(--color-outline);
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    text-align: left;
+  }
+
+  thead th {
+    color: var(--color-primary);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  tbody th {
+    font-weight: 700;
+  }
+
+  tbody th a {
+    color: var(--color-on-background);
+    text-decoration: none;
+  }
+
+  tbody th a:hover {
+    color: var(--color-primary);
+  }
+
+  .league-overview__rank {
+    width: 3rem;
+    color: var(--color-on-background);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .league-overview__empty {
+    margin: 0;
+    border-left: 3px solid var(--color-primary);
+    padding: 1.25rem 1.5rem;
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-lowest);
+  }
+
+  @media (min-width: 48rem) {
+    .league-overview-page {
+      padding-block: 5rem 8rem;
+    }
+
+    .league-overview__description,
+    .league-overview__ranking {
+      padding: 3rem clamp(2rem, 5vw, 5rem);
+    }
+  }
+</style>

@@ -13,6 +13,12 @@ export interface LocaleCopy {
   about: string
   navigation: string
   league: string
+  leagueOverview: string
+  leagueRanking: string
+  leagueScore: string
+  leagueMatchesPlayed: string
+  leagueNotFound: string
+  leagueNoRankings: string
   members: string
   memberListTitle: string
   memberListDescription: string
@@ -47,6 +53,12 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     about: '關於我們',
     navigation: '網站導覽',
     league: '聯賽',
+    leagueOverview: '聯賽概覽',
+    leagueRanking: '排名',
+    leagueScore: '總分',
+    leagueMatchesPlayed: '完成場數',
+    leagueNotFound: '目前沒有進行中的聯賽。',
+    leagueNoRankings: '完成賽事後，排名將會顯示在這裡。',
     members: '成員',
     memberListTitle: 'WRPM 成員',
     memberListDescription: '認識 WRPM 香港分部的成員。',
@@ -84,6 +96,12 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     about: 'About Us',
     navigation: 'Site navigation',
     league: 'League',
+    leagueOverview: 'League Overview',
+    leagueRanking: 'Ranking',
+    leagueScore: 'Total score',
+    leagueMatchesPlayed: 'Matches played',
+    leagueNotFound: 'There is no ongoing league at the moment.',
+    leagueNoRankings: 'Rankings will appear here after completed matches.',
     members: 'Members',
     memberListTitle: 'WRPM Members',
     memberListDescription: 'Meet the members of WRPM Hong Kong Branch.',
@@ -121,6 +139,12 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     about: '私たちについて',
     navigation: 'サイトナビゲーション',
     league: 'リーグ',
+    leagueOverview: 'リーグ概要',
+    leagueRanking: 'ランキング',
+    leagueScore: '合計スコア',
+    leagueMatchesPlayed: '対戦数',
+    leagueNotFound: '現在開催中のリーグはありません。',
+    leagueNoRankings: '試合が完了するとランキングが表示されます。',
     members: 'メンバー',
     memberListTitle: 'WRPM メンバー',
     memberListDescription: 'WRPM 香港支部のメンバーをご紹介します。',
