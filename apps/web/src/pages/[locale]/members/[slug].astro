@@ -1,0 +1,21 @@
+---
+import MemberDetailPage from '../../../components/MemberDetailPage.astro'
+import {PUBLIC_LOCALES, type Locale} from '../../../lib/localization'
+import {sanityClient} from '../../../lib/sanity'
+import {MEMBER_SLUGS_QUERY, type MemberSlug} from '../../../queries/members'
+
+export async function getStaticPaths() {
+  const members = await sanityClient.fetch<MemberSlug[]>(MEMBER_SLUGS_QUERY)
+
+  return PUBLIC_LOCALES.flatMap((locale) =>
+    members.map(({slug}) => ({
+      params: {locale, slug},
+      props: {locale, slug},
+    })),
+  )
+}
+
+const {locale, slug} = Astro.props as {locale: Locale; slug: string}
+---
+
+<MemberDetailPage locale={locale} slug={slug} />

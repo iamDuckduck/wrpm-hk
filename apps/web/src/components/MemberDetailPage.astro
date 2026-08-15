@@ -1,0 +1,288 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import {
+  getLocalizedPath,
+  getLocaleCopy,
+  getSanityLocaleKey,
+  type Locale,
+} from '../lib/localization'
+import {buildSanityImageSrcSet, buildSanityImageUrl} from '../lib/sanity-image'
+import {sanityClient} from '../lib/sanity'
+import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
+import {MEMBER_BY_SLUG_QUERY, type MemberDetail} from '../queries/members'
+
+interface Props {
+  locale: Locale
+  slug: string
+}
+
+const {locale, slug} = Astro.props
+const copy = getLocaleCopy(locale)
+const queryParams = {locale: getSanityLocaleKey(locale), slug}
+
+const [homepage, member] = await Promise.all([
+  sanityClient.fetch<HomePageQueryResult>(HOME_PAGE_QUERY, {
+    locale: getSanityLocaleKey(locale),
+  }),
+  sanityClient.fetch<MemberDetail | null>(MEMBER_BY_SLUG_QUERY, queryParams),
+])
+
+const name = member?.name?.trim() || copy.memberUnknown
+const imageUrl = buildSanityImageUrl(member?.profileImage, {width: 960})
+const imageSrcSet = buildSanityImageSrcSet(member?.profileImage, [480, 720, 960])
+---
+
+<BaseLayout title={name} locale={locale} siteSettings={homepage.siteSettings}>
+  <section class="member-detail-page container" aria-labelledby="member-detail-title">
+    <a class="member-detail-page__back" href={getLocalizedPath(locale, '/members')}>
+      <span aria-hidden="true">←</span>
+      {copy.backToMembers}
+    </a>
+
+    {member ? (
+      <article class="member-detail">
+        <header class="member-detail__header">
+          <div class="member-detail__image-frame">
+            {imageUrl ? (
+              <img
+                src={imageUrl}
+                srcset={imageSrcSet || undefined}
+                sizes="(min-width: 64rem) 36rem, 100vw"
+                alt={member.profileImage?.alt || name}
+                width="960"
+                height="960"
+              />
+            ) : (
+              <span class="member-detail__placeholder" aria-hidden="true">{name.slice(0, 1)}</span>
+            )}
+          </div>
+
+          <div class="member-detail__heading">
+            <p class="member-detail__eyebrow">{copy.members}</p>
+            <h1 id="member-detail-title">{name}</h1>
+            {member.intro?.trim() && <p class="member-detail__intro">{member.intro}</p>}
+          </div>
+        </header>
+
+        <div class="member-detail__body">
+          {member.biography?.trim() && (
+            <section class="member-detail__section" aria-labelledby="member-biography-title">
+              <p class="member-detail__label">{copy.memberBiography}</p>
+              <h2 id="member-biography-title">{name}</h2>
+              <p class="member-detail__text">{member.biography}</p>
+            </section>
+          )}
+
+          {member.mediaLinks && member.mediaLinks.length > 0 && (
+            <section class="member-detail__section" aria-labelledby="member-links-title">
+              <p class="member-detail__label">{copy.memberLinks}</p>
+              <h2 id="member-links-title">{copy.memberLinks}</h2>
+              <ul class="member-detail__links">
+                {member.mediaLinks.map((link) => (
+                  <li>
+                    <a href={link.url} target="_blank" rel="noreferrer">
+                      <span>{link.label}</span>
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </div>
+      </article>
+    ) : (
+      <div class="member-detail__empty" role="status">
+        <p class="member-detail__eyebrow">{copy.members}</p>
+        <h1 id="member-detail-title">{copy.memberNotFound}</h1>
+        <a class="member-detail__back" href={getLocalizedPath(locale, '/members')}>
+          {copy.backToMembers}
+        </a>
+      </div>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .member-detail-page {
+    padding-block: 3rem 6rem;
+  }
+
+  .member-detail-page__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .member-detail-page__back:hover {
+    color: var(--color-primary);
+  }
+
+  .member-detail {
+    margin-top: 2rem;
+    border-top: 2px solid var(--color-primary);
+    background: var(--color-surface-container);
+  }
+
+  .member-detail__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .member-detail__image-frame {
+    width: min(100%, 32rem);
+    margin-inline: auto;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--color-surface-lowest);
+  }
+
+  .member-detail__image-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .member-detail__placeholder {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    font-size: clamp(6rem, 20vw, 12rem);
+    font-weight: 800;
+    place-items: center;
+  }
+
+  .member-detail__heading {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 2rem 1.5rem 3rem;
+    text-align: center;
+  }
+
+  .member-detail__eyebrow,
+  .member-detail__label {
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .member-detail__heading h1 {
+    max-width: 12ch;
+    margin: 0.75rem 0 0;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .member-detail__intro {
+    max-width: 32rem;
+    margin: 1.5rem 0 0;
+    border-top: 4px solid var(--color-primary);
+    padding-top: 1rem;
+    color: var(--color-on-surface-variant);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .member-detail__body {
+    display: grid;
+    gap: 1px;
+    background: var(--color-outline);
+  }
+
+  .member-detail__section {
+    padding: 2rem 1.5rem;
+    background: var(--color-surface-container);
+  }
+
+  .member-detail__section h2 {
+    margin: 0.5rem 0 0;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    line-height: 1.2;
+  }
+
+  .member-detail__text {
+    max-width: 48rem;
+    margin: 1rem 0 0;
+    color: var(--color-on-surface-variant);
+    font-size: 1rem;
+    line-height: 1.7;
+    white-space: pre-line;
+  }
+
+  .member-detail__links {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .member-detail__links a {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-outline);
+    color: var(--color-on-background);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .member-detail__links a:hover {
+    color: var(--color-primary);
+  }
+
+  .member-detail__empty {
+    margin-top: 2rem;
+    border-left: 3px solid var(--color-primary);
+    padding: 2rem 1.5rem;
+    background: var(--color-surface-container);
+  }
+
+  .member-detail__empty h1 {
+    margin: 0.75rem 0 2rem;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 6vw, 4rem);
+    line-height: 1.05;
+  }
+
+  @media (min-width: 48rem) {
+    .member-detail-page {
+      padding-block: 4rem 8rem;
+    }
+
+    .member-detail__heading {
+      padding: 2.5rem clamp(2rem, 5vw, 5rem) 4rem;
+    }
+
+    .member-detail__section {
+      padding: 3rem clamp(2rem, 5vw, 5rem);
+    }
+  }
+
+</style>
