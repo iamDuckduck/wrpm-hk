@@ -1,0 +1,223 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import {getLocalizedPath, getLocaleCopy, getSanityLocaleKey, type Locale} from '../lib/localization'
+import {buildSanityImageSrcSet, buildSanityImageUrl} from '../lib/sanity-image'
+import {sanityClient} from '../lib/sanity'
+import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
+import {MEMBER_LIST_QUERY, type MemberListItem} from '../queries/members'
+
+interface Props {
+  locale: Locale
+}
+
+const {locale} = Astro.props
+const copy = getLocaleCopy(locale)
+const queryParams = {locale: getSanityLocaleKey(locale)}
+
+const [homepage, members] = await Promise.all([
+  sanityClient.fetch<HomePageQueryResult>(HOME_PAGE_QUERY, queryParams),
+  sanityClient.fetch<MemberListItem[]>(MEMBER_LIST_QUERY, queryParams),
+])
+
+function getMemberPath(slug: string) {
+  return getLocalizedPath(locale, `/members/${slug}`)
+}
+---
+
+<BaseLayout
+  title={copy.members}
+  locale={locale}
+  siteSettings={homepage.siteSettings}
+>
+  <section class="member-list-page container" aria-labelledby="member-list-title">
+    <header class="member-list-page__header">
+      <p class="member-list-page__eyebrow">{copy.members}</p>
+      <h1 id="member-list-title">{copy.memberListTitle}</h1>
+      <p class="member-list-page__description">{copy.memberListDescription}</p>
+    </header>
+
+    {members.length > 0 ? (
+      <ul class="member-list-page__grid">
+        {members.map((member) => {
+          const name = member.name?.trim() || copy.memberUnknown
+          const imageUrl = buildSanityImageUrl(member.profileImage, {width: 640})
+          const imageSrcSet = buildSanityImageSrcSet(member.profileImage, [320, 480, 640])
+
+          return (
+            <li class="member-card">
+              <a class="member-card__link" href={getMemberPath(member.slug)} aria-label={copy.viewMember(name)}>
+                <div class="member-card__image-frame">
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      srcset={imageSrcSet || undefined}
+                      sizes="(min-width: 64rem) 20rem, (min-width: 48rem) 30vw, 100vw"
+                      alt={member.profileImage?.alt || name}
+                      loading="lazy"
+                      width="640"
+                      height="640"
+                    />
+                  ) : (
+                    <span class="member-card__placeholder" aria-hidden="true">{name.slice(0, 1)}</span>
+                  )}
+                </div>
+                <div class="member-card__body">
+                  <h2>{name}</h2>
+                  {member.intro?.trim() && <p>{member.intro}</p>}
+                  <span class="member-card__arrow" aria-hidden="true">↗</span>
+                </div>
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    ) : (
+      <p class="member-list-page__empty">{copy.memberListEmpty}</p>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .member-list-page {
+    padding-block: 4rem 6rem;
+  }
+
+  .member-list-page__header {
+    max-width: 42rem;
+    margin-bottom: 3rem;
+  }
+
+  .member-list-page__eyebrow {
+    margin: 0 0 1rem;
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .member-list-page h1 {
+    margin: 0;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+
+  .member-list-page__description {
+    max-width: 34rem;
+    margin: 1.5rem 0 0;
+    color: var(--color-on-surface-variant);
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .member-list-page__grid {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    list-style: none;
+  }
+
+  .member-card {
+    min-width: 0;
+    border: 1px solid var(--color-outline);
+    background: var(--color-surface-container);
+  }
+
+  .member-card__link {
+    display: grid;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .member-card__image-frame {
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--color-surface-lowest);
+  }
+
+  .member-card__image-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 180ms ease;
+  }
+
+  .member-card__placeholder {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    font-size: 5rem;
+    font-weight: 800;
+    place-items: center;
+  }
+
+  .member-card__body {
+    position: relative;
+    min-height: 9rem;
+    padding: 1.25rem;
+  }
+
+  .member-card__body h2 {
+    margin: 0;
+    padding-right: 2rem;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+
+  .member-card__body p {
+    margin: 0.75rem 0 0;
+    color: var(--color-on-surface-variant);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .member-card__arrow {
+    position: absolute;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 1.25rem;
+  }
+
+  .member-card__link:hover .member-card__image-frame img,
+  .member-card__link:focus-visible .member-card__image-frame img {
+    transform: scale(1.04);
+  }
+
+  .member-list-page__empty {
+    margin: 0;
+    border-left: 3px solid var(--color-primary);
+    padding: 1.25rem 1.5rem;
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-container);
+  }
+
+  @media (min-width: 40rem) {
+    .member-list-page__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .member-list-page {
+      padding-block: 5rem 8rem;
+    }
+
+    .member-list-page__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+  }
+</style>
