@@ -82,9 +82,16 @@ describe('WRPM visual foundation', () => {
     )
   })
 
-  it('keeps the hamburger navigation available on desktop with no inline links', () => {
-    expect(styles).not.toMatch(
-      /@media\s*\(min-width:\s*48rem\)[\s\S]*?\.mobile-navigation\s*\{[\s\S]*?display:\s*none/s,
+  it('uses compact mobile navigation while preserving the desktop controls', () => {
+    expect(styles).toMatch(/\.mobile-navigation\s*{[^}]*display:\s*none/s)
+    expect(styles).toMatch(
+      /@media\s*\(min-width:\s*48rem\)[\s\S]*?\.mobile-navigation\s*{[^}]*display:\s*block/s,
+    )
+    expect(styles).toMatch(
+      /@media\s*\(min-width:\s*48rem\)[\s\S]*?\.mobile-language-switcher\s*{[^}]*display:\s*none/s,
+    )
+    expect(styles).toMatch(
+      /@media\s*\(min-width:\s*48rem\)[\s\S]*?\.language-switcher\s*{[^}]*display:\s*flex/s,
     )
     expect(styles).not.toMatch(
       /@media\s*\(min-width:\s*48rem\)[\s\S]*?\.desktop-navigation\s*\{[\s\S]*?display:\s*flex/s,

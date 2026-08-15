@@ -14,6 +14,7 @@ interface Props {
 
 const {branding, locale} = Astro.props
 const copy = getLocaleCopy(locale)
+const hasLogo = Boolean(branding.logoUrl)
 
 function localeShortName(supportedLocale: Locale) {
   return supportedLocale === 'zh-HK' ? '繁中' : supportedLocale.toUpperCase()
@@ -40,6 +41,7 @@ function localeShortName(supportedLocale: Locale) {
 
     <a
       class="site-brand"
+      class:site-brand--has-logo={hasLogo}
       href={getLocalePath(locale)}
       aria-label={`${branding.organizationName} ${copy.home}`}
     >
@@ -53,6 +55,24 @@ function localeShortName(supportedLocale: Locale) {
       )}
       <span>{branding.organizationName}</span>
     </a>
+
+    <details class="mobile-language-switcher">
+      <summary aria-label={`${copy.languageSwitcher}: ${copy.localeNames[locale]}`}>
+        <span>{localeShortName(locale)}</span>
+        <span aria-hidden="true">⌄</span>
+      </summary>
+      <nav class="mobile-language-switcher__panel" aria-label={copy.languageSwitcher}>
+        {SUPPORTED_LOCALES.map((supportedLocale) => (
+          <a
+            class="mobile-language-switcher__link"
+            href={getLocalePath(supportedLocale)}
+            aria-current={supportedLocale === locale ? 'page' : undefined}
+          >
+            {copy.localeNames[supportedLocale]}
+          </a>
+        ))}
+      </nav>
+    </details>
 
     <nav class="language-switcher" aria-label={copy.languageSwitcher}>
       {SUPPORTED_LOCALES.map((supportedLocale) => (

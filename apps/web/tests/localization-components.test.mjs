@@ -14,6 +14,15 @@ describe('localized homepage chrome', () => {
     expect(source).toContain('aria-current')
   })
 
+  it('uses native mobile language details with localized routes', () => {
+    const source = readComponent('Navbar.astro')
+
+    expect(source).toContain('mobile-language-switcher')
+    expect(source).toContain('copy.localeNames[supportedLocale]')
+    expect(source).toContain('class:site-brand--has-logo={hasLogo}')
+    expect(source).toContain('getLocalePath(supportedLocale)')
+  })
+
   it('uses locale copy for hero labels and carousel status', () => {
     const source = readComponent('HeroCarousel.astro')
 
