@@ -11,6 +11,16 @@ export interface LocaleCopy {
   skipLink: string
   home: string
   about: string
+  members: string
+  memberListTitle: string
+  memberListDescription: string
+  memberListEmpty: string
+  memberUnknown: string
+  viewMember: (name: string) => string
+  memberBiography: string
+  memberLinks: string
+  memberNotFound: string
+  backToMembers: string
   languageSwitcher: string
   localeNames: Record<Locale, string>
   heroLabel: string
@@ -33,6 +43,16 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     skipLink: '跳至主要內容',
     home: '首頁',
     about: '關於我們',
+    members: '成員',
+    memberListTitle: 'WRPM 成員',
+    memberListDescription: '認識 WRPM 香港分部的成員。',
+    memberListEmpty: '成員資料準備中。',
+    memberUnknown: 'WRPM 成員',
+    viewMember: (name) => `查看 ${name} 的成員資料`,
+    memberBiography: '成員簡介',
+    memberLinks: '相關連結',
+    memberNotFound: '找不到這位成員。',
+    backToMembers: '返回成員列表',
     languageSwitcher: '選擇語言',
     localeNames: {
       'zh-HK': '繁體中文',
@@ -58,6 +78,16 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     skipLink: 'Skip to main content',
     home: 'Home',
     about: 'About Us',
+    members: 'Members',
+    memberListTitle: 'WRPM Members',
+    memberListDescription: 'Meet the members of WRPM Hong Kong Branch.',
+    memberListEmpty: 'Member profiles are being prepared.',
+    memberUnknown: 'WRPM Member',
+    viewMember: (name) => `View ${name}'s member profile`,
+    memberBiography: 'Biography',
+    memberLinks: 'Links',
+    memberNotFound: 'This member could not be found.',
+    backToMembers: 'Back to members',
     languageSwitcher: 'Choose language',
     localeNames: {
       'zh-HK': 'Traditional Chinese',
@@ -83,6 +113,16 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     skipLink: 'メインコンテンツへスキップ',
     home: 'ホーム',
     about: '私たちについて',
+    members: 'メンバー',
+    memberListTitle: 'WRPM メンバー',
+    memberListDescription: 'WRPM 香港支部のメンバーをご紹介します。',
+    memberListEmpty: 'メンバー情報を準備中です。',
+    memberUnknown: 'WRPM メンバー',
+    viewMember: (name) => `${name}のプロフィールを見る`,
+    memberBiography: 'プロフィール',
+    memberLinks: '関連リンク',
+    memberNotFound: 'このメンバーは見つかりませんでした。',
+    backToMembers: 'メンバー一覧へ戻る',
     languageSwitcher: '言語を選択',
     localeNames: {
       'zh-HK': '繁体字中国語',
@@ -110,6 +150,13 @@ export function getSanityLocaleKey(locale: Locale): SanityLocaleKey {
 
 export function getLocalePath(locale: Locale): string {
   return locale === DEFAULT_LOCALE ? '/' : `/${locale}`
+}
+
+export function getLocalizedPath(locale: Locale, pathname: string): string {
+  const normalizedPath = pathname.startsWith('/') ? pathname : `/${pathname}`
+  const localePath = getLocalePath(locale)
+
+  return localePath === '/' ? normalizedPath : `${localePath}${normalizedPath}`
 }
 
 export function getLocaleCopy(locale: Locale): LocaleCopy {
