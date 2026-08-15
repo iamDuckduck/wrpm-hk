@@ -145,6 +145,10 @@ a {
   white-space: nowrap;
 }
 
+.site-brand--has-logo > span {
+  display: none;
+}
+
 .site-brand__logo {
   width: auto;
   max-width: 5rem;
@@ -153,7 +157,7 @@ a {
 }
 
 .language-switcher {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.125rem;
   margin-left: auto;
@@ -175,6 +179,7 @@ a {
 }
 
 .mobile-navigation {
+  display: none;
   position: relative;
 }
 
@@ -251,6 +256,67 @@ a {
   font-size: 0.75rem;
 }
 
+.mobile-language-switcher {
+  position: relative;
+  margin-left: auto;
+}
+
+.mobile-language-switcher summary {
+  display: flex;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  color: var(--color-on-surface-variant);
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 700;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+.mobile-language-switcher summary::-webkit-details-marker {
+  display: none;
+}
+
+.mobile-language-switcher[open] summary,
+.mobile-language-switcher summary:hover {
+  color: var(--color-primary);
+}
+
+.mobile-language-switcher__panel {
+  position: absolute;
+  z-index: 1;
+  top: calc(100% + 0.875rem);
+  right: 0;
+  width: min(14rem, calc(100vw - 2rem));
+  overflow: hidden;
+  border: 1px solid var(--color-outline);
+  border-top: 3px solid var(--color-primary);
+  background: var(--color-surface-container);
+  box-shadow: 0 1.25rem 3rem rgb(0 0 0 / 45%);
+}
+
+.mobile-language-switcher__link {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding-inline: var(--space-3);
+  color: var(--color-on-background);
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mobile-language-switcher__link:hover,
+.mobile-language-switcher__link[aria-current='page'] {
+  color: var(--color-primary);
+  background: var(--color-surface-high);
+}
+
 .site-footer {
   border-top: 1px solid var(--color-surface-highest);
   background: var(--color-surface-lowest);
@@ -294,6 +360,22 @@ a {
   .site-brand__logo {
     max-width: 7rem;
     height: 3rem;
+  }
+
+  .site-brand--has-logo > span {
+    display: inline;
+  }
+
+  .mobile-navigation {
+    display: block;
+  }
+
+  .mobile-language-switcher {
+    display: none;
+  }
+
+  .language-switcher {
+    display: flex;
   }
 
   .site-footer__inner {
