@@ -23,6 +23,16 @@ describe('localized homepage chrome', () => {
     expect(source).toContain('getLocalePath(supportedLocale)')
   })
 
+  it('restores localized Home, Members, and League drawer links', () => {
+    const source = readComponent('Navbar.astro')
+
+    expect(source).toContain('aria-label={copy.navigation}')
+    expect(source).toContain("getLocalizedPath(locale, '/members')")
+    expect(source).toContain("getLocalizedPath(locale, '/league')")
+    expect(source).toContain('{copy.members}')
+    expect(source).toContain('{copy.league}')
+  })
+
   it('uses locale copy for hero labels and carousel status', () => {
     const source = readComponent('HeroCarousel.astro')
 
