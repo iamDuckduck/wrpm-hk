@@ -17,6 +17,9 @@ export interface LocaleCopy {
   leagueRanking: string
   leagueScore: string
   leagueMatchesPlayed: string
+  leagueSeasons: string
+  leagueSeasonSelector: string
+  leagueSeasonCurrent: string
   leagueNotFound: string
   leagueNoRankings: string
   members: string
@@ -57,6 +60,9 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     leagueRanking: '排名',
     leagueScore: '總分',
     leagueMatchesPlayed: '完成場數',
+    leagueSeasons: '聯賽賽季',
+    leagueSeasonSelector: '選擇聯賽賽季',
+    leagueSeasonCurrent: '目前賽季',
     leagueNotFound: '目前沒有進行中的聯賽。',
     leagueNoRankings: '完成賽事後，排名將會顯示在這裡。',
     members: '成員',
@@ -100,6 +106,9 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     leagueRanking: 'Ranking',
     leagueScore: 'Total score',
     leagueMatchesPlayed: 'Matches played',
+    leagueSeasons: 'League seasons',
+    leagueSeasonSelector: 'Choose a league season',
+    leagueSeasonCurrent: 'Current season',
     leagueNotFound: 'There is no ongoing league at the moment.',
     leagueNoRankings: 'Rankings will appear here after completed matches.',
     members: 'Members',
@@ -143,6 +152,9 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     leagueRanking: 'ランキング',
     leagueScore: '合計スコア',
     leagueMatchesPlayed: '対戦数',
+    leagueSeasons: 'リーグシーズン',
+    leagueSeasonSelector: 'リーグシーズンを選択',
+    leagueSeasonCurrent: '現在のシーズン',
     leagueNotFound: '現在開催中のリーグはありません。',
     leagueNoRankings: '試合が完了するとランキングが表示されます。',
     members: 'メンバー',
