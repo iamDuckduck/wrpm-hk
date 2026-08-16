@@ -16,10 +16,10 @@ export const match = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'league',
-      title: 'League',
+      name: 'season',
+      title: 'League Season',
       type: 'reference',
-      to: [{type: 'league'}],
+      to: [{type: 'leagueSeason'}],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
