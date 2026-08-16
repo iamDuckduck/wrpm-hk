@@ -1,9 +1,37 @@
 import {defineQuery} from 'groq'
 
-export const CURRENT_LEAGUE_QUERY = defineQuery(/* groq */ `
-  *[_type == "league" && status == "ongoing"] | order(_createdAt desc)[0] {
-    _id,
+const localizedLeagueFields = `
     "title": coalesce(
+      select(
+        $locale == "en" => league->title.en,
+        $locale == "ja" => league->title.ja,
+        league->title.zhHk
+      ),
+      league->title.zhHk
+    ),
+    "slug": league->slug.current,
+    "intro": coalesce(
+      select(
+        $locale == "en" => league->intro.en,
+        $locale == "ja" => league->intro.ja,
+        league->intro.zhHk
+      ),
+      league->intro.zhHk
+    ),
+    "description": coalesce(
+      select(
+        $locale == "en" => league->description.en,
+        $locale == "ja" => league->description.ja,
+        league->description.zhHk
+      ),
+      league->description.zhHk
+    ),
+`
+
+const seasonProjection = `
+    _id,
+    "seasonId": _id,
+    "seasonTitle": coalesce(
       select(
         $locale == "en" => title.en,
         $locale == "ja" => title.ja,
@@ -11,23 +39,11 @@ export const CURRENT_LEAGUE_QUERY = defineQuery(/* groq */ `
       ),
       title.zhHk
     ),
-    "slug": slug.current,
-    "intro": coalesce(
-      select(
-        $locale == "en" => intro.en,
-        $locale == "ja" => intro.ja,
-        intro.zhHk
-      ),
-      intro.zhHk
-    ),
-    "description": coalesce(
-      select(
-        $locale == "en" => description.en,
-        $locale == "ja" => description.ja,
-        description.zhHk
-      ),
-      description.zhHk
-    ),
+    "seasonSlug": slug.current,
+    "seasonStatus": status,
+    "seasonStartsAt": startsAt,
+    "seasonEndsAt": endsAt,
+    ${localizedLeagueFields}
     status,
     "participants": participants[]-> {
       "memberId": _id,
@@ -41,7 +57,7 @@ export const CURRENT_LEAGUE_QUERY = defineQuery(/* groq */ `
       ),
       "slug": slug.current
     },
-    "matches": *[_type == "match" && league._ref == ^._id && status == "completed"] | order(round asc, scheduledAt asc) {
+    "matches": *[_type == "match" && season._ref == ^._id && status == "completed"] | order(round asc, scheduledAt asc) {
       _id,
       round,
       scheduledAt,
@@ -49,7 +65,53 @@ export const CURRENT_LEAGUE_QUERY = defineQuery(/* groq */ `
         "memberId": member->_id,
         score
       }
+    },
+    "seasons": *[_type == "leagueSeason" && league._ref == ^.league._ref] | order(startsAt desc, _createdAt desc) {
+      _id,
+      "title": coalesce(
+        select(
+          $locale == "en" => title.en,
+          $locale == "ja" => title.ja,
+          title.zhHk
+        ),
+        title.zhHk
+      ),
+      "slug": slug.current,
+      status,
+      startsAt,
+      endsAt
     }
+`
+
+export const CURRENT_LEAGUE_QUERY = defineQuery(/* groq */ `
+  *[_type == "leagueSeason"]
+    | order(select(status == "ongoing" => 1, 0) desc, startsAt desc, _createdAt desc)[0] {
+    ${seasonProjection}
+  }
+`)
+
+export const LEAGUE_SEASON_BY_SLUG_QUERY = defineQuery(/* groq */ `
+  *[_type == "leagueSeason" && slug.current == $seasonSlug][0] {
+    ${seasonProjection}
+  }
+`)
+
+export const LEAGUE_SEASON_SLUGS_QUERY = defineQuery(/* groq */ `
+  *[_type == "leagueSeason"] | order(startsAt desc, _createdAt desc) {
+    _id,
+    "title": coalesce(
+      select(
+        $locale == "en" => title.en,
+        $locale == "ja" => title.ja,
+        title.zhHk
+      ),
+      title.zhHk
+    ),
+    "slug": slug.current,
+    "leagueSlug": league->slug.current,
+    status,
+    startsAt,
+    endsAt
   }
 `)
 
@@ -69,13 +131,29 @@ export type LeagueMatch = {
   }> | null
 }
 
+export type LeagueSeasonSummary = {
+  _id: string
+  title: string | null
+  slug: string
+  status: 'upcoming' | 'ongoing' | 'completed'
+  startsAt: string
+  endsAt: string | null
+}
+
 export type CurrentLeague = {
   _id: string
   title: string | null
   slug: string
   intro: string | null
   description: string | null
-  status: 'ongoing'
+  status: 'upcoming' | 'ongoing' | 'completed'
+  seasonId: string
+  seasonTitle: string | null
+  seasonSlug: string
+  seasonStatus: 'upcoming' | 'ongoing' | 'completed'
+  seasonStartsAt: string
+  seasonEndsAt: string | null
   participants: LeagueParticipant[] | null
   matches: LeagueMatch[] | null
+  seasons: LeagueSeasonSummary[] | null
 }
