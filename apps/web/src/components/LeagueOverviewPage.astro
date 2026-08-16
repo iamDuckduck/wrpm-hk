@@ -9,19 +9,26 @@ import {
 import {calculateLeagueStandings} from '../lib/league-ranking'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
-import {CURRENT_LEAGUE_QUERY, type CurrentLeague} from '../queries/league'
+import {
+  CURRENT_LEAGUE_QUERY,
+  LEAGUE_SEASON_BY_SLUG_QUERY,
+  type CurrentLeague,
+} from '../queries/league'
 
 interface Props {
   locale: Locale
+  seasonSlug?: string
 }
 
-const {locale} = Astro.props
+const {locale, seasonSlug} = Astro.props
 const copy = getLocaleCopy(locale)
 const localeKey = getSanityLocaleKey(locale)
+const leagueQuery = seasonSlug ? LEAGUE_SEASON_BY_SLUG_QUERY : CURRENT_LEAGUE_QUERY
+const leagueQueryParams = seasonSlug ? {locale: localeKey, seasonSlug} : {locale: localeKey}
 
 const [homepage, currentLeague] = await Promise.all([
   sanityClient.fetch<HomePageQueryResult>(HOME_PAGE_QUERY, {locale: localeKey}),
-  sanityClient.fetch<CurrentLeague | null>(CURRENT_LEAGUE_QUERY, {locale: localeKey}),
+  sanityClient.fetch<CurrentLeague | null>(leagueQuery, leagueQueryParams),
 ])
 
 const standings = currentLeague
@@ -38,6 +45,8 @@ const standings = currentLeague
   : []
 const hasRankedStandings = standings.some((standing) => standing.rank !== null)
 const pageTitle = currentLeague?.title?.trim() || copy.leagueOverview
+const seasonTitle = currentLeague?.seasonTitle?.trim()
+const seasons = currentLeague?.seasons ?? []
 ---
 
 <BaseLayout title={pageTitle} locale={locale} siteSettings={homepage.siteSettings}>
@@ -45,60 +54,86 @@ const pageTitle = currentLeague?.title?.trim() || copy.leagueOverview
     <header class="league-overview-page__header">
       <p class="league-overview-page__eyebrow">{copy.league}</p>
       <h1 id="league-overview-title">{pageTitle}</h1>
+      {seasonTitle && <p class="league-overview-page__season">{seasonTitle}</p>}
       {currentLeague?.intro?.trim() && (
         <p class="league-overview-page__intro">{currentLeague.intro}</p>
       )}
     </header>
 
     {currentLeague ? (
-      <article class="league-overview">
-        {currentLeague.description?.trim() && (
-          <section class="league-overview__description" aria-labelledby="league-description-title">
-            <p class="league-overview__label">{copy.leagueOverview}</p>
-            <h2 id="league-description-title">{copy.leagueOverview}</h2>
-            <p>{currentLeague.description}</p>
-          </section>
-        )}
-
-        <section class="league-overview__ranking" aria-labelledby="league-ranking-title">
-          <div class="league-overview__section-heading">
-            <p class="league-overview__label">{copy.league}</p>
-            <h2 id="league-ranking-title">{copy.leagueRanking}</h2>
-          </div>
-
-          {hasRankedStandings ? (
-            <div class="league-overview__table-wrap">
-              <table>
-                <caption>{copy.leagueRanking}</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">{copy.members}</th>
-                    <th scope="col">{copy.leagueScore}</th>
-                    <th scope="col">{copy.leagueMatchesPlayed}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {standings.map((standing) => (
-                    <tr>
-                      <td class="league-overview__rank">{standing.rank ?? '—'}</td>
-                      <th scope="row">
-                        <a href={getLocalizedPath(locale, `/members/${standing.slug}`)}>
-                          {standing.name || copy.memberUnknown}
-                        </a>
-                      </th>
-                      <td>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</td>
-                      <td>{standing.matchesPlayed > 0 ? standing.matchesPlayed : '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p class="league-overview__empty">{copy.leagueNoRankings}</p>
+      <>
+        <article class="league-overview">
+          {currentLeague.description?.trim() && (
+            <section class="league-overview__description" aria-labelledby="league-description-title">
+              <p class="league-overview__label">{copy.leagueOverview}</p>
+              <h2 id="league-description-title">{copy.leagueOverview}</h2>
+              <p>{currentLeague.description}</p>
+            </section>
           )}
-        </section>
-      </article>
+
+          <section class="league-overview__ranking" aria-labelledby="league-ranking-title">
+            <div class="league-overview__section-heading">
+              <p class="league-overview__label">{copy.league}</p>
+              <h2 id="league-ranking-title">{copy.leagueRanking}</h2>
+            </div>
+
+            {hasRankedStandings ? (
+              <div class="league-overview__table-wrap">
+                <table>
+                  <caption>{copy.leagueRanking}</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">{copy.members}</th>
+                      <th scope="col">{copy.leagueScore}</th>
+                      <th scope="col">{copy.leagueMatchesPlayed}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {standings.map((standing) => (
+                      <tr>
+                        <td class="league-overview__rank">{standing.rank ?? '—'}</td>
+                        <th scope="row">
+                          <a href={getLocalizedPath(locale, `/members/${standing.slug}`)}>
+                            {standing.name || copy.memberUnknown}
+                          </a>
+                        </th>
+                        <td>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</td>
+                        <td>{standing.matchesPlayed > 0 ? standing.matchesPlayed : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p class="league-overview__empty">{copy.leagueNoRankings}</p>
+            )}
+          </section>
+        </article>
+
+        {seasons.length > 0 && (
+          <nav class="league-season-selector" aria-label={copy.leagueSeasonSelector}>
+            <p class="league-overview__label">{copy.leagueSeasons}</p>
+            <ul>
+              {seasons.map((season) => (
+                <li>
+                  <a
+                    href={getLocalizedPath(locale, `/league/${season.slug}`)}
+                    aria-current={season.slug === currentLeague.seasonSlug ? 'page' : undefined}
+                  >
+                    <span>{season.title || season.slug}</span>
+                    {season.slug === currentLeague.seasonSlug && (
+                      <span class="league-season-selector__current">
+                        {copy.leagueSeasonCurrent}
+                      </span>
+                    )}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </>
     ) : (
       <p class="league-overview__empty" role="status">{copy.leagueNotFound}</p>
     )}
@@ -143,6 +178,16 @@ const pageTitle = currentLeague?.title?.trim() || copy.leagueOverview
     color: var(--color-on-surface-variant);
     font-size: 1.125rem;
     line-height: 1.6;
+  }
+
+  .league-overview-page__season {
+    margin: 0.75rem 0 0;
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-label);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .league-overview {
@@ -243,13 +288,55 @@ const pageTitle = currentLeague?.title?.trim() || copy.leagueOverview
     background: var(--color-surface-lowest);
   }
 
+  .league-season-selector {
+    margin-top: 1px;
+    padding: 2rem 1.5rem;
+    background: var(--color-surface-container);
+  }
+
+  .league-season-selector ul {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .league-season-selector a {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--color-outline);
+    padding: 0.75rem 0;
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-label);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .league-season-selector a:hover,
+  .league-season-selector a[aria-current='page'] {
+    color: var(--color-primary);
+  }
+
+  .league-season-selector__current {
+    color: var(--color-primary);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
   @media (min-width: 48rem) {
     .league-overview-page {
       padding-block: 5rem 8rem;
     }
 
     .league-overview__description,
-    .league-overview__ranking {
+    .league-overview__ranking,
+    .league-season-selector {
       padding: 3rem clamp(2rem, 5vw, 5rem);
     }
   }
