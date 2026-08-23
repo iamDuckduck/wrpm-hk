@@ -27,10 +27,13 @@ describe('localized homepage chrome', () => {
     const source = readComponent('Navbar.astro')
 
     expect(source).toContain('aria-label={copy.navigation}')
+    expect(source).toContain('Astro.url.pathname')
+    expect(source).toContain('isCurrentRoute')
     expect(source).toContain("getLocalizedPath(locale, '/members')")
     expect(source).toContain("getLocalizedPath(locale, '/league')")
-    expect(source).toContain('{copy.members}')
-    expect(source).toContain('{copy.league}')
+    expect(source).toContain("aria-current={isCurrentRoute(getLocalePath(locale)) ? 'page' : undefined}")
+    expect(source).toContain("aria-current={isCurrentRoute(getLocalizedPath(locale, '/members'), true) ? 'page' : undefined}")
+    expect(source).toContain("aria-current={isCurrentRoute(getLocalizedPath(locale, '/league'), true) ? 'page' : undefined}")
   })
 
   it('uses locale copy for hero labels and carousel status', () => {

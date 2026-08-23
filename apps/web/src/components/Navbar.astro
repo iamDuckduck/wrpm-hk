@@ -16,6 +16,15 @@ interface Props {
 const {branding, locale} = Astro.props
 const copy = getLocaleCopy(locale)
 const hasLogo = Boolean(branding.logoUrl)
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/'
+
+function isCurrentRoute(path: string, includeChildren = false) {
+  const normalizedPath = path.replace(/\/+$/, '') || '/'
+
+  return includeChildren
+    ? currentPath === normalizedPath || currentPath.startsWith(`${normalizedPath}/`)
+    : currentPath === normalizedPath
+}
 
 function localeShortName(supportedLocale: Locale) {
   return supportedLocale === 'zh-HK' ? '繁中' : supportedLocale.toUpperCase()
@@ -33,15 +42,27 @@ function localeShortName(supportedLocale: Locale) {
         </span>
       </summary>
       <nav class="mobile-navigation__panel" aria-label={copy.navigation}>
-        <a class="mobile-navigation__link" href={getLocalePath(locale)} aria-current="page">
+        <a
+          class="mobile-navigation__link"
+          href={getLocalePath(locale)}
+          aria-current={isCurrentRoute(getLocalePath(locale)) ? 'page' : undefined}
+        >
           <span>{copy.home}</span>
           <span aria-hidden="true">01</span>
         </a>
-        <a class="mobile-navigation__link" href={getLocalizedPath(locale, '/members')}>
+        <a
+          class="mobile-navigation__link"
+          href={getLocalizedPath(locale, '/members')}
+          aria-current={isCurrentRoute(getLocalizedPath(locale, '/members'), true) ? 'page' : undefined}
+        >
           <span>{copy.members}</span>
           <span aria-hidden="true">02</span>
         </a>
-        <a class="mobile-navigation__link" href={getLocalizedPath(locale, '/league')}>
+        <a
+          class="mobile-navigation__link"
+          href={getLocalizedPath(locale, '/league')}
+          aria-current={isCurrentRoute(getLocalizedPath(locale, '/league'), true) ? 'page' : undefined}
+        >
           <span>{copy.league}</span>
           <span aria-hidden="true">03</span>
         </a>
