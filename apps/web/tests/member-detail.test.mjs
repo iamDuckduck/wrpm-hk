@@ -27,14 +27,14 @@ describe('localized member detail', () => {
     expect(source).toContain('copy.backToMembers')
   })
 
-  it('keeps the profile image and member information centered in a vertical header', () => {
+  it('keeps the profile image centered and aligns identity information left below it', () => {
     const source = readSource('components/MemberDetailPage.astro')
 
     expect(source).toMatch(
       /\.member-detail__header\s*\{[\s\S]*?display:\s*flex[\s\S]*?align-items:\s*center/s,
     )
     expect(source).toMatch(
-      /\.member-detail__heading\s*\{[\s\S]*?align-items:\s*center[\s\S]*?text-align:\s*center/s,
+      /\.member-detail__heading\s*\{[\s\S]*?align-items:\s*flex-start[\s\S]*?text-align:\s*left/s,
     )
   })
 })
