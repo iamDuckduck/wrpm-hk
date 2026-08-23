@@ -1,4 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
+import {firstPreviewText, formatPreviewDate, joinPreviewParts} from '../utils/preview'
 
 export const leagueSeason = defineType({
   name: 'leagueSeason',
@@ -59,4 +60,24 @@ export const leagueSeason = defineType({
       validation: (Rule) => Rule.required().min(1).unique(),
     }),
   ],
+  preview: {
+    select: {
+      titleZhHk: 'title.zhHk',
+      titleEn: 'title.en',
+      slug: 'slug.current',
+      leagueTitleZhHk: 'league.title.zhHk',
+      leagueTitleEn: 'league.title.en',
+      status: 'status',
+      startsAt: 'startsAt',
+    },
+    prepare({titleZhHk, titleEn, slug, leagueTitleZhHk, leagueTitleEn, status, startsAt}) {
+      const seasonTitle = firstPreviewText(titleZhHk, titleEn, slug) ?? 'Untitled season'
+      const leagueTitle = firstPreviewText(leagueTitleZhHk, leagueTitleEn)
+
+      return {
+        title: seasonTitle,
+        subtitle: joinPreviewParts(leagueTitle, status, formatPreviewDate(startsAt)),
+      }
+    },
+  },
 })

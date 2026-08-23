@@ -1,4 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
+import {firstPreviewText, formatPreviewDate, joinPreviewParts} from '../utils/preview'
 
 type MatchResultDraft = {
   member?: {_ref?: string}
@@ -74,4 +75,22 @@ export const match = defineType({
         }),
     }),
   ],
+  preview: {
+    select: {
+      seasonTitleZhHk: 'season.title.zhHk',
+      seasonTitleEn: 'season.title.en',
+      round: 'round',
+      status: 'status',
+      scheduledAt: 'scheduledAt',
+    },
+    prepare({seasonTitleZhHk, seasonTitleEn, round, status, scheduledAt}) {
+      const seasonTitle = firstPreviewText(seasonTitleZhHk, seasonTitleEn)
+      const roundLabel = typeof round === 'number' ? `Round ${round}` : undefined
+
+      return {
+        title: joinPreviewParts(seasonTitle, roundLabel) || 'Untitled match',
+        subtitle: joinPreviewParts(status, formatPreviewDate(scheduledAt)),
+      }
+    },
+  },
 })
