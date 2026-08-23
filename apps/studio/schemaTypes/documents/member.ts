@@ -1,4 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
+import {firstPreviewText} from '../utils/preview'
 
 export const member = defineType({
   name: 'member',
@@ -70,4 +71,18 @@ export const member = defineType({
       validation: (Rule) => Rule.required(),
     }),
   ],
+  preview: {
+    select: {
+      nameZhHk: 'name.zhHk',
+      nameEn: 'name.en',
+      slug: 'slug.current',
+      status: 'status',
+    },
+    prepare({nameZhHk, nameEn, slug, status}) {
+      return {
+        title: firstPreviewText(nameZhHk, nameEn, slug) ?? 'Untitled member',
+        subtitle: firstPreviewText(status) ?? 'No status',
+      }
+    },
+  },
 })
