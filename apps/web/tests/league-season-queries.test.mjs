@@ -18,6 +18,13 @@ describe('league season queries', () => {
     expect(CURRENT_LEAGUE_QUERY).toContain('status == "completed"')
   })
 
+  it('includes participant image metadata for season result presentation', () => {
+    expect(CURRENT_LEAGUE_QUERY).toContain('"participants": participants[]->')
+    expect(CURRENT_LEAGUE_QUERY).toContain('profileImage {')
+    expect(CURRENT_LEAGUE_QUERY).toContain('asset')
+    expect(CURRENT_LEAGUE_QUERY).toContain('alt')
+  })
+
   it('supports a specific season slug and returns season choices', () => {
     expect(LEAGUE_SEASON_BY_SLUG_QUERY).toContain('$seasonSlug')
     expect(LEAGUE_SEASON_BY_SLUG_QUERY).toContain('season._ref == ^._id')

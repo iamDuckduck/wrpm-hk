@@ -55,7 +55,13 @@ const seasonProjection = `
         ),
         name.zhHk
       ),
-      "slug": slug.current
+      "slug": slug.current,
+      profileImage {
+        asset,
+        alt,
+        crop,
+        hotspot
+      }
     },
     "matches": *[_type == "match" && season._ref == ^._id && status == "completed"] | order(round asc, scheduledAt asc) {
       _id,
@@ -119,6 +125,24 @@ export type LeagueParticipant = {
   memberId: string
   name: string | null
   slug: string
+  profileImage: {
+    asset: {_ref: string; _type: 'reference'} | null
+    alt: string | null
+    crop: {
+      _type: 'sanity.imageCrop'
+      top: number
+      bottom: number
+      left: number
+      right: number
+    } | null
+    hotspot: {
+      _type: 'sanity.imageHotspot'
+      x: number
+      y: number
+      height: number
+      width: number
+    } | null
+  } | null
 }
 
 export type LeagueMatch = {
