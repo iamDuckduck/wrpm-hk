@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WRPM Flow Wireframe v3</title>
+    <style>
+      :root {
+        --canvas: #f7f7f7;
+        --paper: #ffffff;
+        --ink: #111111;
+        --text: #2f2f2f;
+        --muted: #686868;
+        --line: #9a9a9a;
+        --soft-line: #d3d3d3;
+        --fill: #eeeeee;
+        --fill-2: #e2e2e2;
+        --max: 1180px;
+      }
+      html[data-theme="dark"] {
+        --canvas: #171717;
+        --paper: #242424;
+        --ink: #f3f3f3;
+        --text: #e2e2e2;
+        --muted: #b6b6b6;
+        --line: #777777;
+        --soft-line: #5a5a5a;
+        --fill: #333333;
+        --fill-2: #424242;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--text);
+      }
+      a {
+        color: inherit;
+      }
+      a:focus-visible,
+      button:focus-visible {
+        outline: 3px solid var(--ink);
+        outline-offset: 3px;
+      }
+      .page {
+        width: min(calc(100% - 32px), var(--max));
+        margin: 0 auto;
+        padding: 28px 0 64px;
+      }
+      .top {
+        display: grid;
+        gap: 16px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 20px;
+      }
+      .top h1 {
+        margin: 0;
+        color: var(--ink);
+        font-size: clamp(28px, 5vw, 48px);
+        line-height: 1.05;
+      }
+      .top p {
+        max-width: 78ch;
+        margin: 0;
+        color: var(--text);
+        line-height: 1.55;
+      }
+      .jump {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .jump a {
+        min-height: 40px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 9px 12px;
+        color: var(--ink);
+        font-size: 14px;
+        text-decoration: none;
+      }
+      .jump a:hover {
+        background: var(--fill);
+      }
+      .theme-toggle {
+        min-height: 40px;
+        border: 1px solid var(--line);
+        background: var(--fill);
+        padding: 9px 12px;
+        color: var(--ink);
+        cursor: pointer;
+        font: inherit;
+        font-size: 14px;
+      }
+      .theme-toggle:hover {
+        background: var(--fill-2);
+      }
+      .section {
+        margin-top: 24px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+      }
+      .section__head {
+        display: flex;
+        min-height: 52px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+        padding: 12px 16px;
+      }
+      .section__head h2 {
+        margin: 0;
+        color: var(--ink);
+        font-size: 20px;
+      }
+      .route {
+        border: 1px solid var(--line);
+        background: var(--fill);
+        padding: 4px 8px;
+        color: var(--ink);
+        font-size: 13px;
+        white-space: nowrap;
+      }
+      .body {
+        padding: 16px;
+      }
+      .note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+        align-items: stretch;
+      }
+      .node {
+        display: grid;
+        min-height: 116px;
+        align-content: start;
+        gap: 8px;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+        padding: 12px;
+        text-decoration: none;
+      }
+      .node:hover {
+        background: var(--fill);
+      }
+      .node strong {
+        color: var(--ink);
+        font-size: 16px;
+      }
+      .node span {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+      .arrow {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .screen {
+        display: grid;
+        gap: 14px;
+      }
+      .frame-pair {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+      .device-frame {
+        display: grid;
+        gap: 8px;
+        min-height: 150px;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+        padding: 10px;
+      }
+      .device-frame--mobile {
+        max-width: 320px;
+      }
+      .device-label {
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .frame-block {
+        border: 1px solid var(--line);
+        background: var(--fill);
+        padding: 8px;
+        color: var(--text);
+        font-size: 12px;
+      }
+      .wire-header {
+        display: grid;
+        gap: 8px;
+        border: 1px solid var(--line);
+        background: var(--fill);
+        padding: 12px;
+      }
+      .wire-header .bar {
+        min-height: 24px;
+        height: auto;
+        max-width: 240px;
+        box-sizing: border-box;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 4px 8px;
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.25;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      .wire-title {
+        width: min(100%, 360px);
+        min-height: 44px;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+        padding: 10px;
+        color: var(--ink);
+        font-weight: 700;
+      }
+      .wire-copy {
+        min-height: 56px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 10px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+      .layout-2 {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 14px;
+      }
+      .layout-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .box {
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 12px;
+      }
+      .box--strong {
+        border: 2px solid var(--ink);
+      }
+      .label {
+        display: inline-block;
+        margin-bottom: 8px;
+        border: 1px solid var(--line);
+        background: var(--fill);
+        padding: 3px 6px;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .placeholder {
+        display: grid;
+        min-height: 120px;
+        border: 1px dashed var(--line);
+        background: var(--fill);
+        color: var(--muted);
+        font-size: 13px;
+        place-items: center;
+        text-align: center;
+      }
+      .avatar {
+        aspect-ratio: 1;
+        min-height: 130px;
+      }
+      .card {
+        display: grid;
+        gap: 10px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 10px;
+      }
+      .card a {
+        min-height: 38px;
+        border: 1px solid var(--line);
+        background: var(--fill);
+        padding: 8px;
+        color: var(--ink);
+        text-align: center;
+        text-decoration: none;
+      }
+      .card a:hover {
+        background: var(--fill-2);
+      }
+      .line {
+        height: 12px;
+        border: 1px solid var(--soft-line);
+        background: var(--fill);
+      }
+      .line.wide {
+        width: 100%;
+      }
+      .line.med {
+        width: 70%;
+      }
+      .line.short {
+        width: 42%;
+      }
+      .table {
+        display: grid;
+        border: 1px solid var(--line);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 64px 1fr 120px 120px;
+        min-height: 44px;
+        border-bottom: 1px solid var(--line);
+      }
+      .row:last-child {
+        border-bottom: 0;
+      }
+      .cell {
+        border-right: 1px solid var(--line);
+        padding: 10px;
+        color: var(--text);
+        font-size: 13px;
+      }
+      .cell:last-child {
+        border-right: 0;
+      }
+      .row--head .cell {
+        background: var(--fill);
+        color: var(--ink);
+        font-weight: 700;
+      }
+      .annotation-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .annotation-list li {
+        display: grid;
+        grid-template-columns: 32px 1fr;
+        gap: 10px;
+        align-items: start;
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+      .num {
+        display: grid;
+        width: 28px;
+        height: 28px;
+        border: 1px solid var(--ink);
+        background: var(--paper);
+        color: var(--ink);
+        font-weight: 700;
+        place-items: center;
+      }
+      .state-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .state {
+        min-height: 88px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 10px;
+      }
+      .state strong {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--ink);
+        font-size: 13px;
+      }
+      .state span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+      .member-detail-flow {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+      }
+      .member-detail-profile {
+        display: grid;
+        justify-items: center;
+      }
+      .member-detail-profile .avatar {
+        width: min(100%, 260px);
+      }
+      .member-detail-identity,
+      .member-detail-section {
+        width: 100%;
+        text-align: left;
+      }
+      .league-overview-stack {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+      }
+      .league-overview-stack > * {
+        width: 100%;
+      }
+      .season-results {
+        display: grid;
+        gap: 14px;
+      }
+      .season-rounds {
+        display: grid;
+        gap: 16px;
+      }
+      .season-round {
+        display: grid;
+        gap: 12px;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+        padding: 12px;
+      }
+      .season-round__head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 10px;
+      }
+      .season-round__meta {
+        display: grid;
+        gap: 4px;
+      }
+      .season-round__head h3 {
+        margin: 0;
+        color: var(--ink);
+        font-size: 18px;
+      }
+      .season-round__date {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .season-round__status,
+      .game-card__status {
+        border: 1px solid var(--line);
+        background: var(--fill);
+        padding: 4px 8px;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+      .season-round__games {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .game-card {
+        display: grid;
+        gap: 10px;
+        border: 1px solid var(--line);
+        background: var(--fill);
+        padding: 10px;
+      }
+      .game-card__head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        border-bottom: 1px solid var(--soft-line);
+        padding-bottom: 8px;
+      }
+      .game-card__label {
+        color: var(--ink);
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .member-result-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .member-result-tile {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 8px;
+        min-height: 70px;
+        align-items: center;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 8px;
+      }
+      .member-avatar {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        background: var(--fill-2);
+        color: var(--ink);
+        font-size: 11px;
+        font-weight: 700;
+        place-items: center;
+      }
+      .member-result-copy {
+        display: grid;
+        min-width: 0;
+        gap: 2px;
+      }
+      .member-result-name {
+        overflow-wrap: anywhere;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .member-result-score,
+      .member-result-place {
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.2;
+      }
+      @media (max-width: 920px) {
+        .page {
+          width: min(calc(100% - 24px), var(--max));
+          padding-top: 16px;
+        }
+        .section__head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .route {
+          white-space: normal;
+        }
+        .flow,
+        .layout-2,
+        .layout-3,
+        .state-grid {
+          grid-template-columns: 1fr;
+        }
+        .row {
+          grid-template-columns: 48px 1fr;
+        }
+        .row .cell:nth-child(3),
+        .row .cell:nth-child(4) {
+          border-top: 1px solid var(--line);
+        }
+        .frame-pair {
+          grid-template-columns: 1fr;
+        }
+        .season-round__games {
+          grid-template-columns: 1fr;
+        }
+        .device-frame--mobile {
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body data-wireframe-version="3">
+    <main class="page">
+      <header class="top" data-od-id="wireframe-v3-intro">
+        <h1>WRPM flow wireframe v3</h1>
+        <p>Pure low-fidelity IA wireframe for route flow, content hierarchy, and responsive structure. This file intentionally avoids brand styling, images, color, visual polish, and new product features.</p>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode">Dark mode</button>
+        <nav class="jump" aria-label="Wireframe sections">
+          <a href="#flow-map">Flow map</a>
+          <a href="#navigation">Navigation popup</a>
+          <a href="#member-list">Member list</a>
+          <a href="#member-detail">Member detail</a>
+          <a href="#league-overview">League overview</a>
+          <a href="#season-detail">Season route</a>
+          <a href="#states">States</a>
+        </nav>
+      </header>
+
+      <section class="section" id="flow-map" data-od-id="flow-map">
+        <header class="section__head">
+          <h2>1. Route flow map</h2>
+          <span class="route">Existing routes only</span>
+        </header>
+        <div class="body">
+          <div class="flow">
+            <a class="node" href="#navigation" data-od-id="node-home">
+              <strong>Home route</strong>
+              <span>Existing homepage — unchanged. Compact entry node only.</span>
+              <span class="arrow">/ -> nav popup</span>
+            </a>
+            <a class="node" href="#member-list" data-od-id="node-members">
+              <strong>Member list</strong>
+              <span>Active member cards from existing member list query.</span>
+              <span class="arrow">/members</span>
+            </a>
+            <a class="node" href="#member-detail" data-od-id="node-member-detail">
+              <strong>Member detail</strong>
+              <span>Profile, intro, biography, links, not-found fallback.</span>
+              <span class="arrow">/members/[slug]</span>
+            </a>
+            <a class="node" href="#league-overview" data-od-id="node-league">
+              <strong>League overview</strong>
+              <span>Current league, description, ranking, seasons.</span>
+              <span class="arrow">/league</span>
+            </a>
+            <a class="node" href="#season-detail" data-od-id="node-season">
+              <strong>Season route</strong>
+              <span>Season-specific league page with match result area.</span>
+              <span class="arrow">/league/[seasonSlug]</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="navigation" data-od-id="navigation-popup-wireframe">
+        <header class="section__head">
+          <h2>2. Shared navigation popup</h2>
+          <span class="route">Navbar.astro</span>
+        </header>
+        <div class="body layout-2">
+          <div class="screen">
+            <div class="frame-pair" aria-label="Navigation desktop and mobile frames">
+              <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Header row</div><div class="frame-block">Popup anchored to menu control: Home / Members / League</div></div>
+              <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Compact header row</div><div class="frame-block">Full-width popup: Home / Members / League</div></div>
+            </div>
+            <div class="wire-header">
+              <div class="bar">SHARED NAVIGATION — section label</div>
+              <div class="wire-title">Site brand / menu control / language</div>
+            </div>
+            <div class="box box--strong">
+              <span class="label">Popup panel</span>
+              <div class="card">
+                <a href="#flow-map">01 Home</a>
+                <a href="#member-list">02 Members</a>
+                <a href="#league-overview">03 League</a>
+              </div>
+            </div>
+            <p class="note">The production route set has Home, Members, and League in the shared nav. This wireframe does not add schedule or profile links to the global nav.</p>
+          </div>
+          <ul class="annotation-list">
+            <li><span class="num">1</span><span>Current code uses a details/summary menu pattern and localized path helpers.</span></li>
+            <li><span class="num">2</span><span><strong>Later code adjustment:</strong> highlight the navigation item for the page currently being viewed instead of always marking Home as active.</span></li>
+            <li><span class="num">3</span><span>Language switcher remains existing behavior unless localization routing is approved later.</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="member-list" data-od-id="member-list-wireframe">
+        <header class="section__head">
+          <h2>3. Member list</h2>
+          <span class="route">/members, /en/members, /ja/members</span>
+        </header>
+        <div class="body">
+          <div class="frame-pair" aria-label="Member list desktop and mobile frames">
+            <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Header and description</div><div class="frame-block">Three-column member card grid</div></div>
+            <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Stacked header</div><div class="frame-block">Single-column member cards</div></div>
+          </div>
+          <div class="screen">
+            <div class="wire-header">
+              <div class="bar">MEMBERS — section label</div>
+              <div class="wire-title">Page title: WRPM Members</div>
+              <div class="wire-copy">Description copy from locale file. Add breadcrumb/context before the header.</div>
+            </div>
+            <div class="layout-3">
+              <article class="card" data-od-id="member-card-a">
+                <div class="placeholder avatar">Profile image or initial fallback</div>
+                <div class="line med"></div>
+                <div class="line wide"></div>
+                <div class="line short"></div>
+                <a href="#member-detail">Open profile</a>
+              </article>
+              <article class="card" data-od-id="member-card-b">
+                <div class="placeholder avatar">Profile image or initial fallback</div>
+                <div class="line med"></div>
+                <div class="line wide"></div>
+                <div class="line short"></div>
+                <a href="#member-detail">Open profile</a>
+              </article>
+              <article class="card" data-od-id="member-card-c">
+                <div class="placeholder avatar">Profile image or initial fallback</div>
+                <div class="line med"></div>
+                <div class="line wide"></div>
+                <div class="line short"></div>
+                <a href="#member-detail">Open profile</a>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="member-detail" data-od-id="member-detail-wireframe">
+        <header class="section__head">
+          <h2>4. Member detail</h2>
+          <span class="route">/members/[slug]</span>
+        </header>
+        <div class="body">
+          <div class="frame-pair" aria-label="Member detail desktop and mobile frames">
+            <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Centered profile image</div><div class="frame-block">Identity stack aligned left on the next row</div><div class="frame-block">Biography — full-width row</div><div class="frame-block">Media links — full-width row</div></div>
+            <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Centered profile image</div><div class="frame-block">Identity stack aligned left on the next row</div><div class="frame-block">Biography — full-width row</div><div class="frame-block">Media links — full-width row</div></div>
+          </div>
+          <div class="screen">
+            <div class="wire-header">
+              <div class="bar">MEMBER DETAIL — section label</div>
+              <div class="wire-title">Back to members / member name</div>
+              <div class="wire-copy">Intro appears only if existing member intro has content.</div>
+            </div>
+            <div class="member-detail-flow" data-od-id="member-detail-vertical-flow">
+              <div class="member-detail-profile" data-od-id="member-detail-profile">
+                <div class="placeholder avatar">Profile image or initial fallback</div>
+              </div>
+              <div class="box member-detail-identity" data-od-id="member-detail-identity">
+                <span class="label">Identity stack</span>
+                <div class="line med"></div>
+                <div class="line wide"></div>
+                <div class="line wide"></div>
+                <div class="line short"></div>
+              </div>
+              <section class="box member-detail-section" data-od-id="member-detail-biography">
+                <span class="label">Biography section</span>
+                <div class="line wide"></div>
+                <div class="line wide"></div>
+                <div class="line med"></div>
+              </section>
+              <section class="box member-detail-section" data-od-id="member-detail-media">
+                <span class="label">Media links</span>
+                <div class="card">
+                  <a href="#member-detail">Existing media link</a>
+                  <a href="#member-detail">Existing media link</a>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="league-overview" data-od-id="league-overview-wireframe">
+        <header class="section__head">
+          <h2>5. League overview</h2>
+          <span class="route">/league</span>
+        </header>
+        <div class="body">
+          <div class="frame-pair" aria-label="League overview desktop and mobile frames">
+            <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">League heading / intro</div><div class="frame-block">League description — full-width row</div><div class="frame-block">Ranking summary — full-width row</div><div class="frame-block">Season links — full-width row</div></div>
+            <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">League heading / intro</div><div class="frame-block">League description — full-width row</div><div class="frame-block">Ranking summary — full-width row</div><div class="frame-block">Season links — full-width row</div></div>
+          </div>
+          <div class="screen">
+            <div class="wire-header">
+              <div class="bar">LEAGUE OVERVIEW — section label</div>
+              <div class="wire-title">League title / season title</div>
+              <div class="wire-copy">Intro appears from current league season query when present.</div>
+            </div>
+            <div class="league-overview-stack" data-od-id="league-overview-vertical-flow">
+              <section class="box">
+                <span class="label">League overview description</span>
+                <div class="line wide"></div>
+                <div class="line wide"></div>
+                <div class="line med"></div>
+              </section>
+              <section class="box">
+                <span class="label">Ranking summary</span>
+                <div class="table">
+                  <div class="row row--head"><div class="cell">#</div><div class="cell">Member</div><div class="cell">Score</div><div class="cell">Played</div></div>
+                  <div class="row"><div class="cell">1</div><div class="cell"><a href="#member-detail">Member link</a></div><div class="cell">--</div><div class="cell">--</div></div>
+                  <div class="row"><div class="cell">2</div><div class="cell"><a href="#member-detail">Member link</a></div><div class="cell">--</div><div class="cell">--</div></div>
+                </div>
+              </section>
+            </div>
+            <nav class="box" aria-label="Season selector">
+              <span class="label">Season selector</span>
+              <div class="card">
+                <a href="#season-detail">Current season slug</a>
+                <a href="#season-detail">Previous season slug</a>
+              </div>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="season-detail" data-od-id="season-route-wireframe">
+        <header class="section__head">
+          <h2>6. Season route / match result area</h2>
+          <span class="route">/league/[seasonSlug]</span>
+        </header>
+        <div class="body">
+          <div class="frame-pair" aria-label="Season detail desktop and mobile frames">
+            <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Season heading and context</div><div class="frame-block">Rounds with two game cards per row</div><div class="frame-block">Four member result tiles per game</div></div>
+            <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Season heading and context</div><div class="frame-block">Rounds in vertical order</div><div class="frame-block">One game card per row with four member tiles</div></div>
+          </div>
+          <div class="screen">
+            <div class="wire-header">
+              <div class="bar">SEASON DETAIL — section label</div>
+              <div class="wire-title">Same LeagueOverviewPage with selected season</div>
+              <div class="wire-copy">Use existing season title, league fields, participants, completed matches, and seasons list.</div>
+            </div>
+            <section class="box season-results" data-od-id="season-match-results">
+              <span class="label">Match results by round</span>
+              <p class="note"><strong>Later code/query adjustment:</strong> member profile icons need a query update because the current league participant/result data does not include <code>profileImage</code>. These circles are wireframe placeholders until that field is available.</p>
+              <div class="season-rounds">
+                <article class="season-round" data-od-id="season-round-01" aria-label="Round 01 — 2026-07-27 — completed">
+                  <header class="season-round__head">
+                    <div class="season-round__meta">
+                      <span class="label">Round 01</span>
+                      <h3>2026-07-27</h3>
+                    </div>
+                    <span class="season-round__status">Completed</span>
+                  </header>
+                  <div class="season-round__games" aria-label="Round 01 games">
+                    <article class="game-card" data-od-id="round-01-game-01">
+                      <header class="game-card__head"><span class="game-card__label">Game 01</span><span class="game-card__status">Result</span></header>
+                      <div class="member-result-grid">
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">A</span><div class="member-result-copy"><strong class="member-result-name">Member A</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 1st</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">B</span><div class="member-result-copy"><strong class="member-result-name">Member B</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 2nd</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">C</span><div class="member-result-copy"><strong class="member-result-name">Member C</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 3rd</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">D</span><div class="member-result-copy"><strong class="member-result-name">Member D</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 4th</span></div></div>
+                      </div>
+                    </article>
+                    <article class="game-card" data-od-id="round-01-game-02">
+                      <header class="game-card__head"><span class="game-card__label">Game 02</span><span class="game-card__status">Result</span></header>
+                      <div class="member-result-grid">
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">E</span><div class="member-result-copy"><strong class="member-result-name">Member E</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 1st</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">F</span><div class="member-result-copy"><strong class="member-result-name">Member F</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 2nd</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">G</span><div class="member-result-copy"><strong class="member-result-name">Member G</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 3rd</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">H</span><div class="member-result-copy"><strong class="member-result-name">Member H</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 4th</span></div></div>
+                      </div>
+                    </article>
+                  </div>
+                </article>
+                <article class="season-round" data-od-id="season-round-02" aria-label="Round 02 — 2026-08-03 — completed">
+                  <header class="season-round__head">
+                    <div class="season-round__meta">
+                      <span class="label">Round 02</span>
+                      <h3>2026-08-03</h3>
+                    </div>
+                    <span class="season-round__status">Completed</span>
+                  </header>
+                  <div class="season-round__games" aria-label="Round 02 games">
+                    <article class="game-card" data-od-id="round-02-game-01">
+                      <header class="game-card__head"><span class="game-card__label">Game 01</span><span class="game-card__status">Result</span></header>
+                      <div class="member-result-grid">
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">J</span><div class="member-result-copy"><strong class="member-result-name">Member J</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 1st</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">K</span><div class="member-result-copy"><strong class="member-result-name">Member K</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 2nd</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">L</span><div class="member-result-copy"><strong class="member-result-name">Member L</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 3rd</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">M</span><div class="member-result-copy"><strong class="member-result-name">Member M</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 4th</span></div></div>
+                      </div>
+                    </article>
+                    <article class="game-card" data-od-id="round-02-game-02">
+                      <header class="game-card__head"><span class="game-card__label">Game 02</span><span class="game-card__status">Result</span></header>
+                      <div class="member-result-grid">
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">N</span><div class="member-result-copy"><strong class="member-result-name">Member N</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 1st</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">P</span><div class="member-result-copy"><strong class="member-result-name">Member P</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 2nd</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">Q</span><div class="member-result-copy"><strong class="member-result-name">Member Q</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 3rd</span></div></div>
+                        <div class="member-result-tile"><span class="member-avatar" aria-hidden="true">R</span><div class="member-result-copy"><strong class="member-result-name">Member R</strong><span class="member-result-score">Score: --</span><span class="member-result-place">Place: 4th</span></div></div>
+                      </div>
+                    </article>
+                  </div>
+                </article>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="states" data-od-id="states-wireframe">
+        <header class="section__head">
+          <h2>7. Required states</h2>
+          <span class="route">Neutral state annotations</span>
+        </header>
+        <div class="body">
+          <div class="state-grid">
+            <div class="state"><strong>Loading</strong><span>Skeleton rows/cards in the final content footprint.</span></div>
+            <div class="state"><strong>Empty</strong><span>Single outlined message where content normally renders.</span></div>
+            <div class="state"><strong>Error</strong><span>Status block; retry control only if runtime supports retry.</span></div>
+            <div class="state"><strong>Image failure</strong><span>Use same initial fallback as missing profile image.</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script>
+      const themeRoot = document.documentElement;
+      const themeToggle = document.querySelector("#theme-toggle");
+
+      themeToggle.addEventListener("click", () => {
+        const isDark = themeRoot.dataset.theme === "dark";
+
+        if (isDark) {
+          themeRoot.removeAttribute("data-theme");
+        } else {
+          themeRoot.dataset.theme = "dark";
+        }
+
+        themeToggle.textContent = isDark ? "Dark mode" : "Light mode";
+        themeToggle.setAttribute("aria-pressed", String(!isDark));
+        themeToggle.setAttribute("aria-label", isDark ? "Switch to dark mode" : "Switch to light mode");
+      });
+    </script>
+  </body>
+</html>
