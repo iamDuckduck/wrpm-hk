@@ -17,6 +17,9 @@ export interface LocaleCopy {
   leagueRanking: string
   leagueScore: string
   leagueMatchesPlayed: string
+  leagueResults: string
+  leagueRound: (round: number) => string
+  leagueResultsEmpty: string
   leagueSeasons: string
   leagueSeasonSelector: string
   leagueSeasonCurrent: string
@@ -60,6 +63,9 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     leagueRanking: '排名',
     leagueScore: '總分',
     leagueMatchesPlayed: '完成場數',
+    leagueResults: '賽事結果',
+    leagueRound: (round) => `第 ${round} 輪`,
+    leagueResultsEmpty: '完成賽事後，結果將會顯示在這裡。',
     leagueSeasons: '聯賽賽季',
     leagueSeasonSelector: '選擇聯賽賽季',
     leagueSeasonCurrent: '目前賽季',
@@ -106,6 +112,9 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     leagueRanking: 'Ranking',
     leagueScore: 'Total score',
     leagueMatchesPlayed: 'Matches played',
+    leagueResults: 'Match results',
+    leagueRound: (round) => `Round ${round}`,
+    leagueResultsEmpty: 'Completed match results will appear here.',
     leagueSeasons: 'League seasons',
     leagueSeasonSelector: 'Choose a league season',
     leagueSeasonCurrent: 'Current season',
@@ -152,6 +161,9 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     leagueRanking: 'ランキング',
     leagueScore: '合計スコア',
     leagueMatchesPlayed: '対戦数',
+    leagueResults: '試合結果',
+    leagueRound: (round) => `第${round}ラウンド`,
+    leagueResultsEmpty: '試合が完了すると結果が表示されます。',
     leagueSeasons: 'リーグシーズン',
     leagueSeasonSelector: 'リーグシーズンを選択',
     leagueSeasonCurrent: '現在のシーズン',
