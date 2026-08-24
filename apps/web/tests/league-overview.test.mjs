@@ -14,7 +14,7 @@ describe('localized league overview', () => {
     )
   })
 
-  it('derives and renders standings without exposing a public schedule', () => {
+  it('derives standings without adding a separate public schedule page', () => {
     const source = readSource('components/LeagueOverviewPage.astro')
 
     expect(source).toContain('CURRENT_LEAGUE_QUERY')
@@ -22,6 +22,15 @@ describe('localized league overview', () => {
     expect(source).toContain('standing.rank')
     expect(source).toContain('copy.leagueRanking')
     expect(source).toContain('copy.leagueNoRankings')
-    expect(source).not.toContain('scheduledAt')
+    expect(source).not.toContain('LeagueSchedulePage')
+  })
+
+  it('renders completed match results inside the league overview', () => {
+    const source = readSource('components/LeagueOverviewPage.astro')
+
+    expect(source).toContain('league-overview__results')
+    expect(source).toContain('copy.leagueResults')
+    expect(source).toContain('currentLeague.matches')
+    expect(source).toContain('buildSanityImageUrl')
   })
 })
