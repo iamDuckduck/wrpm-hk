@@ -18,9 +18,9 @@ export const match = defineType({
     }),
     defineField({
       name: 'season',
-      title: 'League Season',
+      title: 'Competition Season',
       type: 'reference',
-      to: [{type: 'leagueSeason'}],
+      to: [{type: 'competitionSeason'}],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
