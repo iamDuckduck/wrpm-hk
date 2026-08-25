@@ -1,7 +1,7 @@
 import {homePage} from './documents/home-page'
 import {integrationTest} from './documents/integration-test'
-import {league} from './documents/league'
-import {leagueSeason} from './documents/league-season'
+import {competition} from './documents/competition'
+import {competitionSeason} from './documents/competition-season'
 import {match} from './documents/match'
 import {member} from './documents/member'
 import {memberCategory} from './documents/member-category'
@@ -22,8 +22,8 @@ export const schemaTypes = [
   homePage,
   memberCategory,
   member,
-  league,
-  leagueSeason,
+  competition,
+  competitionSeason,
   match,
   integrationTest,
 ]

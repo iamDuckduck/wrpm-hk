@@ -1,14 +1,21 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {firstPreviewText, joinPreviewParts} from '../utils/preview'
+import {firstPreviewText, formatPreviewDate, joinPreviewParts} from '../utils/preview'
 
-export const league = defineType({
-  name: 'league',
-  title: 'League',
+export const competitionSeason = defineType({
+  name: 'competitionSeason',
+  title: 'Competition Season',
   type: 'document',
   fields: [
     defineField({
+      name: 'competition',
+      title: 'Competition',
+      type: 'reference',
+      to: [{type: 'competition'}],
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'title',
-      title: 'Title',
+      title: 'Season Title',
       type: 'localizedString',
       validation: (Rule) => Rule.required(),
     }),
@@ -17,18 +24,6 @@ export const league = defineType({
       title: 'Slug',
       type: 'slug',
       options: {source: 'title.zhHk', maxLength: 96},
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'intro',
-      title: 'Introduction',
-      type: 'localizedText',
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'description',
-      title: 'Description',
-      type: 'localizedText',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -47,6 +42,17 @@ export const league = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'startsAt',
+      title: 'Starts At',
+      type: 'datetime',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'endsAt',
+      title: 'Ends At',
+      type: 'datetime',
+    }),
+    defineField({
       name: 'participants',
       title: 'Participants',
       type: 'array',
@@ -59,12 +65,26 @@ export const league = defineType({
       titleZhHk: 'title.zhHk',
       titleEn: 'title.en',
       slug: 'slug.current',
+      competitionTitleZhHk: 'competition.title.zhHk',
+      competitionTitleEn: 'competition.title.en',
       status: 'status',
+      startsAt: 'startsAt',
     },
-    prepare({titleZhHk, titleEn, slug, status}) {
+    prepare({
+      titleZhHk,
+      titleEn,
+      slug,
+      competitionTitleZhHk,
+      competitionTitleEn,
+      status,
+      startsAt,
+    }) {
+      const seasonTitle = firstPreviewText(titleZhHk, titleEn, slug) ?? 'Untitled season'
+      const competitionTitle = firstPreviewText(competitionTitleZhHk, competitionTitleEn)
+
       return {
-        title: firstPreviewText(titleZhHk, titleEn, slug) ?? 'Untitled league',
-        subtitle: joinPreviewParts(slug, status),
+        title: seasonTitle,
+        subtitle: joinPreviewParts(competitionTitle, status, formatPreviewDate(startsAt)),
       }
     },
   },
