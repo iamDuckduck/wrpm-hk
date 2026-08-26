@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest'
-import {calculateLeagueStandings} from './league-ranking'
+import {calculateLeagueStandings, groupMatchesByRound} from './league-ranking'
 
 describe('calculateLeagueStandings', () => {
   it('sums match scores, shares tied ranks, and leaves unused participants unranked', () => {
@@ -62,6 +62,80 @@ describe('calculateLeagueStandings', () => {
         totalScore: 0,
         matchesPlayed: 0,
         rank: null,
+      },
+    ])
+  })
+})
+
+describe('groupMatchesByRound', () => {
+  it('groups matches by round and assigns score-derived placements', () => {
+    expect(
+      groupMatchesByRound([
+        {
+          id: 'round-2',
+          round: 2,
+          scheduledAt: '2026-08-20T12:00:00Z',
+          results: [
+            {memberId: 'dave', score: 4},
+            {memberId: 'alice', score: 9},
+          ],
+        },
+        {
+          id: 'round-1-late',
+          round: 1,
+          scheduledAt: '2026-08-12T12:00:00Z',
+          results: [
+            {memberId: 'dave', score: -5},
+            {memberId: 'carol', score: 7},
+          ],
+        },
+        {
+          id: 'round-1-early',
+          round: 1,
+          scheduledAt: '2026-08-10T12:00:00Z',
+          results: [
+            {memberId: 'bob', score: 12},
+            {memberId: 'alice', score: 12},
+          ],
+        },
+      ]),
+    ).toEqual([
+      {
+        round: 1,
+        matches: [
+          {
+            id: 'round-1-early',
+            round: 1,
+            scheduledAt: '2026-08-10T12:00:00Z',
+            results: [
+              {memberId: 'alice', score: 12, placement: 1},
+              {memberId: 'bob', score: 12, placement: 1},
+            ],
+          },
+          {
+            id: 'round-1-late',
+            round: 1,
+            scheduledAt: '2026-08-12T12:00:00Z',
+            results: [
+              {memberId: 'carol', score: 7, placement: 1},
+              {memberId: 'dave', score: -5, placement: 2},
+            ],
+          },
+        ],
+      },
+      {
+        round: 2,
+        matches: [
+          {
+            id: 'round-2',
+            round: 2,
+            scheduledAt: '2026-08-20T12:00:00Z',
+            results: [
+              {memberId: 'alice', score: 9, placement: 1},
+              {memberId: 'dave', score: 4, placement: 2},
+            ],
+          },
+        ],
       },
     ])
   })

@@ -6,7 +6,10 @@ import {
   getSanityLocaleKey,
   type Locale,
 } from '../lib/localization'
-import {calculateLeagueStandings} from '../lib/league-ranking'
+import {
+  calculateLeagueStandings,
+  groupMatchesByRound,
+} from '../lib/league-ranking'
 import {buildSanityImageUrl} from '../lib/sanity-image'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
@@ -24,6 +27,7 @@ interface Props {
 const {locale, seasonSlug} = Astro.props
 const copy = getLocaleCopy(locale)
 const localeKey = getSanityLocaleKey(locale)
+const isSeasonPage = Boolean(seasonSlug)
 const leagueQuery = seasonSlug ? LEAGUE_SEASON_BY_SLUG_QUERY : CURRENT_LEAGUE_QUERY
 const leagueQueryParams = seasonSlug ? {locale: localeKey, seasonSlug} : {locale: localeKey}
 
@@ -32,26 +36,36 @@ const [homepage, currentLeague] = await Promise.all([
   sanityClient.fetch<CurrentLeague | null>(leagueQuery, leagueQueryParams),
 ])
 
+const participants = currentLeague?.participants ?? []
+const matches = currentLeague?.matches ?? []
+const participantsById = new Map(
+  participants.map((participant) => [participant.memberId, participant]),
+)
 const standings = currentLeague
   ? calculateLeagueStandings(
-      (currentLeague.participants ?? []).map((participant) => ({
-        ...participant,
+      participants.map((participant) => ({
+        memberId: participant.memberId,
         name: participant.name || copy.memberUnknown,
+        slug: participant.slug,
       })),
-      (currentLeague.matches ?? []).map((match) => ({
+      matches.map((match) => ({
         id: match._id,
         results: match.results ?? [],
       })),
     )
   : []
+const matchRounds = groupMatchesByRound(
+  matches.map((match) => ({
+    id: match._id,
+    round: match.round,
+    scheduledAt: match.scheduledAt,
+    results: match.results ?? [],
+  })),
+)
 const hasRankedStandings = standings.some((standing) => standing.rank !== null)
 const pageTitle = currentLeague?.title?.trim() || copy.leagueOverview
 const seasonTitle = currentLeague?.seasonTitle?.trim()
 const seasons = currentLeague?.seasons ?? []
-const matches = currentLeague?.matches ?? []
-const participantsById = new Map(
-  (currentLeague?.participants ?? []).map((participant) => [participant.memberId, participant]),
-)
 
 function formatMatchDate(value: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -76,106 +90,161 @@ function formatMatchDate(value: string) {
     {currentLeague ? (
       <>
         <article class="league-overview">
-          {currentLeague.description?.trim() && (
-            <section class="league-overview__description" aria-labelledby="league-description-title">
-              <p class="league-overview__label">{copy.leagueOverview}</p>
-              <h2 id="league-description-title">{copy.leagueOverview}</h2>
-              <p>{currentLeague.description}</p>
+          {!isSeasonPage ? (
+            <>
+              {currentLeague.description?.trim() && (
+                <section
+                  class="league-overview__description"
+                  aria-labelledby="league-description-title"
+                >
+                  <p class="league-overview__label">{copy.leagueOverview}</p>
+                  <h2 id="league-description-title">{copy.leagueOverview}</h2>
+                  <p>{currentLeague.description}</p>
+                </section>
+              )}
+
+              <section class="league-overview__ranking" aria-labelledby="league-ranking-title">
+                <div class="league-overview__section-heading">
+                  <p class="league-overview__label">{copy.league}</p>
+                  <h2 id="league-ranking-title">{copy.leagueRanking}</h2>
+                </div>
+
+                {hasRankedStandings ? (
+                  <ol class="league-ranking-grid">
+                    {standings.map((standing) => {
+                      const participant = participantsById.get(standing.memberId)
+                      const name = standing.name || copy.memberUnknown
+                      const imageUrl = buildSanityImageUrl(participant?.profileImage, {width: 128})
+
+                      return (
+                        <li>
+                          <a
+                            class="league-ranking-card"
+                            href={getLocalizedPath(locale, `/members/${standing.slug}`)}
+                          >
+                            <span class="league-ranking-card__avatar">
+                              {imageUrl ? (
+                                <img
+                                  src={imageUrl}
+                                  alt=""
+                                  width="64"
+                                  height="64"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <span aria-hidden="true">{name.slice(0, 1)}</span>
+                              )}
+                            </span>
+                            <span class="league-ranking-card__content">
+                              <span class="league-ranking-card__rank">
+                                #{standing.rank ?? '—'}
+                              </span>
+                              <strong>{name}</strong>
+                              <span class="league-ranking-card__stats">
+                                <span>
+                                  {copy.leagueScore}
+                                  <b>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</b>
+                                </span>
+                                <span>
+                                  {copy.leagueMatchesPlayed}
+                                  <b>{standing.matchesPlayed > 0 ? standing.matchesPlayed : '—'}</b>
+                                </span>
+                              </span>
+                            </span>
+                          </a>
+                        </li>
+                      )
+                    })}
+                  </ol>
+                ) : (
+                  <p class="league-overview__empty">{copy.leagueNoRankings}</p>
+                )}
+              </section>
+            </>
+          ) : (
+            <section class="league-overview__results" aria-labelledby="league-results-title">
+              <div class="league-overview__section-heading">
+                <p class="league-overview__label">{copy.league}</p>
+                <h2 id="league-results-title">{copy.leagueResults}</h2>
+              </div>
+
+              {matchRounds.length > 0 ? (
+                <ol class="league-rounds">
+                  {matchRounds.map((round) => (
+                    <li class="league-round">
+                      <h2>{copy.leagueRound(round.round)}</h2>
+                      <ol class="league-round__games">
+                        {round.matches.map((match) => (
+                          <li class="league-game">
+                            <header class="league-game__header">
+                              <h3>
+                                <time datetime={match.scheduledAt}>
+                                  {formatMatchDate(match.scheduledAt)}
+                                </time>
+                              </h3>
+                            </header>
+
+                            {match.results.length > 0 ? (
+                              <ol class="league-game__results">
+                                {match.results.map((result) => {
+                                  const participant = participantsById.get(result.memberId)
+                                  const name = participant?.name?.trim() || copy.memberUnknown
+                                  const imageUrl = buildSanityImageUrl(
+                                    participant?.profileImage,
+                                    {width: 112},
+                                  )
+
+                                  return (
+                                    <li class="league-game-member">
+                                      <span class="league-game-member__avatar">
+                                        {imageUrl ? (
+                                          <img
+                                            src={imageUrl}
+                                            alt=""
+                                            width="56"
+                                            height="56"
+                                            loading="lazy"
+                                          />
+                                        ) : (
+                                          <span aria-hidden="true">{name.slice(0, 1)}</span>
+                                        )}
+                                      </span>
+                                      <span class="league-game-member__content">
+                                        <span class="league-game-member__place">
+                                          #{result.placement}
+                                        </span>
+                                        {participant?.slug ? (
+                                          <a
+                                            href={getLocalizedPath(
+                                              locale,
+                                              `/members/${participant.slug}`,
+                                            )}
+                                          >
+                                            {name}
+                                          </a>
+                                        ) : (
+                                          <span>{name}</span>
+                                        )}
+                                        <strong>{result.score}</strong>
+                                      </span>
+                                    </li>
+                                  )
+                                })}
+                              </ol>
+                            ) : (
+                              <p class="league-overview__empty">{copy.leagueResultsEmpty}</p>
+                            )}
+                          </li>
+                        ))}
+                      </ol>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p class="league-overview__empty">{copy.leagueResultsEmpty}</p>
+              )}
             </section>
           )}
-
-          <section class="league-overview__ranking" aria-labelledby="league-ranking-title">
-            <div class="league-overview__section-heading">
-              <p class="league-overview__label">{copy.league}</p>
-              <h2 id="league-ranking-title">{copy.leagueRanking}</h2>
-            </div>
-
-            {hasRankedStandings ? (
-              <div class="league-overview__table-wrap">
-                <table>
-                  <caption>{copy.leagueRanking}</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">{copy.members}</th>
-                      <th scope="col">{copy.leagueScore}</th>
-                      <th scope="col">{copy.leagueMatchesPlayed}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {standings.map((standing) => (
-                      <tr>
-                        <td class="league-overview__rank">{standing.rank ?? '—'}</td>
-                        <th scope="row">
-                          <a href={getLocalizedPath(locale, `/members/${standing.slug}`)}>
-                            {standing.name || copy.memberUnknown}
-                          </a>
-                        </th>
-                        <td>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</td>
-                        <td>{standing.matchesPlayed > 0 ? standing.matchesPlayed : '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <p class="league-overview__empty">{copy.leagueNoRankings}</p>
-            )}
-          </section>
-
-          <section class="league-overview__results" aria-labelledby="league-results-title">
-            <div class="league-overview__section-heading">
-              <p class="league-overview__label">{copy.league}</p>
-              <h2 id="league-results-title">{copy.leagueResults}</h2>
-            </div>
-
-            {matches.length > 0 ? (
-              <ol class="league-results">
-                {matches.map((match) => (
-                  <li class="league-result">
-                    <header class="league-result__header">
-                      <h3>{copy.leagueRound(match.round)}</h3>
-                      <time datetime={match.scheduledAt}>{formatMatchDate(match.scheduledAt)}</time>
-                    </header>
-
-                    {match.results && match.results.length > 0 ? (
-                      <ol class="league-result__rows">
-                        {match.results.map((result) => {
-                          const participant = participantsById.get(result.memberId)
-                          const name = participant?.name?.trim() || copy.memberUnknown
-                          const imageUrl = buildSanityImageUrl(participant?.profileImage, {width: 96})
-
-                          return (
-                            <li class="league-result__row">
-                              <span class="league-result__avatar">
-                                {imageUrl ? (
-                                  <img src={imageUrl} alt="" width="48" height="48" loading="lazy" />
-                                ) : (
-                                  <span aria-hidden="true">{name.slice(0, 1)}</span>
-                                )}
-                              </span>
-                              {participant?.slug ? (
-                                <a href={getLocalizedPath(locale, `/members/${participant.slug}`)}>
-                                  {name}
-                                </a>
-                              ) : (
-                                <span>{name}</span>
-                              )}
-                              <strong>{result.score}</strong>
-                            </li>
-                          )
-                        })}
-                      </ol>
-                    ) : (
-                      <p class="league-overview__empty">{copy.leagueResultsEmpty}</p>
-                    )}
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p class="league-overview__empty">{copy.leagueResultsEmpty}</p>
-            )}
-          </section>
         </article>
 
         {seasons.length > 0 && (
@@ -272,7 +341,8 @@ function formatMatchDate(value: string) {
 
   .league-overview__description h2,
   .league-overview__ranking h2,
-  .league-overview__results h2 {
+  .league-overview__results h2,
+  .league-round h2 {
     margin: 0.5rem 0 0;
     color: var(--color-on-background);
     font-family: var(--font-display);
@@ -292,8 +362,10 @@ function formatMatchDate(value: string) {
     margin-bottom: 1.5rem;
   }
 
-  .league-results,
-  .league-result__rows {
+  .league-ranking-grid,
+  .league-rounds,
+  .league-round__games,
+  .league-game__results {
     display: grid;
     gap: 1rem;
     margin: 0;
@@ -301,152 +373,169 @@ function formatMatchDate(value: string) {
     list-style: none;
   }
 
-  .league-result {
+  .league-ranking-card {
+    display: grid;
+    min-height: 9rem;
+    grid-template-columns: 4rem minmax(0, 1fr);
+    align-items: center;
+    gap: 1rem;
     border: 1px solid var(--color-outline);
     padding: 1rem;
+    color: var(--color-on-background);
     background: var(--color-surface-lowest);
-  }
-
-  .league-result__header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    border-bottom: 1px solid var(--color-outline);
-    padding-bottom: 0.75rem;
-  }
-
-  .league-result__header h3,
-  .league-result__header time {
-    margin: 0;
-    color: var(--color-on-background);
-    font-family: var(--font-label);
-    font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
-  .league-result__header time {
-    color: var(--color-on-surface-variant);
-    font-size: 0.7rem;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-
-  .league-result__rows {
-    gap: 0;
-    margin-top: 0.5rem;
-  }
-
-  .league-result__row {
-    display: grid;
-    grid-template-columns: 3rem minmax(0, 1fr) auto;
-    min-height: 3.5rem;
-    align-items: center;
-    gap: 0.75rem;
-    border-bottom: 1px solid var(--color-outline);
-    color: var(--color-on-background);
-    font-family: var(--font-label);
-    font-size: 0.8rem;
-    font-weight: 700;
-  }
-
-  .league-result__row:last-child {
-    border-bottom: 0;
-  }
-
-  .league-result__row a {
-    overflow: hidden;
-    color: inherit;
-    text-overflow: ellipsis;
     text-decoration: none;
-    white-space: nowrap;
   }
 
-  .league-result__row a:hover {
-    color: var(--color-primary);
+  .league-ranking-card:hover {
+    border-color: var(--color-primary);
   }
 
-  .league-result__row strong {
-    color: var(--color-primary);
-    font-size: 1rem;
-  }
-
-  .league-result__avatar {
+  .league-ranking-card__avatar,
+  .league-game-member__avatar {
     display: grid;
-    width: 2.5rem;
-    height: 2.5rem;
     place-items: center;
     overflow: hidden;
     border: 1px solid var(--color-outline);
     border-radius: 50%;
     color: var(--color-primary);
     background: var(--color-surface-high);
-    font-size: 1rem;
+    font-family: var(--font-display);
   }
 
-  .league-result__avatar img {
+  .league-ranking-card__avatar {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.5rem;
+  }
+
+  .league-ranking-card__avatar img,
+  .league-game-member__avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .league-overview__table-wrap {
-    overflow-x: auto;
+  .league-ranking-card__content,
+  .league-game-member__content {
+    display: grid;
+    min-width: 0;
+    gap: 0.35rem;
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 36rem;
+  .league-ranking-card__rank,
+  .league-game-member__place {
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
   }
 
-  caption {
-    position: absolute;
-    width: 1px;
-    height: 1px;
+  .league-ranking-card__content > strong {
     overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  th,
-  td {
-    padding: 1rem 0.75rem;
+  .league-ranking-card__stats {
+    display: grid;
+    gap: 0.25rem;
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-label);
+    font-size: 0.72rem;
+  }
+
+  .league-ranking-card__stats > span {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .league-ranking-card__stats b {
+    color: var(--color-on-background);
+  }
+
+  .league-rounds {
+    gap: 2rem;
+  }
+
+  .league-round {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .league-round > h2 {
+    margin: 0;
+    border-left: 4px solid var(--color-primary);
+    padding-left: 0.75rem;
+    font-size: 1.25rem;
+  }
+
+  .league-game {
+    border: 1px solid var(--color-outline);
+    padding: 1rem;
+    background: var(--color-surface-lowest);
+  }
+
+  .league-game__header {
     border-bottom: 1px solid var(--color-outline);
+    padding-bottom: 0.75rem;
+  }
+
+  .league-game__header h3 {
+    margin: 0;
     color: var(--color-on-surface-variant);
     font-family: var(--font-label);
     font-size: 0.75rem;
-    text-align: left;
-  }
-
-  thead th {
-    color: var(--color-primary);
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
-  tbody th {
-    font-weight: 700;
+  .league-game__results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 1rem;
+    background: var(--color-outline);
   }
 
-  tbody th a {
+  .league-game-member {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    background: var(--color-surface-container);
+  }
+
+  .league-game-member__avatar {
+    width: 3.5rem;
+    height: 3.5rem;
+    font-size: 1.25rem;
+  }
+
+  .league-game-member__content a,
+  .league-game-member__content > span:not(.league-game-member__place) {
+    overflow: hidden;
     color: var(--color-on-background);
+    font-family: var(--font-label);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
     text-decoration: none;
+    white-space: nowrap;
   }
 
-  tbody th a:hover {
+  .league-game-member__content a:hover {
     color: var(--color-primary);
   }
 
-  .league-overview__rank {
-    width: 3rem;
-    color: var(--color-on-background);
+  .league-game-member__content strong {
+    color: var(--color-primary);
+    font-family: var(--font-display);
     font-size: 1rem;
-    font-weight: 700;
   }
 
   .league-overview__empty {
@@ -508,6 +597,22 @@ function formatMatchDate(value: string) {
     .league-overview__results,
     .league-season-selector {
       padding: 3rem clamp(2rem, 5vw, 5rem);
+    }
+
+    .league-ranking-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .league-round__games {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 72rem) {
+    .league-ranking-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 </style>

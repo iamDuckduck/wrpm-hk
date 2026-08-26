@@ -25,12 +25,24 @@ describe('localized league overview', () => {
     expect(source).not.toContain('LeagueSchedulePage')
   })
 
-  it('renders completed match results inside the league overview', () => {
+  it('renders avatar-backed member ranking cards on the overview route', () => {
     const source = readSource('components/LeagueOverviewPage.astro')
 
-    expect(source).toContain('league-overview__results')
-    expect(source).toContain('copy.leagueResults')
-    expect(source).toContain('currentLeague.matches')
+    expect(source).toContain('const isSeasonPage = Boolean(seasonSlug)')
+    expect(source).toContain('!isSeasonPage')
+    expect(source).toContain('league-ranking-grid')
     expect(source).toContain('buildSanityImageUrl')
+    expect(source).not.toContain('<table>')
+  })
+
+  it('renders grouped completed matches only on a season route', () => {
+    const source = readSource('components/LeagueOverviewPage.astro')
+
+    expect(source).toContain('groupMatchesByRound')
+    expect(source).toContain('isSeasonPage')
+    expect(source).toContain('league-round__games')
+    expect(source).toContain('league-game__results')
+    expect(source).toContain('result.placement')
+    expect(source).toContain('copy.leagueResults')
   })
 })

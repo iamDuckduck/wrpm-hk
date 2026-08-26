@@ -23,17 +23,22 @@ describe('localized homepage chrome', () => {
     expect(source).toContain('getLocalePath(supportedLocale)')
   })
 
-  it('restores localized Home, Members, and League drawer links', () => {
+  it('renders localized Home, Members, and dynamic Competition drawer links', () => {
     const source = readComponent('Navbar.astro')
 
     expect(source).toContain('aria-label={copy.navigation}')
     expect(source).toContain('Astro.url.pathname')
     expect(source).toContain('isCurrentRoute')
     expect(source).toContain("getLocalizedPath(locale, '/members')")
-    expect(source).toContain("getLocalizedPath(locale, '/league')")
+    expect(source).toContain("getLocalizedPath(locale, '/competitions')")
+    expect(source).toContain('competitions: CompetitionNavigationItem[]')
+    expect(source).toContain('copy.competitions')
+    expect(source).toContain('competitions.map')
+    expect(source).toContain('`/competitions/${competition.slug}`')
     expect(source).toContain("aria-current={isCurrentRoute(getLocalePath(locale)) ? 'page' : undefined}")
     expect(source).toContain("aria-current={isCurrentRoute(getLocalizedPath(locale, '/members'), true) ? 'page' : undefined}")
-    expect(source).toContain("aria-current={isCurrentRoute(getLocalizedPath(locale, '/league'), true) ? 'page' : undefined}")
+    expect(source).toContain("aria-current={isCurrentRoute(getLocalizedPath(locale, '/competitions'), true) ? 'page' : undefined}")
+    expect(source).not.toContain("getLocalizedPath(locale, '/league')")
   })
 
   it('uses locale copy for hero labels and carousel status', () => {

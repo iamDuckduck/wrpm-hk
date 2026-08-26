@@ -1,0 +1,32 @@
+---
+import CompetitionOverviewPage from '../../../components/CompetitionOverviewPage.astro'
+import {getSanityLocaleKey} from '../../../lib/localization'
+import {sanityClient} from '../../../lib/sanity'
+import {
+  COMPETITION_SEASON_SLUGS_QUERY,
+  type CompetitionSeasonSlug,
+} from '../../../queries/competition'
+
+export async function getStaticPaths() {
+  const seasons = await sanityClient.fetch<CompetitionSeasonSlug[]>(
+    COMPETITION_SEASON_SLUGS_QUERY,
+    {locale: getSanityLocaleKey('zh-HK')},
+  )
+
+  return seasons.map(({competitionSlug, seasonSlug}) => ({
+    params: {competitionSlug, seasonSlug},
+    props: {competitionSlug, seasonSlug},
+  }))
+}
+
+const {competitionSlug, seasonSlug} = Astro.props as {
+  competitionSlug: string
+  seasonSlug: string
+}
+---
+
+<CompetitionOverviewPage
+  locale="zh-HK"
+  competitionSlug={competitionSlug}
+  seasonSlug={seasonSlug}
+/>
