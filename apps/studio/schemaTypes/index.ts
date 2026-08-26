@@ -3,6 +3,8 @@ import {integrationTest} from './documents/integration-test'
 import {competition} from './documents/competition'
 import {competitionSeason} from './documents/competition-season'
 import {match} from './documents/match'
+import {matchStage} from './documents/match-stage'
+import {matchType} from './documents/match-type'
 import {member} from './documents/member'
 import {memberCategory} from './documents/member-category'
 import {siteSettings} from './documents/site-settings'
@@ -24,6 +26,8 @@ export const schemaTypes = [
   member,
   competition,
   competitionSeason,
+  matchStage,
+  matchType,
   match,
   integrationTest,
 ]

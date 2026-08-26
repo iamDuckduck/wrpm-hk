@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {firstPreviewText, formatPreviewDate, joinPreviewParts} from '../utils/preview'
+import {firstPreviewText, joinPreviewParts} from '../utils/preview'
 
 type MatchResultDraft = {
   member?: {_ref?: string}
@@ -17,23 +17,24 @@ export const match = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'season',
-      title: 'Competition Season',
+      name: 'stage',
+      title: 'Stage',
       type: 'reference',
-      to: [{type: 'competitionSeason'}],
+      to: [{type: 'matchStage'}],
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'round',
-      title: 'Round',
+      name: 'matchType',
+      title: 'Match Type',
+      type: 'reference',
+      to: [{type: 'matchType'}],
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'sequence',
+      title: 'Sequence',
       type: 'number',
-      validation: (Rule) => Rule.required().min(1),
-    }),
-    defineField({
-      name: 'scheduledAt',
-      title: 'Scheduled At',
-      type: 'datetime',
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().integer().min(1),
     }),
     defineField({
       name: 'status',
@@ -51,9 +52,28 @@ export const match = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'detailsUrl',
+      title: 'Details URL',
+      type: 'url',
+      validation: (Rule) =>
+        Rule.custom((value, context) => {
+          const status = (context.document as {status?: string} | undefined)?.status
+          const url = typeof value === 'string' ? value : ''
+
+          if (status === 'completed' && !url) {
+            return 'Completed matches require a details URL.'
+          }
+
+          if (!url) return true
+
+          return /^https?:\/\//i.test(url) ? true : 'Details URL must use HTTP or HTTPS.'
+        }),
+    }),
+    defineField({
       name: 'results',
       title: 'Results',
-      description: 'Enter one result for each participating member. Completed matches require results.',
+      description:
+        'Enter one result for each participating member. Completed matches require results.',
       type: 'array',
       of: [defineArrayMember({type: 'matchResult'})],
       validation: (Rule) =>
@@ -77,19 +97,35 @@ export const match = defineType({
   ],
   preview: {
     select: {
-      seasonTitleZhHk: 'season.title.zhHk',
-      seasonTitleEn: 'season.title.en',
-      round: 'round',
+      titleZhHk: 'title.zhHk',
+      titleEn: 'title.en',
+      stageTitleZhHk: 'stage.title.zhHk',
+      stageTitleEn: 'stage.title.en',
+      matchTypeTitleZhHk: 'matchType.title.zhHk',
+      matchTypeTitleEn: 'matchType.title.en',
+      sequence: 'sequence',
       status: 'status',
-      scheduledAt: 'scheduledAt',
+      detailsUrl: 'detailsUrl',
     },
-    prepare({seasonTitleZhHk, seasonTitleEn, round, status, scheduledAt}) {
-      const seasonTitle = firstPreviewText(seasonTitleZhHk, seasonTitleEn)
-      const roundLabel = typeof round === 'number' ? `Round ${round}` : undefined
+    prepare({
+      titleZhHk,
+      titleEn,
+      stageTitleZhHk,
+      stageTitleEn,
+      matchTypeTitleZhHk,
+      matchTypeTitleEn,
+      sequence,
+      status,
+      detailsUrl,
+    }) {
+      const matchTitle = firstPreviewText(titleZhHk, titleEn) ?? 'Untitled match'
+      const stageTitle = firstPreviewText(stageTitleZhHk, stageTitleEn)
+      const matchTypeTitle = firstPreviewText(matchTypeTitleZhHk, matchTypeTitleEn)
+      const sequenceLabel = typeof sequence === 'number' ? `Match ${sequence}` : undefined
 
       return {
-        title: joinPreviewParts(seasonTitle, roundLabel) || 'Untitled match',
-        subtitle: joinPreviewParts(status, formatPreviewDate(scheduledAt)),
+        title: matchTitle,
+        subtitle: joinPreviewParts(stageTitle, matchTypeTitle, sequenceLabel, status, detailsUrl),
       }
     },
   },
