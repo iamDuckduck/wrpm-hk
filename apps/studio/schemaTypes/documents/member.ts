@@ -46,11 +46,6 @@ export const member = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'biography',
-      title: 'Biography',
-      type: 'localizedText',
-    }),
-    defineField({
       name: 'mediaLinks',
       title: 'Media Links',
       type: 'array',

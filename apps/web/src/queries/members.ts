@@ -42,14 +42,6 @@ export const MEMBER_SLUGS_QUERY = defineQuery(/* groq */ `
 export const MEMBER_BY_SLUG_QUERY = defineQuery(/* groq */ `
   *[_type == "member" && status == "active" && slug.current == $slug][0] {
     ${MEMBER_FIELDS},
-    "biography": coalesce(
-      select(
-        $locale == "en" => biography.en,
-        $locale == "ja" => biography.ja,
-        biography.zhHk
-      ),
-      biography.zhHk
-    ),
     mediaLinks[] {
       _key,
       label,
@@ -88,7 +80,6 @@ export type MemberSlug = {
 }
 
 export type MemberDetail = MemberListItem & {
-  biography: string | null
   mediaLinks: Array<{
     _key: string
     label: string

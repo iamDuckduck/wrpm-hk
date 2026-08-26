@@ -47,7 +47,6 @@ export interface LocaleCopy {
   memberListEmpty: string
   memberUnknown: string
   viewMember: (name: string) => string
-  memberBiography: string
   memberLinks: string
   memberNotFound: string
   backToMembers: string
@@ -110,7 +109,6 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     memberListEmpty: '成員資料準備中。',
     memberUnknown: 'WRPM 成員',
     viewMember: (name) => `查看 ${name} 的成員資料`,
-    memberBiography: '成員簡介',
     memberLinks: '相關連結',
     memberNotFound: '找不到這位成員。',
     backToMembers: '返回成員列表',
@@ -176,7 +174,6 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     memberListEmpty: 'Member profiles are being prepared.',
     memberUnknown: 'WRPM Member',
     viewMember: (name) => `View ${name}'s member profile`,
-    memberBiography: 'Biography',
     memberLinks: 'Links',
     memberNotFound: 'This member could not be found.',
     backToMembers: 'Back to members',
@@ -242,7 +239,6 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     memberListEmpty: 'メンバー情報を準備中です。',
     memberUnknown: 'WRPM メンバー',
     viewMember: (name) => `${name}のプロフィールを見る`,
-    memberBiography: 'プロフィール',
     memberLinks: '関連リンク',
     memberNotFound: 'このメンバーは見つかりませんでした。',
     backToMembers: 'メンバー一覧へ戻る',

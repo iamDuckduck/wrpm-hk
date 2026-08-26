@@ -17,11 +17,12 @@ describe('localized member detail', () => {
     )
   })
 
-  it('renders the profile, biography, media links, and not-found state', () => {
+  it('renders the profile, media links, and not-found state without biography', () => {
     const source = readSource('components/MemberDetailPage.astro')
 
     expect(source).toContain('MEMBER_BY_SLUG_QUERY')
-    expect(source).toContain('member.biography')
+    expect(source).not.toContain('member.biography')
+    expect(source).not.toContain('copy.memberBiography')
     expect(source).toContain('member.mediaLinks')
     expect(source).toContain('copy.memberNotFound')
     expect(source).toContain('copy.backToMembers')
