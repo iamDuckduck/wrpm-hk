@@ -179,7 +179,7 @@ a {
 }
 
 .mobile-navigation {
-  display: none;
+  display: block;
   position: relative;
 }
 
@@ -405,10 +405,6 @@ a {
 
   .site-brand--has-logo > span {
     display: inline;
-  }
-
-  .mobile-navigation {
-    display: block;
   }
 
   .mobile-language-switcher {
