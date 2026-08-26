@@ -183,7 +183,7 @@ a {
   position: relative;
 }
 
-.mobile-navigation summary {
+.mobile-navigation > summary {
   display: grid;
   width: 2.75rem;
   height: 2.75rem;

@@ -98,7 +98,10 @@ describe('WRPM visual foundation', () => {
 
   it('matches the Figma navigation and carousel control treatment', () => {
     expect(styles).toMatch(
-      /\.mobile-navigation summary\s*{[\s\S]*?background:\s*transparent/s,
+      /\.mobile-navigation\s*>\s*summary\s*{[\s\S]*?width:\s*2\.75rem[\s\S]*?background:\s*transparent/s,
+    )
+    expect(styles).not.toMatch(
+      /\.mobile-navigation summary\s*{[\s\S]*?width:\s*2\.75rem/s,
     )
     expect(heroStyles).toContain(
       '<span class="hero-carousel__dash" aria-hidden="true"></span>',
