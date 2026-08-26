@@ -65,14 +65,6 @@ const imageSrcSet = buildSanityImageSrcSet(member?.profileImage, [480, 720, 960]
         </header>
 
         <div class="member-detail__body">
-          {member.biography?.trim() && (
-            <section class="member-detail__section" aria-labelledby="member-biography-title">
-              <p class="member-detail__label">{copy.memberBiography}</p>
-              <h2 id="member-biography-title">{name}</h2>
-              <p class="member-detail__text">{member.biography}</p>
-            </section>
-          )}
-
           {member.mediaLinks && member.mediaLinks.length > 0 && (
             <section class="member-detail__section" aria-labelledby="member-links-title">
               <p class="member-detail__label">{copy.memberLinks}</p>
@@ -219,15 +211,6 @@ const imageSrcSet = buildSanityImageSrcSet(member?.profileImage, [480, 720, 960]
     font-family: var(--font-display);
     font-size: 1.5rem;
     line-height: 1.2;
-  }
-
-  .member-detail__text {
-    max-width: 48rem;
-    margin: 1rem 0 0;
-    color: var(--color-on-surface-variant);
-    font-size: 1rem;
-    line-height: 1.7;
-    white-space: pre-line;
   }
 
   .member-detail__links {
