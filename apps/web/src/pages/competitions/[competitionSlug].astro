@@ -1,0 +1,18 @@
+---
+import CompetitionOverviewPage from '../../components/CompetitionOverviewPage.astro'
+import {sanityClient} from '../../lib/sanity'
+import {COMPETITION_SLUGS_QUERY, type CompetitionSlug} from '../../queries/competition'
+
+export async function getStaticPaths() {
+  const competitions = await sanityClient.fetch<CompetitionSlug[]>(COMPETITION_SLUGS_QUERY)
+
+  return competitions.map(({slug}) => ({
+    params: {competitionSlug: slug},
+    props: {competitionSlug: slug},
+  }))
+}
+
+const {competitionSlug} = Astro.props as {competitionSlug: string}
+---
+
+<CompetitionOverviewPage locale="zh-HK" competitionSlug={competitionSlug} />

@@ -323,33 +323,6 @@
       .line.short {
         width: 42%;
       }
-      .table {
-        display: grid;
-        border: 1px solid var(--line);
-      }
-      .row {
-        display: grid;
-        grid-template-columns: 64px 1fr 120px 120px;
-        min-height: 44px;
-        border-bottom: 1px solid var(--line);
-      }
-      .row:last-child {
-        border-bottom: 0;
-      }
-      .cell {
-        border-right: 1px solid var(--line);
-        padding: 10px;
-        color: var(--text);
-        font-size: 13px;
-      }
-      .cell:last-child {
-        border-right: 0;
-      }
-      .row--head .cell {
-        background: var(--fill);
-        color: var(--ink);
-        font-weight: 700;
-      }
       .annotation-list {
         display: grid;
         gap: 8px;
@@ -422,6 +395,304 @@
       }
       .league-overview-stack > * {
         width: 100%;
+      }
+      .ranking-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .ranking-member-tile {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 10px;
+        min-height: 112px;
+        align-items: center;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 10px;
+      }
+      .ranking-avatar {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        border: 2px solid var(--ink);
+        border-radius: 50%;
+        background: var(--fill-2);
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 700;
+        place-items: center;
+      }
+      .ranking-copy {
+        display: grid;
+        min-width: 0;
+        gap: 4px;
+      }
+      .ranking-rank {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .ranking-name {
+        overflow-wrap: anywhere;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .ranking-meta {
+        display: grid;
+        gap: 2px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.25;
+      }
+      .route-chain {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+        gap: 10px;
+        margin-top: 14px;
+        align-items: stretch;
+      }
+      .route-chain__step {
+        display: grid;
+        align-content: start;
+        gap: 6px;
+        min-height: 84px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        padding: 10px;
+        color: var(--ink);
+        text-decoration: none;
+      }
+      .route-chain__step:hover {
+        background: var(--fill);
+      }
+      .route-chain__step strong {
+        font-size: 14px;
+      }
+      .route-chain__step span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+      }
+      .route-chain__arrow {
+        display: grid;
+        min-height: 84px;
+        align-items: center;
+        justify-items: center;
+        color: var(--muted);
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .competition-menu {
+        display: grid;
+        gap: 10px;
+        border: 1px solid var(--line);
+        background: var(--fill);
+        padding: 8px;
+      }
+      .competition-menu summary {
+        min-height: 44px;
+        padding: 8px;
+        color: var(--ink);
+        cursor: pointer;
+        font-weight: 700;
+        list-style-position: inside;
+      }
+      .competition-menu summary:hover {
+        background: var(--fill-2);
+      }
+      .competition-menu summary:focus-visible {
+        outline: 3px solid var(--ink);
+        outline-offset: 3px;
+      }
+      .competition-menu .card {
+        background: var(--paper);
+      }
+      .competition-menu .card a {
+        display: grid;
+        gap: 3px;
+        min-height: 46px;
+        text-align: left;
+      }
+      .competition-menu .card a span {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 400;
+      }
+      .league-screen {
+        --league-bg: oklch(15.5% 0.01 25);
+        --league-surface: oklch(20.5% 0.015 25);
+        --league-surface-2: oklch(25% 0.018 25);
+        --league-ink: oklch(95% 0.01 25);
+        --league-muted: oklch(76% 0.025 25);
+        --league-line: oklch(43% 0.035 25);
+        --league-accent: oklch(54% 0.235 28);
+        --league-accent-hover: oklch(62% 0.205 28);
+        display: grid;
+        gap: 14px;
+        border: 1px solid var(--league-line);
+        background: var(--league-bg);
+        padding: 14px;
+        color: var(--league-muted);
+      }
+      .league-screen .wire-header,
+      .league-screen .box,
+      .league-screen .season-round,
+      .league-screen .game-card,
+      .league-screen .ranking-member-tile,
+      .league-screen .member-result-tile {
+        border-color: var(--league-line);
+        background: var(--league-surface);
+      }
+      .league-screen .wire-copy {
+        border-color: var(--league-line);
+        background: var(--league-surface-2);
+      }
+      .league-screen .wire-header .bar,
+      .league-screen .label,
+      .league-screen .season-round__status,
+      .league-screen .game-card__status {
+        border-color: var(--league-line);
+        background: var(--league-surface-2);
+        color: var(--league-ink);
+      }
+      .league-screen .wire-title,
+      .league-screen h3,
+      .league-screen .ranking-name,
+      .league-screen .ranking-rank,
+      .league-screen .ranking-meta,
+      .league-screen .member-result-name,
+      .league-screen .member-result-score,
+      .league-screen .member-result-place,
+      .league-screen .season-round__date,
+      .league-screen .note {
+        color: var(--league-ink);
+      }
+      .league-screen .wire-copy,
+      .league-screen .ranking-meta,
+      .league-screen .member-result-score,
+      .league-screen .member-result-place,
+      .league-screen .season-round__date,
+      .league-screen .note {
+        color: var(--league-muted);
+      }
+      .league-screen .game-card__label {
+        color: var(--league-ink);
+      }
+      .league-screen .game-card__head,
+      .league-screen .season-round__head {
+        border-color: var(--league-line);
+      }
+      .league-screen .wire-title,
+      .league-screen h3,
+      .league-screen .league-subhead strong {
+        font-family: "Sora", system-ui, sans-serif;
+      }
+      .league-screen .season-context,
+      .league-screen .selector-rule,
+      .league-screen .season-link__route {
+        color: var(--league-muted);
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .league-screen .league-subhead {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+      }
+      .league-screen .league-subhead h3 {
+        margin: 4px 0 0;
+        font-size: 20px;
+      }
+      .league-screen .primary-action,
+      .league-screen .secondary-action,
+      .league-screen .season-link {
+        display: grid;
+        min-height: 44px;
+        align-items: center;
+        border: 1px solid var(--league-accent);
+        padding: 10px 12px;
+        color: var(--league-ink);
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .league-screen .primary-action {
+        background: var(--league-accent);
+        color: oklch(98% 0.01 25);
+        text-align: center;
+        white-space: nowrap;
+      }
+      .league-screen .primary-action:hover {
+        border-color: var(--league-accent-hover);
+        background: var(--league-accent-hover);
+        color: oklch(98% 0.01 25);
+      }
+      .league-screen .secondary-action,
+      .league-screen .season-link {
+        background: transparent;
+      }
+      .league-screen .secondary-action:hover,
+      .league-screen .season-link:hover {
+        border-color: var(--league-accent-hover);
+        background: var(--league-surface-2);
+        color: var(--league-ink);
+      }
+      .league-screen .season-link {
+        align-content: center;
+        gap: 4px;
+      }
+      .league-screen .season-link[aria-current="page"] {
+        border-color: var(--league-accent);
+        background: var(--league-accent);
+        color: oklch(98% 0.01 25);
+      }
+      .league-screen .season-link[aria-current="page"] .season-link__route {
+        color: oklch(98% 0.01 25);
+      }
+      .league-screen .season-links {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .league-screen .league-shared-copy {
+        display: grid;
+        gap: 8px;
+      }
+      .league-screen .league-shared-copy h3,
+      .league-screen .league-shared-copy p {
+        margin: 0;
+      }
+      .league-screen .league-shared-copy h3 {
+        font-size: 17px;
+      }
+      .league-screen .league-shared-copy p {
+        color: var(--league-muted);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+      .league-screen .ranking-avatar,
+      .league-screen .member-avatar {
+        border-color: var(--league-accent);
+        background: var(--league-surface-2);
+        color: var(--league-ink);
+      }
+      .league-screen .ranking-member-tile:hover,
+      .league-screen .member-result-tile:hover {
+        border-color: var(--league-accent);
+      }
+      .league-screen a:focus-visible,
+      .league-screen button:focus-visible {
+        outline-color: var(--league-accent-hover);
+      }
+      .competition-matches-screen .season-results > .note {
+        max-width: 72ch;
       }
       .season-results {
         display: grid;
@@ -559,17 +830,30 @@
         .state-grid {
           grid-template-columns: 1fr;
         }
-        .row {
-          grid-template-columns: 48px 1fr;
-        }
-        .row .cell:nth-child(3),
-        .row .cell:nth-child(4) {
-          border-top: 1px solid var(--line);
-        }
         .frame-pair {
           grid-template-columns: 1fr;
         }
         .season-round__games {
+          grid-template-columns: 1fr;
+        }
+        .ranking-grid {
+          grid-template-columns: 1fr;
+        }
+        .route-chain {
+          grid-template-columns: 1fr;
+        }
+        .route-chain__arrow {
+          min-height: 24px;
+          transform: rotate(90deg);
+        }
+        .league-screen .league-subhead {
+          flex-direction: column;
+        }
+        .league-screen .primary-action,
+        .league-screen .secondary-action {
+          width: 100%;
+        }
+        .league-screen .season-links {
           grid-template-columns: 1fr;
         }
         .device-frame--mobile {
@@ -581,16 +865,17 @@
   <body data-wireframe-version="3">
     <main class="page">
       <header class="top" data-od-id="wireframe-v3-intro">
-        <h1>WRPM flow wireframe v3</h1>
-        <p>Pure low-fidelity IA wireframe for route flow, content hierarchy, and responsive structure. This file intentionally avoids brand styling, images, color, visual polish, and new product features.</p>
+        <h1>WRPM Competition / Competition Season flow wireframe</h1>
+        <p>Refined route and interaction wireframe for dynamic Competitions navigation, Competition Season overviews, and completed match results. Home and Member surfaces remain unchanged while the selected-season context stays explicit.</p>
         <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode">Dark mode</button>
         <nav class="jump" aria-label="Wireframe sections">
           <a href="#flow-map">Flow map</a>
           <a href="#navigation">Navigation popup</a>
           <a href="#member-list">Member list</a>
           <a href="#member-detail">Member detail</a>
-          <a href="#league-overview">League overview</a>
-          <a href="#season-detail">Season route</a>
+          <a href="#competition-season-overview">Competition Season overview</a>
+          <a href="#competition-season-overview-historical">Historical state</a>
+          <a href="#competition-season-matches">Match details</a>
           <a href="#states">States</a>
         </nav>
       </header>
@@ -617,30 +902,69 @@
               <span>Profile, intro, biography, links, not-found fallback.</span>
               <span class="arrow">/members/[slug]</span>
             </a>
-            <a class="node" href="#league-overview" data-od-id="node-league">
-              <strong>League overview</strong>
-              <span>Current league, description, ranking, seasons.</span>
-              <span class="arrow">/league</span>
+            <a class="node" href="#competition-season-overview" data-od-id="node-competition">
+              <strong>Competition Season overview</strong>
+              <span>Latest/ongoing season for the selected Competition.</span>
+              <span class="arrow">/competitions/[competitionSlug]</span>
             </a>
-            <a class="node" href="#season-detail" data-od-id="node-season">
-              <strong>Season route</strong>
-              <span>Season-specific league page with match result area.</span>
-              <span class="arrow">/league/[seasonSlug]</span>
+            <a class="node" href="#competition-season-overview-historical" data-od-id="node-competition-season">
+              <strong>Competition Season</strong>
+              <span>Same overview template with a specifically selected season.</span>
+              <span class="arrow">/competitions/[competitionSlug]/[seasonSlug]</span>
             </a>
+          </div>
+          <div class="route-chain" data-od-id="competition-route-chain" aria-label="Competition, Competition Season, and match route relationship">
+            <a class="route-chain__step" href="#navigation" data-od-id="route-chain-competition-nav">
+              <strong>Competitions dropdown</strong>
+              <span>Dynamic public navigation</span>
+            </a>
+            <span class="route-chain__arrow" aria-hidden="true">→</span>
+            <a class="route-chain__step" href="#competition-season-overview" data-od-id="route-chain-latest-season">
+              <strong>Latest Competition Season</strong>
+              <span>/competitions/[competitionSlug]</span>
+            </a>
+            <span class="route-chain__arrow" aria-hidden="true">→</span>
+            <a class="route-chain__step" href="#competition-season-overview-historical" data-od-id="route-chain-selected-season">
+              <strong>Selected Competition Season</strong>
+              <span>/competitions/[competitionSlug]/[seasonSlug]</span>
+            </a>
+            <span class="route-chain__arrow" aria-hidden="true">→</span>
+            <a class="route-chain__step" href="#competition-season-matches" data-od-id="route-chain-match-results">
+              <strong>Completed matches</strong>
+              <span>/competitions/[competitionSlug]/[seasonSlug]/matches</span>
+            </a>
+          </div>
+          <p class="note">Each Competition opens its latest/ongoing Competition Season. Season selector links stay within overview pages; only View match details enters the separate completed-results screen.</p>
+          <div class="box" data-od-id="competition-data-model">
+            <span class="label">Wireframe data relationship</span>
+            <div class="layout-3">
+              <div class="card" data-od-id="competition-model-card">
+                <strong>Competition</strong>
+                <span>Localized name/title, slug, introduction, description.</span>
+              </div>
+              <div class="card" data-od-id="competition-season-model-card">
+                <strong>Competition Season</strong>
+                <span>References exactly one Competition; title, slug, status, start/end dates, participants.</span>
+              </div>
+              <div class="card" data-od-id="competition-match-model-card">
+                <strong>Match + derived ranking</strong>
+                <span>Match references one Competition Season; ranking uses completed matches from the selected season only.</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <section class="section" id="navigation" data-od-id="navigation-popup-wireframe">
         <header class="section__head">
-          <h2>2. Shared navigation popup</h2>
+          <h2>2. Shared navigation popup / Competitions dropdown</h2>
           <span class="route">Navbar.astro</span>
         </header>
         <div class="body layout-2">
           <div class="screen">
             <div class="frame-pair" aria-label="Navigation desktop and mobile frames">
-              <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Header row</div><div class="frame-block">Popup anchored to menu control: Home / Members / League</div></div>
-              <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Compact header row</div><div class="frame-block">Full-width popup: Home / Members / League</div></div>
+              <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Header row</div><div class="frame-block">Popup anchored to menu control: Home / Members / Competitions</div></div>
+              <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Compact header row</div><div class="frame-block">Full-width popup: Home / Members / Competitions</div></div>
             </div>
             <div class="wire-header">
               <div class="bar">SHARED NAVIGATION — section label</div>
@@ -651,10 +975,17 @@
               <div class="card">
                 <a href="#flow-map">01 Home</a>
                 <a href="#member-list">02 Members</a>
-                <a href="#league-overview">03 League</a>
+                <details class="competition-menu" data-od-id="navigation-competitions-dropdown">
+                  <summary>03 Competitions</summary>
+                  <div class="card">
+                    <a href="#competition-season-overview" data-od-id="competition-nav-wrpm">WRPM Hong Kong League <span>Latest Competition Season</span></a>
+                    <a href="#competition-season-overview" data-od-id="competition-nav-summer-cup">Summer Cup <span>Latest Competition Season</span></a>
+                    <a href="#competition-season-overview" data-od-id="competition-nav-invitational">Invitational <span>Latest Competition Season</span></a>
+                  </div>
+                </details>
               </div>
             </div>
-            <p class="note">The production route set has Home, Members, and League in the shared nav. This wireframe does not add schedule or profile links to the global nav.</p>
+            <p class="note">The dynamic Competitions dropdown lists named competitions. Each item opens <code>/competitions/[competitionSlug]</code>, which resolves to the ongoing season or the season with the latest start date.</p>
           </div>
           <ul class="annotation-list">
             <li><span class="num">1</span><span>Current code uses a details/summary menu pattern and localized path helpers.</span></li>
@@ -752,74 +1083,224 @@
         </div>
       </section>
 
-      <section class="section" id="league-overview" data-od-id="league-overview-wireframe">
+      <section class="section" id="competition-season-overview" data-od-id="competition-season-overview-wireframe">
         <header class="section__head">
-          <h2>5. League overview</h2>
-          <span class="route">/league</span>
+          <h2 data-od-id="competition-season-overview-heading">5. Competition Season Overview template — latest state</h2>
+          <span class="route">/competitions/[competitionSlug]</span>
         </header>
         <div class="body">
-          <div class="frame-pair" aria-label="League overview desktop and mobile frames">
-            <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">League heading / intro</div><div class="frame-block">League description — full-width row</div><div class="frame-block">Ranking summary — full-width row</div><div class="frame-block">Season links — full-width row</div></div>
-            <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">League heading / intro</div><div class="frame-block">League description — full-width row</div><div class="frame-block">Ranking summary — full-width row</div><div class="frame-block">Season links — full-width row</div></div>
+          <div class="frame-pair" aria-label="Latest Competition Season overview desktop and mobile frames">
+            <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Competition name / introduction</div><div class="frame-block">Competition description — shared</div><div class="frame-block">Selected Competition Season ranking</div><div class="frame-block">Competition Season selector</div></div>
+            <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Competition name / introduction</div><div class="frame-block">Competition description — shared</div><div class="frame-block">Ranking cards + match-details action</div><div class="frame-block">Competition Season selector</div></div>
           </div>
-          <div class="screen">
+          <div class="screen league-screen" data-od-id="latest-season-overview-screen">
             <div class="wire-header">
-              <div class="bar">LEAGUE OVERVIEW — section label</div>
-              <div class="wire-title">League title / season title</div>
-              <div class="wire-copy">Intro appears from current league season query when present.</div>
+              <div class="wire-title">WRPM Hong Kong League</div>
+              <div class="league-subhead">
+                <div>
+                  <span class="season-context">Ongoing / latest Competition Season selected</span>
+                  <h3>Summer 2026</h3>
+                </div>
+                <span class="selector-rule">/competitions/wrpm-hong-kong-league</span>
+              </div>
+              <div class="wire-copy">Competition introduction appears here and remains shared across every Competition Season overview.</div>
             </div>
-            <div class="league-overview-stack" data-od-id="league-overview-vertical-flow">
-              <section class="box">
-                <span class="label">League overview description</span>
-                <div class="line wide"></div>
-                <div class="line wide"></div>
-                <div class="line med"></div>
+            <div class="league-overview-stack" data-od-id="competition-overview-vertical-flow">
+              <section class="box league-shared-copy" data-od-id="competition-shared-content-current">
+                <h3>WRPM Hong Kong League</h3>
+                <p>Competition introduction — shared across all Competition Seasons.</p>
+                <p>Competition description — shared across all Competition Seasons.</p>
               </section>
-              <section class="box">
-                <span class="label">Ranking summary</span>
-                <div class="table">
-                  <div class="row row--head"><div class="cell">#</div><div class="cell">Member</div><div class="cell">Score</div><div class="cell">Played</div></div>
-                  <div class="row"><div class="cell">1</div><div class="cell"><a href="#member-detail">Member link</a></div><div class="cell">--</div><div class="cell">--</div></div>
-                  <div class="row"><div class="cell">2</div><div class="cell"><a href="#member-detail">Member link</a></div><div class="cell">--</div><div class="cell">--</div></div>
+              <section class="box" data-od-id="current-season-ranking">
+                <div class="league-subhead">
+                  <div>
+                    <span class="season-context">Season ranking</span>
+                    <h3>Summer 2026 ranking</h3>
+                  </div>
+                  <a class="primary-action" href="#competition-season-matches" data-od-id="current-view-match-details">View match details</a>
+                </div>
+                <p class="note">Calculated only from completed matches belonging to Summer 2026. Participants and ranking change when a different Competition Season is selected.</p>
+                <div class="ranking-grid" data-od-id="ranking-member-grid">
+                  <a class="ranking-member-tile" href="#member-detail" data-od-id="ranking-member-01">
+                    <span class="ranking-avatar" aria-hidden="true">A</span>
+                    <span class="ranking-copy">
+                      <span class="ranking-rank">Rank 1</span>
+                      <strong class="ranking-name">Member A</strong>
+                      <span class="ranking-meta"><span>Total score: --</span><span>Matches played: --</span></span>
+                    </span>
+                  </a>
+                  <a class="ranking-member-tile" href="#member-detail" data-od-id="ranking-member-02">
+                    <span class="ranking-avatar" aria-hidden="true">B</span>
+                    <span class="ranking-copy">
+                      <span class="ranking-rank">Rank 2</span>
+                      <strong class="ranking-name">Member B</strong>
+                      <span class="ranking-meta"><span>Total score: --</span><span>Matches played: --</span></span>
+                    </span>
+                  </a>
+                  <a class="ranking-member-tile" href="#member-detail" data-od-id="ranking-member-03">
+                    <span class="ranking-avatar" aria-hidden="true">C</span>
+                    <span class="ranking-copy">
+                      <span class="ranking-rank">Rank 3</span>
+                      <strong class="ranking-name">Member C</strong>
+                      <span class="ranking-meta"><span>Total score: --</span><span>Matches played: --</span></span>
+                    </span>
+                  </a>
+                  <a class="ranking-member-tile" href="#member-detail" data-od-id="ranking-member-04">
+                    <span class="ranking-avatar" aria-hidden="true">D</span>
+                    <span class="ranking-copy">
+                      <span class="ranking-rank">Rank 4</span>
+                      <strong class="ranking-name">Member D</strong>
+                      <span class="ranking-meta"><span>Total score: --</span><span>Matches played: --</span></span>
+                    </span>
+                  </a>
                 </div>
               </section>
             </div>
-            <nav class="box" aria-label="Season selector">
-              <span class="label">Season selector</span>
-              <div class="card">
-                <a href="#season-detail">Current season slug</a>
-                <a href="#season-detail">Previous season slug</a>
+            <nav class="box season-selector" aria-label="Competition Season overview selector" data-od-id="current-season-selector">
+              <div class="league-subhead">
+                <div>
+                  <span class="season-context">Competition Season navigation</span>
+                  <h3>Choose a Competition Season overview</h3>
+                </div>
+                <span class="selector-rule">Overview links only</span>
               </div>
+              <div class="season-links">
+                <a class="season-link" href="#competition-season-overview" aria-current="page" data-od-id="season-link-current">
+                  <span>Summer 2026 · Ongoing</span>
+                  <span class="season-link__route">/competitions/wrpm-hong-kong-league</span>
+                </a>
+                <a class="season-link" href="#competition-season-overview-historical" data-od-id="season-link-summer-2025">
+                  <span>Summer 2025 · Historical</span>
+                  <span class="season-link__route">/competitions/wrpm-hong-kong-league/summer-2025</span>
+                </a>
+                <a class="season-link" href="#competition-season-overview-historical" data-od-id="season-link-summer-2024">
+                  <span>Summer 2024 · Historical</span>
+                  <span class="season-link__route">/competitions/wrpm-hong-kong-league/summer-2024</span>
+                </a>
+              </div>
+              <p class="note">Each option links only to another Competition Season overview state. No selector option links directly to match details.</p>
             </nav>
           </div>
         </div>
       </section>
 
-      <section class="section" id="season-detail" data-od-id="season-route-wireframe">
+      <section class="section" id="competition-season-overview-historical" data-od-id="competition-season-overview-historical-wireframe">
         <header class="section__head">
-          <h2>6. Season route / match result area</h2>
-          <span class="route">/league/[seasonSlug]</span>
+          <h2 data-od-id="competition-season-overview-historical-heading">6. Same Competition Season Overview template — historical state</h2>
+          <span class="route">/competitions/[competitionSlug]/[seasonSlug]</span>
         </header>
         <div class="body">
-          <div class="frame-pair" aria-label="Season detail desktop and mobile frames">
-            <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Season heading and context</div><div class="frame-block">Rounds with two game cards per row</div><div class="frame-block">Four member result tiles per game</div></div>
-            <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Season heading and context</div><div class="frame-block">Rounds in vertical order</div><div class="frame-block">One game card per row with four member tiles</div></div>
+          <div class="frame-pair" aria-label="Historical Competition Season overview desktop and mobile frames">
+            <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Same Competition Season Overview template</div><div class="frame-block">Historical Competition Season selected</div><div class="frame-block">Season-specific participants/ranking + action</div></div>
+            <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Same template, stacked</div><div class="frame-block">Historical season selected</div><div class="frame-block">Ranking cards + full-width match-details action</div></div>
           </div>
-          <div class="screen">
+          <div class="screen league-screen" data-od-id="historical-season-overview-screen">
             <div class="wire-header">
-              <div class="bar">SEASON DETAIL — section label</div>
-              <div class="wire-title">Same LeagueOverviewPage with selected season</div>
-              <div class="wire-copy">Use existing season title, league fields, participants, completed matches, and seasons list.</div>
+              <div class="wire-title">WRPM Hong Kong League</div>
+              <div class="league-subhead">
+                <div>
+                  <span class="season-context">Historical Competition Season selected</span>
+                  <h3>Summer 2025</h3>
+                </div>
+                <span class="selector-rule">/competitions/wrpm-hong-kong-league/summer-2025</span>
+              </div>
+              <div class="wire-copy">This is the same Competition Season Overview template shown with a historical selection. Only the season title, participants/ranking data, and highlighted selector entry change.</div>
             </div>
-            <section class="box season-results" data-od-id="season-match-results">
-              <span class="label">Match results by round</span>
-              <p class="note"><strong>Later code/query adjustment:</strong> member profile icons need a query update because the current league participant/result data does not include <code>profileImage</code>. These circles are wireframe placeholders until that field is available.</p>
+            <div class="league-overview-stack" data-od-id="historical-competition-season-overview-flow">
+              <section class="box league-shared-copy" data-od-id="competition-shared-content-historical">
+                <h3>WRPM Hong Kong League</h3>
+                <p>Competition introduction — shared across all Competition Seasons.</p>
+                <p>Competition description — shared across all Competition Seasons.</p>
+              </section>
+              <section class="box" data-od-id="historical-season-ranking">
+                <div class="league-subhead">
+                  <div>
+                    <span class="season-context">Season ranking</span>
+                    <h3>Summer 2025 ranking</h3>
+                  </div>
+                  <a class="primary-action" href="#competition-season-matches" data-od-id="historical-view-match-details">View match details</a>
+                </div>
+                <p class="note">Calculated only from completed matches belonging to Summer 2025. Participants and ranking are derived from this Competition Season, not from Summer 2026.</p>
+                <div class="ranking-grid" data-od-id="historical-ranking-member-grid">
+                  <a class="ranking-member-tile" href="#member-detail" data-od-id="historical-ranking-member-01">
+                    <span class="ranking-avatar" aria-hidden="true">B</span>
+                    <span class="ranking-copy"><span class="ranking-rank">Rank 1</span><strong class="ranking-name">Member B</strong><span class="ranking-meta"><span>Total score: --</span><span>Matches played: --</span></span></span>
+                  </a>
+                  <a class="ranking-member-tile" href="#member-detail" data-od-id="historical-ranking-member-02">
+                    <span class="ranking-avatar" aria-hidden="true">D</span>
+                    <span class="ranking-copy"><span class="ranking-rank">Rank 2</span><strong class="ranking-name">Member D</strong><span class="ranking-meta"><span>Total score: --</span><span>Matches played: --</span></span></span>
+                  </a>
+                  <a class="ranking-member-tile" href="#member-detail" data-od-id="historical-ranking-member-03">
+                    <span class="ranking-avatar" aria-hidden="true">A</span>
+                    <span class="ranking-copy"><span class="ranking-rank">Rank 3</span><strong class="ranking-name">Member A</strong><span class="ranking-meta"><span>Total score: --</span><span>Matches played: --</span></span></span>
+                  </a>
+                  <a class="ranking-member-tile" href="#member-detail" data-od-id="historical-ranking-member-04">
+                    <span class="ranking-avatar" aria-hidden="true">C</span>
+                    <span class="ranking-copy"><span class="ranking-rank">Rank 4</span><strong class="ranking-name">Member C</strong><span class="ranking-meta"><span>Total score: --</span><span>Matches played: --</span></span></span>
+                  </a>
+                </div>
+              </section>
+            </div>
+            <nav class="box season-selector" aria-label="Competition Season overview selector" data-od-id="historical-season-selector">
+              <div class="league-subhead">
+                <div>
+                  <span class="season-context">Competition Season navigation</span>
+                  <h3>Choose a Competition Season overview</h3>
+                </div>
+                <span class="selector-rule">Overview links only</span>
+              </div>
+              <div class="season-links">
+                <a class="season-link" href="#competition-season-overview" data-od-id="historical-link-current">
+                  <span>Summer 2026 · Ongoing</span>
+                  <span class="season-link__route">/competitions/wrpm-hong-kong-league</span>
+                </a>
+                <a class="season-link" href="#competition-season-overview-historical" aria-current="page" data-od-id="historical-link-selected">
+                  <span>Summer 2025 · Historical</span>
+                  <span class="season-link__route">/competitions/wrpm-hong-kong-league/summer-2025</span>
+                </a>
+                <a class="season-link" href="#competition-season-overview-historical" data-od-id="historical-link-previous">
+                  <span>Summer 2024 · Historical</span>
+                  <span class="season-link__route">/competitions/wrpm-hong-kong-league/summer-2024</span>
+                </a>
+              </div>
+              <p class="note">The selector changes the Competition Season state within the same overview template. Use View match details above to open the separate matches page for the selected Competition Season.</p>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="competition-season-matches" data-od-id="competition-season-matches-wireframe">
+        <header class="section__head">
+          <h2 data-od-id="competition-season-matches-heading">7. Competition Season matches page</h2>
+          <span class="route">/competitions/[competitionSlug]/[seasonSlug]/matches</span>
+        </header>
+        <div class="body">
+          <div class="frame-pair" aria-label="Competition Season matches desktop and mobile frames">
+            <div class="device-frame"><span class="device-label">Desktop frame</span><div class="frame-block">Selected Competition Season header</div><div class="frame-block">Completed matches grouped by round</div><div class="frame-block">Two game cards per round row</div><div class="frame-block">Player avatar / name / placement / score</div></div>
+            <div class="device-frame device-frame--mobile"><span class="device-label">Mobile frame</span><div class="frame-block">Selected season header + back link</div><div class="frame-block">Rounds in vertical order</div><div class="frame-block">One game card per row</div><div class="frame-block">Player result tiles stack cleanly</div></div>
+          </div>
+          <div class="screen league-screen competition-matches-screen" data-od-id="competition-season-matches-screen">
+            <div class="wire-header">
+              <div class="wire-title">WRPM Hong Kong League / selected Competition Season matches</div>
+              <div class="league-subhead">
+                <div>
+                  <span class="season-context">Completed results</span>
+                  <h3>Summer 2025</h3>
+                </div>
+                <a class="secondary-action" href="#competition-season-overview-historical" data-od-id="competition-season-matches-back">Back to season overview</a>
+              </div>
+              <div class="wire-copy">Separate matches page for the selected Competition Season. The screen below shows the Summer 2025 state; the same template receives the selected competition and season slugs from either overview state.</div>
+              <p class="note">Back to season overview returns to the same selected Competition Season state; this example returns to Summer 2025.</p>
+            </div>
+            <section class="box season-results" data-od-id="competition-season-matches-list">
+              <span class="label">Completed matches by round</span>
+              <p class="note"><strong>Competition Season participants:</strong> member avatars use an image when available or the same initial fallback shown in the ranking cards.</p>
               <div class="season-rounds">
-                <article class="season-round" data-od-id="season-round-01" aria-label="Round 01 — 2026-07-27 — completed">
+                <article class="season-round" data-od-id="season-round-01" aria-label="Round 01 — 2025-07-27 — completed">
                   <header class="season-round__head">
                     <div class="season-round__meta">
                       <span class="label">Round 01</span>
-                      <h3>2026-07-27</h3>
+                      <h3>2025-07-27</h3>
                     </div>
                     <span class="season-round__status">Completed</span>
                   </header>
@@ -844,11 +1325,11 @@
                     </article>
                   </div>
                 </article>
-                <article class="season-round" data-od-id="season-round-02" aria-label="Round 02 — 2026-08-03 — completed">
+                <article class="season-round" data-od-id="season-round-02" aria-label="Round 02 — 2025-08-03 — completed">
                   <header class="season-round__head">
                     <div class="season-round__meta">
                       <span class="label">Round 02</span>
-                      <h3>2026-08-03</h3>
+                      <h3>2025-08-03</h3>
                     </div>
                     <span class="season-round__status">Completed</span>
                   </header>
@@ -881,7 +1362,7 @@
 
       <section class="section" id="states" data-od-id="states-wireframe">
         <header class="section__head">
-          <h2>7. Required states</h2>
+          <h2>8. Required states</h2>
           <span class="route">Neutral state annotations</span>
         </header>
         <div class="body">

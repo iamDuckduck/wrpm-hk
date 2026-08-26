@@ -1,5 +1,6 @@
 ---
 import type {SiteBranding} from '../lib/site-branding'
+import type {CompetitionNavigationItem} from '../queries/competition'
 import {
   getLocaleCopy,
   getLocalizedPath,
@@ -11,9 +12,10 @@ import {
 interface Props {
   branding: SiteBranding
   locale: Locale
+  competitions: CompetitionNavigationItem[]
 }
 
-const {branding, locale} = Astro.props
+const {branding, locale, competitions} = Astro.props
 const copy = getLocaleCopy(locale)
 const hasLogo = Boolean(branding.logoUrl)
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/'
@@ -58,14 +60,33 @@ function localeShortName(supportedLocale: Locale) {
           <span>{copy.members}</span>
           <span aria-hidden="true">02</span>
         </a>
-        <a
-          class="mobile-navigation__link"
-          href={getLocalizedPath(locale, '/league')}
-          aria-current={isCurrentRoute(getLocalizedPath(locale, '/league'), true) ? 'page' : undefined}
-        >
-          <span>{copy.league}</span>
-          <span aria-hidden="true">03</span>
-        </a>
+        <details class="mobile-navigation__group">
+          <summary
+            class="mobile-navigation__link"
+            aria-current={isCurrentRoute(getLocalizedPath(locale, '/competitions'), true) ? 'page' : undefined}
+          >
+            <span>{copy.competitions}</span>
+            <span aria-hidden="true">03</span>
+          </summary>
+          <nav class="mobile-navigation__submenu" aria-label={copy.competitions}>
+            {competitions.map((competition) => (
+              <a
+                class="mobile-navigation__sublink"
+                href={getLocalizedPath(locale, `/competitions/${competition.slug}`)}
+                aria-current={
+                  isCurrentRoute(
+                    getLocalizedPath(locale, `/competitions/${competition.slug}`),
+                    true,
+                  )
+                    ? 'page'
+                    : undefined
+                }
+              >
+                {competition.title || competition.slug}
+              </a>
+            ))}
+          </nav>
+        </details>
       </nav>
     </details>
 

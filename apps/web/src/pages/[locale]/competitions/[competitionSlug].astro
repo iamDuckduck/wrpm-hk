@@ -1,0 +1,24 @@
+---
+import CompetitionOverviewPage from '../../../components/CompetitionOverviewPage.astro'
+import {PUBLIC_LOCALES, type Locale} from '../../../lib/localization'
+import {sanityClient} from '../../../lib/sanity'
+import {COMPETITION_SLUGS_QUERY, type CompetitionSlug} from '../../../queries/competition'
+
+export async function getStaticPaths() {
+  const competitions = await sanityClient.fetch<CompetitionSlug[]>(COMPETITION_SLUGS_QUERY)
+
+  return PUBLIC_LOCALES.flatMap((locale) =>
+    competitions.map(({slug}) => ({
+      params: {locale, competitionSlug: slug},
+      props: {locale, competitionSlug: slug},
+    })),
+  )
+}
+
+const {locale, competitionSlug} = Astro.props as {
+  locale: Locale
+  competitionSlug: string
+}
+---
+
+<CompetitionOverviewPage locale={locale} competitionSlug={competitionSlug} />

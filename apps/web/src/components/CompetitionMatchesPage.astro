@@ -1,0 +1,393 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import {
+  getLocalizedPath,
+  getLocaleCopy,
+  getSanityLocaleKey,
+  type Locale,
+} from '../lib/localization'
+import {groupMatchesByRound} from '../lib/league-ranking'
+import {buildSanityImageUrl} from '../lib/sanity-image'
+import {sanityClient} from '../lib/sanity'
+import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
+import {
+  COMPETITION_SEASON_BY_SLUG_QUERY,
+  type CompetitionPageData,
+} from '../queries/competition'
+
+interface Props {
+  locale: Locale
+  competitionSlug: string
+  seasonSlug: string
+}
+
+const {locale, competitionSlug, seasonSlug} = Astro.props
+const copy = getLocaleCopy(locale)
+const localeKey = getSanityLocaleKey(locale)
+
+const [homepage, competition] = await Promise.all([
+  sanityClient.fetch<HomePageQueryResult>(HOME_PAGE_QUERY, {locale: localeKey}),
+  sanityClient.fetch<CompetitionPageData | null>(COMPETITION_SEASON_BY_SLUG_QUERY, {
+    locale: localeKey,
+    competitionSlug,
+    seasonSlug,
+  }),
+])
+
+const selectedSeason = competition?.season ?? null
+const participants = selectedSeason?.participants ?? []
+const participantsById = new Map(
+  participants.map((participant) => [participant.memberId, participant]),
+)
+const matchRounds = groupMatchesByRound(
+  (selectedSeason?.matches ?? []).map((match) => ({
+    id: match._id,
+    round: match.round,
+    scheduledAt: match.scheduledAt,
+    results: match.results ?? [],
+  })),
+)
+const pageTitle = competition?.title?.trim() || copy.competition
+const seasonTitle = selectedSeason?.seasonTitle?.trim() || seasonSlug
+const overviewPath = selectedSeason
+  ? `/competitions/${competitionSlug}/${selectedSeason.seasonSlug}`
+  : `/competitions/${competitionSlug}`
+
+function formatMatchDate(value: string) {
+  return new Intl.DateTimeFormat(locale, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(value))
+}
+
+function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
+  return copy.competitionStatus(status)
+}
+---
+
+<BaseLayout title={copy.competitionMatches} locale={locale} siteSettings={homepage.siteSettings}>
+  <section class="competition-matches-page container" aria-labelledby="competition-matches-title">
+    <header class="competition-matches-page__header">
+      <a class="competition-matches-page__back" href={getLocalizedPath(locale, overviewPath)}>
+        {pageTitle}
+      </a>
+      <p class="competition-matches-page__eyebrow">{copy.competition}</p>
+      <h1 id="competition-matches-title">{copy.competitionMatches}</h1>
+      <p class="competition-matches-page__season">{seasonTitle}</p>
+      {selectedSeason && (
+        <p class="competition-matches-page__status">
+          {formatCompetitionStatus(selectedSeason.seasonStatus)}
+        </p>
+      )}
+    </header>
+
+    {selectedSeason ? (
+      <section class="competition-matches" aria-labelledby="competition-results-title">
+        <div class="competition-matches__section-heading">
+          <h2 id="competition-results-title">{copy.competitionResults}</h2>
+        </div>
+
+        {matchRounds.length > 0 ? (
+          <ol class="competition-rounds">
+            {matchRounds.map((round) => (
+              <li class="competition-round">
+                <h2>{copy.competitionRound(round.round)}</h2>
+                <ol class="competition-round__games">
+                  {round.matches.map((match) => (
+                    <li class="competition-game">
+                      <header class="competition-game__header">
+                        <h3>
+                          <time datetime={match.scheduledAt}>
+                            {formatMatchDate(match.scheduledAt)}
+                          </time>
+                        </h3>
+                      </header>
+
+                      {match.results.length > 0 ? (
+                        <ol class="competition-game__results">
+                          {match.results.map((result) => {
+                            const participant = participantsById.get(result.memberId)
+                            const name = participant?.name?.trim() || copy.memberUnknown
+                            const imageUrl = buildSanityImageUrl(
+                              participant?.profileImage,
+                              {width: 112},
+                            )
+
+                            return (
+                              <li class="competition-game-member">
+                                <span class="competition-game-member__avatar">
+                                  {imageUrl ? (
+                                    <img
+                                      src={imageUrl}
+                                      alt=""
+                                      width="56"
+                                      height="56"
+                                      loading="lazy"
+                                    />
+                                  ) : (
+                                    <span aria-hidden="true">{name.slice(0, 1)}</span>
+                                  )}
+                                </span>
+                                <span class="competition-game-member__content">
+                                  <span class="competition-game-member__place">
+                                    #{result.placement}
+                                  </span>
+                                  {participant?.slug ? (
+                                    <a
+                                      href={getLocalizedPath(
+                                        locale,
+                                        `/members/${participant.slug}`,
+                                      )}
+                                    >
+                                      {name}
+                                    </a>
+                                  ) : (
+                                    <span>{name}</span>
+                                  )}
+                                  <strong>{result.score}</strong>
+                                </span>
+                              </li>
+                            )
+                          })}
+                        </ol>
+                      ) : (
+                        <p class="competition-matches__empty">{copy.competitionResultsEmpty}</p>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="competition-matches__empty">{copy.competitionResultsEmpty}</p>
+        )}
+      </section>
+    ) : (
+      <p class="competition-matches__empty" role="status">{copy.competitionNotFound}</p>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .competition-matches-page {
+    padding-block: 4rem 6rem;
+  }
+
+  .competition-matches-page__header {
+    max-width: 48rem;
+    margin-bottom: 3rem;
+  }
+
+  .competition-matches-page__back {
+    display: inline-flex;
+    margin-bottom: 2rem;
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .competition-matches-page__back:hover {
+    text-decoration: underline;
+  }
+
+  .competition-matches-page__eyebrow {
+    margin: 0;
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .competition-matches-page h1 {
+    margin: 0.75rem 0 0;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: clamp(2.25rem, 7vw, 5rem);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .competition-matches-page__season,
+  .competition-matches-page__status {
+    margin: 0.75rem 0 0;
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-label);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .competition-matches-page__status {
+    color: var(--color-primary);
+  }
+
+  .competition-matches {
+    display: grid;
+    gap: 1px;
+    padding: 2rem 1.5rem;
+    background: var(--color-surface-container);
+  }
+
+  .competition-matches__section-heading h2,
+  .competition-round h2 {
+    margin: 0.5rem 0 0;
+    color: var(--color-on-background);
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    line-height: 1.2;
+  }
+
+  .competition-matches__section-heading {
+    margin-bottom: 1.5rem;
+  }
+
+  .competition-rounds,
+  .competition-round__games,
+  .competition-game__results {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .competition-rounds {
+    gap: 2rem;
+  }
+
+  .competition-round {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .competition-round > h2 {
+    margin: 0;
+    border-left: 4px solid var(--color-primary);
+    padding-left: 0.75rem;
+    font-size: 1.25rem;
+  }
+
+  .competition-game {
+    border: 1px solid var(--color-outline);
+    padding: 1rem;
+    background: var(--color-surface-lowest);
+  }
+
+  .competition-game__header {
+    border-bottom: 1px solid var(--color-outline);
+    padding-bottom: 0.75rem;
+  }
+
+  .competition-game__header h3 {
+    margin: 0;
+    color: var(--color-on-surface-variant);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .competition-game__results {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 1rem;
+    background: var(--color-outline);
+  }
+
+  .competition-game-member {
+    display: grid;
+    min-width: 0;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    background: var(--color-surface-container);
+  }
+
+  .competition-game-member__avatar {
+    display: grid;
+    width: 3.5rem;
+    height: 3.5rem;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid var(--color-outline);
+    border-radius: 50%;
+    color: var(--color-primary);
+    background: var(--color-surface-high);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+  }
+
+  .competition-game-member__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .competition-game-member__content {
+    display: grid;
+    min-width: 0;
+    gap: 0.35rem;
+  }
+
+  .competition-game-member__place {
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .competition-game-member__content a,
+  .competition-game-member__content > span:not(.competition-game-member__place) {
+    overflow: hidden;
+    color: var(--color-on-background);
+    font-family: var(--font-label);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .competition-game-member__content a:hover {
+    color: var(--color-primary);
+  }
+
+  .competition-game-member__content strong {
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    font-size: 1rem;
+  }
+
+  .competition-matches__empty {
+    margin: 0;
+    border-left: 3px solid var(--color-primary);
+    padding: 1.25rem 1.5rem;
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-lowest);
+  }
+
+  @media (min-width: 48rem) {
+    .competition-matches-page {
+      padding-block: 5rem 8rem;
+    }
+
+    .competition-matches {
+      padding: 3rem clamp(2rem, 5vw, 5rem);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .competition-round__games {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

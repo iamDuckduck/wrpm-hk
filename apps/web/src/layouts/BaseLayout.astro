@@ -1,9 +1,14 @@
 ---
 import Footer from '../components/Footer.astro'
 import Navbar from '../components/Navbar.astro'
-import {getLocaleCopy, type Locale} from '../lib/localization'
+import {getLocaleCopy, getSanityLocaleKey, type Locale} from '../lib/localization'
 import {resolveSiteBranding} from '../lib/site-branding'
+import {sanityClient} from '../lib/sanity'
 import type {SiteSettings} from '../queries/home-page'
+import {
+  COMPETITION_NAVIGATION_QUERY,
+  type CompetitionNavigationItem,
+} from '../queries/competition'
 import '../styles/global.css'
 
 interface Props {
@@ -16,6 +21,10 @@ const {title, locale, siteSettings} = Astro.props
 const branding = resolveSiteBranding(siteSettings)
 const copy = getLocaleCopy(locale)
 const pageTitle = `${title} | ${branding.organizationName}`
+const competitions = await sanityClient.fetch<CompetitionNavigationItem[]>(
+  COMPETITION_NAVIGATION_QUERY,
+  {locale: getSanityLocaleKey(locale)},
+)
 ---
 
 <!doctype html>
@@ -38,7 +47,7 @@ const pageTitle = `${title} | ${branding.organizationName}`
   <body>
     <a class="skip-link" href="#main-content">{copy.skipLink}</a>
     <div class="site-shell">
-      <Navbar branding={branding} locale={locale} />
+      <Navbar branding={branding} locale={locale} competitions={competitions} />
       <main id="main-content">
         <slot />
       </main>

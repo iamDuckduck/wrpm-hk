@@ -14,6 +14,24 @@ export interface CompletedLeagueMatch {
   results: MatchResultForRanking[]
 }
 
+export interface LeagueMatchForResults extends CompletedLeagueMatch {
+  round: number
+  scheduledAt: string
+}
+
+export interface PlacedMatchResult extends MatchResultForRanking {
+  placement: number
+}
+
+export interface PlacedLeagueMatch extends Omit<LeagueMatchForResults, 'results'> {
+  results: PlacedMatchResult[]
+}
+
+export interface LeagueMatchRound {
+  round: number
+  matches: PlacedLeagueMatch[]
+}
+
 export interface LeagueStanding {
   memberId: string
   name: string
@@ -78,4 +96,48 @@ export function calculateLeagueStandings(
   }
 
   return standings
+}
+
+export function groupMatchesByRound(
+  matches: LeagueMatchForResults[],
+): LeagueMatchRound[] {
+  const rounds = new Map<number, PlacedLeagueMatch[]>()
+  const orderedMatches = [...matches].sort((left, right) => {
+    if (left.round !== right.round) return left.round - right.round
+    return left.scheduledAt.localeCompare(right.scheduledAt)
+  })
+
+  for (const match of orderedMatches) {
+    const orderedResults = [...match.results].sort((left, right) => {
+      if (left.score !== right.score) return right.score - left.score
+      return left.memberId.localeCompare(right.memberId)
+    })
+
+    let previousScore: number | null = null
+    let previousPlacement = 0
+    const results = orderedResults.map((result, index) => {
+      const placement =
+        result.score === previousScore ? previousPlacement : index + 1
+
+      previousScore = result.score
+      previousPlacement = placement
+
+      return {
+        ...result,
+        placement,
+      }
+    })
+
+    const roundMatches = rounds.get(match.round) ?? []
+    roundMatches.push({
+      ...match,
+      results,
+    })
+    rounds.set(match.round, roundMatches)
+  }
+
+  return Array.from(rounds, ([round, roundMatches]) => ({
+    round,
+    matches: roundMatches,
+  }))
 }

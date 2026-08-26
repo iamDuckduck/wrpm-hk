@@ -12,6 +12,22 @@ export interface LocaleCopy {
   home: string
   about: string
   navigation: string
+  competitions: string
+  competition: string
+  competitionOverview: string
+  competitionRanking: string
+  competitionScore: string
+  competitionMatchesPlayed: string
+  competitionMatches: string
+  competitionResults: string
+  competitionRound: (round: number) => string
+  competitionResultsEmpty: string
+  competitionSeasons: string
+  competitionSeasonSelector: string
+  competitionSeasonCurrent: string
+  competitionStatus: (status: 'upcoming' | 'ongoing' | 'completed') => string
+  competitionNotFound: string
+  competitionNoRankings: string
   league: string
   leagueOverview: string
   leagueRanking: string
@@ -58,6 +74,23 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     home: '首頁',
     about: '關於我們',
     navigation: '網站導覽',
+    competitions: '比賽',
+    competition: '比賽',
+    competitionOverview: '比賽概覽',
+    competitionRanking: '排名',
+    competitionScore: '總分',
+    competitionMatchesPlayed: '完成場數',
+    competitionMatches: '查看賽事結果',
+    competitionResults: '賽事結果',
+    competitionRound: (round) => `第 ${round} 輪`,
+    competitionResultsEmpty: '完成賽事後，結果將會顯示在這裡。',
+    competitionSeasons: '比賽賽季',
+    competitionSeasonSelector: '選擇比賽賽季',
+    competitionSeasonCurrent: '目前賽季',
+    competitionStatus: (status) =>
+      ({upcoming: '即將開始', ongoing: '進行中', completed: '已完成'})[status],
+    competitionNotFound: '目前沒有可用的比賽。',
+    competitionNoRankings: '完成賽事後，排名將會顯示在這裡。',
     league: '聯賽',
     leagueOverview: '聯賽概覽',
     leagueRanking: '排名',
@@ -107,6 +140,23 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     home: 'Home',
     about: 'About Us',
     navigation: 'Site navigation',
+    competitions: 'Competitions',
+    competition: 'Competition',
+    competitionOverview: 'Competition Overview',
+    competitionRanking: 'Ranking',
+    competitionScore: 'Total score',
+    competitionMatchesPlayed: 'Matches played',
+    competitionMatches: 'View match results',
+    competitionResults: 'Match results',
+    competitionRound: (round) => `Round ${round}`,
+    competitionResultsEmpty: 'Completed match results will appear here.',
+    competitionSeasons: 'Competition seasons',
+    competitionSeasonSelector: 'Choose a competition season',
+    competitionSeasonCurrent: 'Current season',
+    competitionStatus: (status) =>
+      ({upcoming: 'Upcoming', ongoing: 'Ongoing', completed: 'Completed'})[status],
+    competitionNotFound: 'There is no competition available at the moment.',
+    competitionNoRankings: 'Rankings will appear here after completed matches.',
     league: 'League',
     leagueOverview: 'League Overview',
     leagueRanking: 'Ranking',
@@ -156,6 +206,23 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     home: 'ホーム',
     about: '私たちについて',
     navigation: 'サイトナビゲーション',
+    competitions: '大会',
+    competition: '大会',
+    competitionOverview: '大会概要',
+    competitionRanking: 'ランキング',
+    competitionScore: '合計スコア',
+    competitionMatchesPlayed: '対戦数',
+    competitionMatches: '試合結果を見る',
+    competitionResults: '試合結果',
+    competitionRound: (round) => `第${round}ラウンド`,
+    competitionResultsEmpty: '試合が完了すると結果が表示されます。',
+    competitionSeasons: '大会シーズン',
+    competitionSeasonSelector: '大会シーズンを選択',
+    competitionSeasonCurrent: '現在のシーズン',
+    competitionStatus: (status) =>
+      ({upcoming: '開催予定', ongoing: '開催中', completed: '完了'})[status],
+    competitionNotFound: '現在利用できる大会はありません。',
+    competitionNoRankings: '試合が完了するとランキングが表示されます。',
     league: 'リーグ',
     leagueOverview: 'リーグ概要',
     leagueRanking: 'ランキング',
