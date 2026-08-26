@@ -83,10 +83,8 @@ describe('WRPM visual foundation', () => {
   })
 
   it('uses compact mobile navigation while preserving the desktop controls', () => {
-    expect(styles).toMatch(/\.mobile-navigation\s*{[^}]*display:\s*none/s)
-    expect(styles).toMatch(
-      /@media\s*\(min-width:\s*48rem\)[\s\S]*?\.mobile-navigation\s*{[^}]*display:\s*block/s,
-    )
+    expect(styles).toMatch(/\.mobile-navigation\s*{[^}]*display:\s*block/s)
+    expect(styles).not.toMatch(/\.mobile-navigation\s*{[^}]*display:\s*none/s)
     expect(styles).toMatch(
       /@media\s*\(min-width:\s*48rem\)[\s\S]*?\.mobile-language-switcher\s*{[^}]*display:\s*none/s,
     )
