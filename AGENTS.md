@@ -1,6 +1,8 @@
-# Codex model routing
+# Agent workflow
 
-- Use the primary agent, configured as GPT-5.6 Sol with high reasoning, for requirements, planning, architecture, investigation, review, and final verification.
-- Delegate substantial code implementation to a subagent configured as GPT-5.6 Luna with max reasoning. Substantial implementation includes multi-file features, non-trivial refactors, complex bug fixes, and execution of longer implementation plans.
-- Keep explanations, read-only checks, planning-only work, and small local edits with the primary agent unless delegation would materially improve the result.
-- An explicit model or reasoning-effort request from the user overrides these defaults.
+- Work directly on clear, bounded, low-risk requests.
+- For complex, ambiguous, risky, or multi-step work, create a Markdown plan under `.plans/` with a descriptive name such as `.plans/competition-import.md`.
+- Share a concise summary of the plan with the user so they have the relevant context, then normally continue with implementation.
+- Pause before implementation only when unresolved choices could materially change the result, the action requires additional authorization, or the user explicitly asks to review the plan first.
+- Keep the plan current when implementation materially changes direction.
+- Do not require specific models, reasoning levels, subagents, or delegation.
