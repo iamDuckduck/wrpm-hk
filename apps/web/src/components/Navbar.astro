@@ -3,6 +3,7 @@ import type {SiteBranding} from '../lib/site-branding'
 import type {CompetitionNavigationItem} from '../queries/competition'
 import {
   getLocaleCopy,
+  getLocalizedHref,
   getLocalizedPath,
   getLocalePath,
   SUPPORTED_LOCALES,
@@ -19,6 +20,7 @@ const {branding, locale, competitions} = Astro.props
 const copy = getLocaleCopy(locale)
 const hasLogo = Boolean(branding.logoUrl)
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/'
+const currentSearch = Astro.url.search
 
 function isCurrentRoute(path: string, includeChildren = false) {
   const normalizedPath = path.replace(/\/+$/, '') || '/'
@@ -116,7 +118,7 @@ function localeShortName(supportedLocale: Locale) {
         {SUPPORTED_LOCALES.map((supportedLocale) => (
           <a
             class="mobile-language-switcher__link"
-            href={getLocalePath(supportedLocale)}
+            href={`${getLocalizedHref(supportedLocale, currentPath)}${currentSearch}`}
             aria-current={supportedLocale === locale ? 'page' : undefined}
           >
             {copy.localeNames[supportedLocale]}
@@ -130,7 +132,7 @@ function localeShortName(supportedLocale: Locale) {
         <a
           class="language-switcher__link"
           class:language-switcher__link--current={supportedLocale === locale}
-          href={getLocalePath(supportedLocale)}
+          href={`${getLocalizedHref(supportedLocale, currentPath)}${currentSearch}`}
           aria-label={copy.localeNames[supportedLocale]}
           aria-current={supportedLocale === locale ? 'page' : undefined}
         >

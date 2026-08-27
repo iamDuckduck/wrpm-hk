@@ -313,6 +313,31 @@ export function getLocalizedPath(locale: Locale, pathname: string): string {
   return localePath === '/' ? normalizedPath : `${localePath}${normalizedPath}`
 }
 
+export function getPathWithoutLocale(pathname: string): string {
+  const normalizedPath = (pathname.startsWith('/') ? pathname : `/${pathname}`).replace(/\/+$/, '') || '/'
+
+  for (const publicLocale of PUBLIC_LOCALES) {
+    const prefix = `/${publicLocale}`
+    if (normalizedPath === prefix) {
+      return '/'
+    }
+    if (normalizedPath.startsWith(`${prefix}/`)) {
+      return normalizedPath.slice(prefix.length)
+    }
+  }
+
+  return normalizedPath
+}
+
+export function getLocalizedHref(locale: Locale, pathname: string): string {
+  const pathWithoutLocale = getPathWithoutLocale(pathname)
+  if (pathWithoutLocale === '/') {
+    return getLocalePath(locale)
+  }
+
+  return getLocalizedPath(locale, pathWithoutLocale)
+}
+
 export function getLocaleCopy(locale: Locale): LocaleCopy {
   return localeCopies[locale]
 }

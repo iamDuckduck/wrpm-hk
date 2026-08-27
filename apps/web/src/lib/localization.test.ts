@@ -5,6 +5,8 @@ import {
   SUPPORTED_LOCALES,
   getLocaleCopy,
   getLocalePath,
+  getLocalizedHref,
+  getPathWithoutLocale,
   getSanityLocaleKey,
 } from './localization'
 
@@ -19,6 +21,29 @@ describe('localization', () => {
     expect(getLocalePath('zh-HK')).toBe('/')
     expect(getLocalePath('en')).toBe('/en')
     expect(getLocalePath('ja')).toBe('/ja')
+  })
+
+  it('strips public locale prefixes from pathnames', () => {
+    expect(getPathWithoutLocale('/')).toBe('/')
+    expect(getPathWithoutLocale('/en')).toBe('/')
+    expect(getPathWithoutLocale('/ja')).toBe('/')
+    expect(getPathWithoutLocale('/members/alice')).toBe('/members/alice')
+    expect(getPathWithoutLocale('/en/members/alice')).toBe('/members/alice')
+    expect(getPathWithoutLocale('/ja/competitions/foo/bar/matches')).toBe(
+      '/competitions/foo/bar/matches',
+    )
+    expect(getPathWithoutLocale('/en/members/alice/')).toBe('/members/alice')
+  })
+
+  it('rebuilds the current page path for a target locale', () => {
+    expect(getLocalizedHref('en', '/members/alice')).toBe('/en/members/alice')
+    expect(getLocalizedHref('zh-HK', '/en/competitions/foo/bar/matches')).toBe(
+      '/competitions/foo/bar/matches',
+    )
+    expect(getLocalizedHref('en', '/ja')).toBe('/en')
+    expect(getLocalizedHref('zh-HK', '/en')).toBe('/')
+    expect(getLocalizedHref('ja', '/')).toBe('/ja')
+    expect(getLocalizedHref('en', '/members/alice/')).toBe('/en/members/alice')
   })
 
   it('maps URL locales to Sanity localized field keys', () => {
