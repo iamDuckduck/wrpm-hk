@@ -17,7 +17,6 @@ type MatchDocument = {
 type MatchPlayerDraft = {
   member?: {_ref?: string}
   score?: number
-  placement?: number
 }
 
 type MatchSequenceRecord = {
@@ -100,12 +99,6 @@ export const match = defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'title',
-      title: 'Title',
-      type: 'localizedString',
-      validation: (Rule) => Rule.required(),
-    }),
-    defineField({
       name: 'stage',
       title: 'Stage',
       type: 'reference',
@@ -173,7 +166,7 @@ export const match = defineType({
       name: 'players',
       title: 'Players',
       description:
-        'Enter exactly four unique members. Completed matches also require each score and placement.',
+        'Enter exactly four unique members. Completed matches require a score for each player; placement is calculated from score, then member name.',
       type: 'array',
       of: [defineArrayMember({type: 'matchPlayer'})],
       validation: (Rule) =>
@@ -199,26 +192,7 @@ export const match = defineType({
               return 'Completed matches require a score for every player.'
             }
 
-            const placements = players.map((player) => player.placement)
-            if (
-              !placements.every(
-                (placement): placement is number =>
-                  typeof placement === 'number' &&
-                  Number.isInteger(placement) &&
-                  placement >= 1 &&
-                  placement <= 4,
-              )
-            ) {
-              return 'Completed match placements must be integers from 1 to 4.'
-            }
-
-            const sortedPlacements = [...placements].sort((left, right) => left - right)
-            if (sortedPlacements.join(',') !== '1,2,3,4') {
-              return 'Completed match placements must be unique integers from 1 to 4.'
-            }
-          } else if (
-            players.some((player) => player.score !== undefined || player.placement !== undefined)
-          ) {
+          } else if (players.some((player) => player.score !== undefined)) {
             return 'Scheduled and cancelled matches must include members only.'
           }
 
@@ -228,8 +202,6 @@ export const match = defineType({
   ],
   preview: {
     select: {
-      titleZhHk: 'title.zhHk',
-      titleEn: 'title.en',
       stageTitleZhHk: 'stage.title.zhHk',
       stageTitleEn: 'stage.title.en',
       matchTypeTitleZhHk: 'matchType.title.zhHk',
@@ -239,8 +211,6 @@ export const match = defineType({
       detailsUrl: 'detailsUrl',
     },
     prepare({
-      titleZhHk,
-      titleEn,
       stageTitleZhHk,
       stageTitleEn,
       matchTypeTitleZhHk,
@@ -249,14 +219,13 @@ export const match = defineType({
       status,
       detailsUrl,
     }) {
-      const matchTitle = firstPreviewText(titleZhHk, titleEn) ?? 'Untitled match'
       const stageTitle = firstPreviewText(stageTitleZhHk, stageTitleEn)
       const matchTypeTitle = firstPreviewText(matchTypeTitleZhHk, matchTypeTitleEn)
       const sequenceLabel = typeof sequence === 'number' ? `Match ${sequence}` : undefined
 
       return {
-        title: matchTitle,
-        subtitle: joinPreviewParts(stageTitle, matchTypeTitle, sequenceLabel, status, detailsUrl),
+        title: sequenceLabel ?? 'Match',
+        subtitle: joinPreviewParts(stageTitle, matchTypeTitle, status, detailsUrl),
       }
     },
   },

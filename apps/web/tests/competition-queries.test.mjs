@@ -41,11 +41,12 @@ describe('competition queries', () => {
       expect(query).toContain('sequence asc')
       expect(query).toContain('matchType')
       expect(query).toContain('"players"')
-      expect(query).toContain('placement')
+      expect(query).toContain('memberName')
       expect(query).toContain('score')
       expect(query).toContain('status == "completed"')
       expect(query).toContain('detailsUrl')
       expect(query).not.toContain('"results"')
+      expect(query).not.toContain('placement')
       expect(query).not.toContain('scheduledAt')
       expect(query).not.toMatch(/\bround\b/)
     }

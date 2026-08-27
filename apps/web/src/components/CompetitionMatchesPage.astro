@@ -144,11 +144,7 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
                             <ol class={`competition-match__players competition-match__players--${match.status}`}>
                               {match.players.map((player) => {
                                 const completedPlayer =
-                                  match.status === 'completed' &&
-                                  'placement' in player &&
-                                  'score' in player
-                                    ? player
-                                    : null
+                                  match.status === 'completed' ? player : null
                                 const participant = participantsById.get(player.memberId)
                                 const name = participant?.name?.trim() || copy.memberUnknown
                                 const imageUrl = buildSanityImageUrl(

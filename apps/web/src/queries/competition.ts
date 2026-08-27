@@ -100,7 +100,6 @@ const seasonProjection = `
       stage._ref == ^._id
     ] | order(sequence asc, _createdAt asc) {
       _id,
-      "title": ${localizedString},
       sequence,
       status,
       "matchType": matchType->{
@@ -113,8 +112,15 @@ const seasonProjection = `
           "detailsUrl": detailsUrl,
           "players": players[] {
             "memberId": member->_id,
-            score,
-            placement
+            "memberName": coalesce(
+              select(
+                $locale == "en" => member->name.en,
+                $locale == "ja" => member->name.ja,
+                member->name.zhHk
+              ),
+              member->name.zhHk
+            ),
+            score
           }
         },
         {
@@ -296,8 +302,8 @@ export type CompetitionMatchType = {
 
 export type CompetitionCompletedMatchPlayer = {
   memberId: string
+  memberName: string | null
   score: number
-  placement: number
 }
 
 export type CompetitionPendingMatchPlayer = {
@@ -306,7 +312,6 @@ export type CompetitionPendingMatchPlayer = {
 
 type CompetitionMatchBase = {
   _id: string
-  title: string | null
   sequence: number
   matchType: CompetitionMatchType
 }
