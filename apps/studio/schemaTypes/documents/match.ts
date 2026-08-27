@@ -1,8 +1,97 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 import {firstPreviewText, joinPreviewParts} from '../utils/preview'
 
-type MatchResultDraft = {
+type MatchStatus = 'scheduled' | 'completed' | 'cancelled'
+
+type MatchReference = {
+  _ref?: string
+}
+
+type MatchDocument = {
+  status?: MatchStatus
+  _id?: string
+  stage?: MatchReference
+  matchType?: MatchReference
+}
+
+type MatchPlayerDraft = {
   member?: {_ref?: string}
+  score?: number
+  placement?: number
+}
+
+type MatchSequenceRecord = {
+  sequence?: unknown
+}
+
+type MatchValidationContext = {
+  document?: MatchDocument
+  getClient?: (options: {apiVersion: string}) => {
+    fetch: <Result>(query: string, params: Record<string, unknown>) => Promise<Result>
+  }
+}
+
+const MATCH_SEQUENCE_QUERY = `*[
+  _type == "match" &&
+  stage._ref == $stageId &&
+  matchType._ref == $matchTypeId &&
+  !(_id in $excludedIds)
+] {
+  sequence
+}`
+
+function matchStatus(document: unknown): MatchStatus | undefined {
+  return (document as MatchDocument | undefined)?.status
+}
+
+function matchReferenceId(reference: MatchReference | undefined): string | undefined {
+  return typeof reference?._ref === 'string' && reference._ref ? reference._ref : undefined
+}
+
+async function validateMatchSequence(
+  value: unknown,
+  context: MatchValidationContext,
+): Promise<true | string> {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) return true
+
+  const stageId = matchReferenceId(context.document?.stage)
+  const matchTypeId = matchReferenceId(context.document?.matchType)
+  if (!stageId || !matchTypeId || !context.getClient) return true
+
+  const documentId = context.document?._id?.replace(/^drafts\./, '')
+  const excludedIds = documentId ? [...new Set([documentId, `drafts.${documentId}`])] : []
+  const client = context.getClient({apiVersion: '2025-02-19'})
+  const records = await client.fetch<MatchSequenceRecord[]>(MATCH_SEQUENCE_QUERY, {
+    stageId,
+    matchTypeId,
+    excludedIds,
+  })
+  const existingSequences = (Array.isArray(records) ? records : []).map((record) => record.sequence)
+
+  if (
+    existingSequences.some(
+      (sequence) =>
+        typeof sequence !== 'number' || !Number.isInteger(sequence) || sequence < 1,
+    )
+  ) {
+    return 'Match sequences must be positive integers.'
+  }
+
+  const sequences = [...(existingSequences as number[]), value]
+  if (new Set(sequences).size !== sequences.length) {
+    return 'Match sequences within a stage and match type must be unique.'
+  }
+
+  const orderedSequences = [...sequences].sort((left, right) => left - right)
+  if (orderedSequences[0] !== 1) {
+    return 'Match sequences within a stage and match type must start at 1.'
+  }
+
+  if (orderedSequences.some((sequence, index) => sequence !== index + 1)) {
+    return 'Match sequences within a stage and match type must be consecutive.'
+  }
+
+  return true
 }
 
 export const match = defineType({
@@ -34,7 +123,11 @@ export const match = defineType({
       name: 'sequence',
       title: 'Sequence',
       type: 'number',
-      validation: (Rule) => Rule.required().integer().min(1),
+      validation: (Rule) =>
+        Rule.required()
+          .integer()
+          .min(1)
+          .custom((value, context) => validateMatchSequence(value, context)),
     }),
     defineField({
       name: 'status',
@@ -55,43 +148,81 @@ export const match = defineType({
       name: 'detailsUrl',
       title: 'Details URL',
       type: 'url',
+      hidden: ({document}) => matchStatus(document) !== 'completed',
       validation: (Rule) =>
         Rule.custom((value, context) => {
-          const status = (context.document as {status?: string} | undefined)?.status
-          const url = typeof value === 'string' ? value : ''
+          const status = matchStatus(context.document)
+          const url = typeof value === 'string' ? value.trim() : ''
 
-          if (status === 'completed' && !url) {
-            return 'Completed matches require a details URL.'
+          if (status === 'completed') {
+            if (!url) return 'Completed matches require a details URL.'
+            try {
+              const parsed = new URL(url)
+              return parsed.hostname.length > 0 && ['http:', 'https:'].includes(parsed.protocol)
+                ? true
+                : 'Details URL must be a valid HTTP or HTTPS URL.'
+            } catch {
+              return 'Details URL must be a valid HTTP or HTTPS URL.'
+            }
           }
 
-          if (!url) return true
-
-          return /^https?:\/\//i.test(url) ? true : 'Details URL must use HTTP or HTTPS.'
+          return !url ? true : 'Scheduled and cancelled matches must not include a details URL.'
         }),
     }),
     defineField({
-      name: 'results',
-      title: 'Results',
+      name: 'players',
+      title: 'Players',
       description:
-        'Enter one result for each participating member. Completed matches require results.',
+        'Enter exactly four unique members. Completed matches also require each score and placement.',
       type: 'array',
-      of: [defineArrayMember({type: 'matchResult'})],
+      of: [defineArrayMember({type: 'matchPlayer'})],
       validation: (Rule) =>
-        Rule.custom((value, context) => {
-          const results = (value ?? []) as MatchResultDraft[]
-          const status = (context.document as {status?: string} | undefined)?.status
+        Rule.required().length(4).custom((value, context) => {
+          const players = (Array.isArray(value) ? value : []) as MatchPlayerDraft[]
 
-          if (status === 'completed' && results.length === 0) {
-            return 'Completed matches require at least one result.'
+          if (players.length !== 4) {
+            return 'Every match requires exactly four players.'
           }
 
-          const memberIds = results
-            .map((result) => result.member?._ref)
-            .filter((memberId): memberId is string => Boolean(memberId))
+          const memberIds = players.map((player) => player.member?._ref)
+          if (memberIds.some((memberId) => !memberId) || new Set(memberIds).size !== 4) {
+            return 'Every match requires four unique member references.'
+          }
 
-          return new Set(memberIds).size === memberIds.length
-            ? true
-            : 'Each member can appear only once in a match.'
+          const status = matchStatus(context.document)
+          if (status === 'completed') {
+            if (
+              !players.every(
+                (player) => typeof player.score === 'number' && Number.isFinite(player.score),
+              )
+            ) {
+              return 'Completed matches require a score for every player.'
+            }
+
+            const placements = players.map((player) => player.placement)
+            if (
+              !placements.every(
+                (placement): placement is number =>
+                  typeof placement === 'number' &&
+                  Number.isInteger(placement) &&
+                  placement >= 1 &&
+                  placement <= 4,
+              )
+            ) {
+              return 'Completed match placements must be integers from 1 to 4.'
+            }
+
+            const sortedPlacements = [...placements].sort((left, right) => left - right)
+            if (sortedPlacements.join(',') !== '1,2,3,4') {
+              return 'Completed match placements must be unique integers from 1 to 4.'
+            }
+          } else if (
+            players.some((player) => player.score !== undefined || player.placement !== undefined)
+          ) {
+            return 'Scheduled and cancelled matches must include members only.'
+          }
+
+          return true
         }),
     }),
   ],

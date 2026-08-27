@@ -97,8 +97,8 @@ export const competitionSeason = {
           id: "round-01-live-table",
           name: "直播桌",
           matches: [
-            pendingMatch("round-01-live-table-01", 1, "cancelled", ["參賽者 A", "參賽者 B", "參賽者 C", "參賽者 D"]),
-            pendingMatch("round-01-live-table-02", 2, "cancelled", ["參賽者 A", "參賽者 B", "參賽者 C", "參賽者 D"]),
+            pendingMatch("round-01-live-table-01", 1, "cancelled", ["高橋 美咲", "佐藤 蓮", "伊藤 葵", "山本 凛"]),
+            pendingMatch("round-01-live-table-02", 2, "cancelled", ["中村 陽菜", "小林 悠真", "加藤 莉子", "渡辺 翼"]),
           ],
         },
       ],

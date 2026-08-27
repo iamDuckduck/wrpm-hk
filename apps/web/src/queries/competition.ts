@@ -63,17 +63,21 @@ const seasonSummaryProjection = `
   endsAt
 `
 
-const seasonProjection = `
-  _id,
-  "seasonId": _id,
-  "seasonTitle": coalesce(
+const localizedString = `
+  coalesce(
     select(
       $locale == "en" => title.en,
       $locale == "ja" => title.ja,
       title.zhHk
     ),
     title.zhHk
-  ),
+  )
+`
+
+const seasonProjection = `
+  _id,
+  "seasonId": _id,
+  "seasonTitle": ${localizedString},
   "seasonSlug": slug.current,
   "seasonStatus": status,
   "seasonStartsAt": startsAt,
@@ -83,17 +87,42 @@ const seasonProjection = `
   "participants": participants[]-> {
     ${participantProjection}
   },
-  "matches": *[
-    _type == "match" &&
-    season._ref == ^._id &&
-    status == "completed"
-  ] | order(round asc, scheduledAt asc, _createdAt asc) {
+  "stages": *[
+    _type == "matchStage" &&
+    season._ref == ^._id
+  ] | order(startsOn desc, _createdAt desc) {
     _id,
-    round,
-    scheduledAt,
-    "results": results[] {
-      "memberId": member->_id,
-      score
+    "title": ${localizedString},
+    startsOn,
+    endsOn,
+    "matches": *[
+      _type == "match" &&
+      stage._ref == ^._id
+    ] | order(sequence asc, _createdAt asc) {
+      _id,
+      "title": ${localizedString},
+      sequence,
+      status,
+      "matchType": matchType->{
+        _id,
+        "title": ${localizedString},
+        "slug": slug.current
+      },
+      ...select(
+        status == "completed" => {
+          "detailsUrl": detailsUrl,
+          "players": players[] {
+            "memberId": member->_id,
+            score,
+            placement
+          }
+        },
+        {
+          "players": players[] {
+            "memberId": member->_id
+          }
+        }
+      )
     }
   },
   "seasons": *[
@@ -257,14 +286,54 @@ export type CompetitionParticipant = {
   } | null
 }
 
-export type CompetitionMatch = {
+export type MatchStatus = 'scheduled' | 'completed' | 'cancelled'
+
+export type CompetitionMatchType = {
   _id: string
-  round: number
-  scheduledAt: string
-  results: Array<{
-    memberId: string
-    score: number
-  }> | null
+  title: string | null
+  slug: string
+}
+
+export type CompetitionCompletedMatchPlayer = {
+  memberId: string
+  score: number
+  placement: number
+}
+
+export type CompetitionPendingMatchPlayer = {
+  memberId: string
+}
+
+type CompetitionMatchBase = {
+  _id: string
+  title: string | null
+  sequence: number
+  matchType: CompetitionMatchType
+}
+
+export type CompetitionCompletedMatch = CompetitionMatchBase & {
+  status: 'completed'
+  detailsUrl: string
+  players: CompetitionCompletedMatchPlayer[]
+}
+
+export type CompetitionPendingMatch = CompetitionMatchBase & {
+  status: 'scheduled' | 'cancelled'
+  players: CompetitionPendingMatchPlayer[]
+}
+
+export type CompetitionMatch = CompetitionCompletedMatch | CompetitionPendingMatch
+
+export type CompetitionMatchPlayer =
+  | CompetitionCompletedMatchPlayer
+  | CompetitionPendingMatchPlayer
+
+export type CompetitionMatchStage = {
+  _id: string
+  title: string | null
+  startsOn: string
+  endsOn: string | null
+  matches: CompetitionMatch[] | null
 }
 
 export type CompetitionSeasonSummary = {
@@ -287,7 +356,7 @@ export type CompetitionSeason = {
   status: 'upcoming' | 'ongoing' | 'completed'
   competitionId: string
   participants: CompetitionParticipant[] | null
-  matches: CompetitionMatch[] | null
+  stages: CompetitionMatchStage[] | null
   seasons: CompetitionSeasonSummary[] | null
 }
 

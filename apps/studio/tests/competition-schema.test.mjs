@@ -9,6 +9,7 @@ const sourceUrls = {
   matchStage: new URL('../schemaTypes/documents/match-stage.ts', import.meta.url),
   matchType: new URL('../schemaTypes/documents/match-type.ts', import.meta.url),
   match: new URL('../schemaTypes/documents/match.ts', import.meta.url),
+  matchPlayer: new URL('../schemaTypes/objects/match-player.ts', import.meta.url),
   index: new URL('../schemaTypes/index.ts', import.meta.url),
 }
 
@@ -27,6 +28,7 @@ const [
   matchStageSource,
   matchTypeSource,
   matchSource,
+  matchPlayerSource,
   indexSource,
 ] = await Promise.all([
   readFile(sourceUrls.competition, 'utf8'),
@@ -34,6 +36,7 @@ const [
   readOptionalSource(sourceUrls.matchStage),
   readOptionalSource(sourceUrls.matchType),
   readFile(sourceUrls.match, 'utf8'),
+  readFile(sourceUrls.matchPlayer, 'utf8'),
   readFile(sourceUrls.index, 'utf8'),
 ])
 
@@ -53,7 +56,8 @@ function fieldSource(source, fieldName) {
 
   const start = matches[fieldIndex].index
   const nextFieldStart = matches[fieldIndex + 1]?.index
-  const fieldsEnd = source.indexOf('\n  ],\n  preview:', start)
+  const fieldsEndWithPreview = source.indexOf('\n  ],\n  preview:', start)
+  const fieldsEnd = fieldsEndWithPreview >= 0 ? fieldsEndWithPreview : source.indexOf('\n  ],', start)
   const end = nextFieldStart ?? fieldsEnd
 
   assert.ok(end > start, `Expected to locate the end of field ${fieldName}`)
@@ -163,6 +167,32 @@ test('defines the approved Match Type source contract', () => {
   assert.match(slugField, /Rule\.required\(\)/)
 })
 
+test('defines the approved Match Player source contract', () => {
+  assert.match(
+    matchPlayerSource,
+    /export const matchPlayer = defineType\(\{\s*name:\s*'matchPlayer',\s*title:\s*'Match Player',\s*type:\s*'object'/,
+  )
+  assert.deepEqual(fieldNames(matchPlayerSource), ['member', 'score', 'placement'])
+
+  const memberField = fieldSource(matchPlayerSource, 'member')
+  assert.match(memberField, /type:\s*'reference'/)
+  assert.match(memberField, /to:\s*\[\{type:\s*'member'\}\]/)
+  assert.match(memberField, /Rule\.required\(\)/)
+
+  const scoreField = fieldSource(matchPlayerSource, 'score')
+  assert.match(scoreField, /type:\s*'number'/)
+  assert.match(scoreField, /status !== 'completed'/)
+  assert.match(scoreField, /Completed matches require a score/)
+
+  const placementField = fieldSource(matchPlayerSource, 'placement')
+  assert.match(placementField, /type:\s*'number'/)
+  assert.match(placementField, /status !== 'completed'/)
+  assert.match(placementField, /Completed match placements/)
+  assert.match(placementField, /integer\(\)/)
+  assert.match(placementField, /min\(1\)/)
+  assert.match(placementField, /max\(4\)/)
+})
+
 test('defines the refactored Match source contract', () => {
   assert.deepEqual(fieldNames(matchSource), [
     'title',
@@ -171,7 +201,7 @@ test('defines the refactored Match source contract', () => {
     'sequence',
     'status',
     'detailsUrl',
-    'results',
+    'players',
   ])
 
   assertFieldType(matchSource, 'title', 'localizedString')
@@ -197,16 +227,24 @@ test('defines the refactored Match source contract', () => {
   const detailsUrlField = fieldSource(matchSource, 'detailsUrl')
   assert.match(detailsUrlField, /type:\s*'url'/)
   assert.match(detailsUrlField, /Rule\.custom/)
-  assert.ok(detailsUrlField.includes('/^https?:\\/\\//i'))
+  assert.match(detailsUrlField, /new URL\(url\)/)
+  assert.match(detailsUrlField, /parsed\.hostname/)
+  assert.match(detailsUrlField, /\['http:', 'https:'\]/)
   assert.match(detailsUrlField, /status === 'completed'/)
   assert.match(detailsUrlField, /!url|!value|value === undefined/)
   assert.match(detailsUrlField, /Completed matches require/)
 
-  const resultsField = fieldSource(matchSource, 'results')
-  assert.match(resultsField, /type:\s*'array'/)
-  assert.match(resultsField, /status === 'completed'/)
-  assert.match(resultsField, /results\.length === 0/)
-  assert.match(resultsField, /new Set\(memberIds\)\.size === memberIds\.length/)
+  const playersField = fieldSource(matchSource, 'players')
+  assert.match(playersField, /type:\s*'array'/)
+  assert.match(playersField, /defineArrayMember\(\{type:\s*'matchPlayer'\}\)/)
+  assert.match(playersField, /(?:\.length\(4\)|\.min\(4\)[\s\S]*\.max\(4\))/)
+  assert.match(playersField, /exactly four/i)
+  assert.match(playersField, /new Set\(memberIds\)\.size (?:===|!==) 4/)
+  assert.match(playersField, /status === 'completed'/)
+  assert.match(matchSource, /!==\s*'completed'/)
+  assert.match(playersField, /placement/)
+  assert.match(playersField, /score/)
+  assert.doesNotMatch(matchSource, /name:\s*'results'/)
 
   assert.doesNotMatch(matchSource, /name:\s*'(season|round|scheduledAt)'/)
   assert.match(matchSource, /preview:\s*\{[\s\S]*titleZhHk: 'title\.zhHk'/)
@@ -225,6 +263,8 @@ test('registers Competition schemas instead of League schemas', () => {
   assert.match(indexSource, /import \{competitionSeason\} from '\.\/documents\/competition-season'/)
   assert.match(indexSource, /import \{matchStage\} from '\.\/documents\/match-stage'/)
   assert.match(indexSource, /import \{matchType\} from '\.\/documents\/match-type'/)
+  assert.match(indexSource, /import \{matchPlayer\} from '\.\/objects\/match-player'/)
+  assert.doesNotMatch(indexSource, /objects\/match-result/)
   assert.doesNotMatch(indexSource, /documents\/league(?:-season)?/)
 
   const schemaTypesArray = indexSource.match(/export const schemaTypes = \[([\s\S]*?)\]\s*$/)
@@ -238,6 +278,7 @@ test('registers Competition schemas instead of League schemas', () => {
   assert.ok(registeredNames.includes('competitionSeason'))
   assert.ok(registeredNames.includes('matchStage'))
   assert.ok(registeredNames.includes('matchType'))
+  assert.ok(registeredNames.includes('matchPlayer'))
   assert.ok(!registeredNames.includes('league'))
   assert.ok(!registeredNames.includes('leagueSeason'))
 })

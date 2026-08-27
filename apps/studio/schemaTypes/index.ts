@@ -11,7 +11,7 @@ import {siteSettings} from './documents/site-settings'
 import {heroSlide} from './objects/hero-slide'
 import {localizedString} from './objects/localized-string'
 import {localizedText} from './objects/localized-text'
-import {matchResult} from './objects/match-result'
+import {matchPlayer} from './objects/match-player'
 import {memberLink} from './objects/member-link'
 
 export const schemaTypes = [
@@ -19,7 +19,7 @@ export const schemaTypes = [
   localizedText,
   heroSlide,
   memberLink,
-  matchResult,
+  matchPlayer,
   siteSettings,
   homePage,
   memberCategory,

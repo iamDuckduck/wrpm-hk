@@ -24,14 +24,31 @@ describe('competition queries', () => {
     expect(COMPETITION_SEASON_BY_SLUG_QUERY).toContain('slug.current == $seasonSlug')
   })
 
-  it('scopes completed match results and season choices to the selected competition season', () => {
+  it('scopes season choices to the requested competition', () => {
     expect(CURRENT_COMPETITION_QUERY).toContain('"seasons": *[')
     expect(CURRENT_COMPETITION_QUERY).toContain('competition._ref == ^._id')
-    expect(COMPETITION_SEASON_BY_SLUG_QUERY).toContain('season._ref == ^._id')
-    expect(COMPETITION_SEASON_BY_SLUG_QUERY).toContain('status == "completed"')
     expect(COMPETITION_SEASON_BY_SLUG_QUERY).toContain('"seasons": *[')
     expect(COMPETITION_SEASON_BY_SLUG_QUERY).toContain('competition._ref == ^._id')
     expect(COMPETITION_SEASON_BY_SLUG_QUERY).toContain('competition._ref == ^.competition._ref')
+  })
+
+  it('fetches match stages for the selected season and all-status matches', () => {
+    for (const query of [CURRENT_COMPETITION_QUERY, COMPETITION_SEASON_BY_SLUG_QUERY]) {
+      expect(query).toContain('_type == "matchStage"')
+      expect(query).toContain('season._ref == ^._id')
+      expect(query).toContain('startsOn desc')
+      expect(query).toContain('stage._ref == ^._id')
+      expect(query).toContain('sequence asc')
+      expect(query).toContain('matchType')
+      expect(query).toContain('"players"')
+      expect(query).toContain('placement')
+      expect(query).toContain('score')
+      expect(query).toContain('status == "completed"')
+      expect(query).toContain('detailsUrl')
+      expect(query).not.toContain('"results"')
+      expect(query).not.toContain('scheduledAt')
+      expect(query).not.toMatch(/\bround\b/)
+    }
   })
 
   it('provides competition slugs for route generation and localized navigation items', () => {
