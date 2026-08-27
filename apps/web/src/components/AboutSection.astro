@@ -18,8 +18,7 @@ const aboutText = text?.trim() || ''
     <div class="about-section__decor" aria-hidden="true"></div>
 
     <div class="about-section__content">
-      <p class="about-section__eyebrow">{copy.about}</p>
-      <h2 id="about-heading">{aboutHeading}</h2>
+      <h2 id="about-heading" class="about-section__eyebrow">{aboutHeading}</h2>
       {aboutText && <p class="about-section__text">{aboutText}</p>}
     </div>
   </div>
@@ -73,18 +72,6 @@ const aboutText = text?.trim() || ''
     text-transform: uppercase;
   }
 
-  .about-section h2 {
-    max-width: 16ch;
-    margin: 0;
-    color: var(--color-on-background);
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
-    text-transform: uppercase;
-  }
-
   .about-section__text {
     max-width: 40rem;
     margin: 0;
@@ -110,11 +97,6 @@ const aboutText = text?.trim() || ''
 
     .about-section__content {
       padding-top: 5rem;
-    }
-
-    .about-section h2 {
-      font-size: 2rem;
-      line-height: 1.2;
     }
   }
 </style>
