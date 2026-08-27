@@ -30,6 +30,17 @@ describe('competition presentation and navigation', () => {
     expect(source).not.toContain('LeagueOverviewPage')
   })
 
+  it('places the selected season status beside the season title', () => {
+    const source = readSource('components/CompetitionOverviewPage.astro')
+
+    expect(source).toContain('class="competition-overview-page__season-row"')
+    expect(source).toContain('class="competition-overview-page__season"')
+    expect(source).toContain('class="competition-overview-page__status"')
+    expect(source).toMatch(
+      /\.competition-overview-page__season-row\s*\{[\s\S]*?display:\s*flex/,
+    )
+  })
+
   it('keeps completed results on a separate selected-season matches page', () => {
     const path = 'components/CompetitionMatchesPage.astro'
     expect(existsSync(new URL(`../src/${path}`, import.meta.url))).toBe(true)
