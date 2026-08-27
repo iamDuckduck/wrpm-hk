@@ -122,12 +122,16 @@ describe('WRPM visual foundation', () => {
     expect(homepageComponentSource).toContain('text={homepage.homePage?.aboutText}')
   })
 
-  it('uses the approved About section layout and responsive typography', () => {
+  it('uses the approved About section layout and a single small-red heading', () => {
     expect(aboutStyles).toContain('border-top: 2px solid rgb(230 0 18 / 30%)')
     expect(aboutStyles).toContain('border-left: 2px solid rgb(230 0 18 / 30%)')
     expect(aboutStyles).toMatch(/grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)/)
     expect(aboutStyles).toContain('grid-column: 1 / -1')
-    expect(aboutStyles).toContain('font-size: clamp(2rem, 4vw, 3rem)')
-    expect(aboutStyles).toContain('font-size: 2rem')
+    expect(aboutStyles).toContain(
+      '<h2 id="about-heading" class="about-section__eyebrow">{aboutHeading}</h2>',
+    )
+    expect(aboutStyles).not.toContain('<p class="about-section__eyebrow">{copy.about}</p>')
+    expect(aboutStyles).not.toContain('<h2 id="about-heading">{aboutHeading}</h2>')
+    expect(aboutStyles).not.toContain('font-size: clamp(2rem, 4vw, 3rem)')
   })
 })
