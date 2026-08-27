@@ -8,7 +8,7 @@ import {
 
 const typeA = {_id: 'type-a', title: 'A 組', slug: 'a'}
 const typeB = {_id: 'type-b', title: 'B 組', slug: 'b'}
-type TestPlayer = {memberId: string; score?: number; placement?: number}
+type TestPlayer = {memberId: string; memberName?: string; score?: number}
 
 const pendingPlayers: TestPlayer[] = [
   {memberId: 'kei'},
@@ -18,24 +18,23 @@ const pendingPlayers: TestPlayer[] = [
 ]
 
 const completedPlayers: TestPlayer[] = [
-  {memberId: 'duck', score: 30, placement: 1},
-  {memberId: 'kei', score: 10, placement: 2},
-  {memberId: 'alice', score: -40, placement: 3},
-  {memberId: 'mari', score: 0, placement: 4},
+  {memberId: 'duck', memberName: 'Duck', score: 30},
+  {memberId: 'kei', memberName: 'Kei', score: 10},
+  {memberId: 'alice', memberName: 'Alice', score: -40},
+  {memberId: 'mari', memberName: 'Mari', score: 0},
 ]
 
 const shuffledCompletedPlayers: TestPlayer[] = [
-  {memberId: 'alice', score: -40, placement: 3},
-  {memberId: 'mari', score: 0, placement: 4},
-  {memberId: 'duck', score: 30, placement: 1},
-  {memberId: 'kei', score: 10, placement: 2},
+  {memberId: 'alice', memberName: 'Alice', score: -40},
+  {memberId: 'mari', memberName: 'Mari', score: 0},
+  {memberId: 'duck', memberName: 'Duck', score: 30},
+  {memberId: 'kei', memberName: 'Kei', score: 10},
 ]
 
 type MatchOverrides = {
   _id: string
   sequence: number
   status: 'scheduled' | 'completed' | 'cancelled'
-  title?: string
   detailsUrl?: string
   matchType?: typeof typeA | typeof typeB
   players?: TestPlayer[]
@@ -44,7 +43,6 @@ type MatchOverrides = {
 function match(overrides: MatchOverrides): CompetitionMatch {
   const common = {
     _id: overrides._id,
-    title: overrides.title ?? `Match ${overrides.sequence}`,
     sequence: overrides.sequence,
     matchType: overrides.matchType ?? typeA,
   }
@@ -112,10 +110,10 @@ const newerStage: CompetitionMatchStage = {
       status: 'completed',
       detailsUrl: 'https://example.invalid/new-a-1',
       players: [
-        {memberId: 'duck', score: 8, placement: 1},
-        {memberId: 'kei', score: 2, placement: 2},
-        {memberId: 'alice', score: -3, placement: 3},
-        {memberId: 'mari', score: -7, placement: 4},
+        {memberId: 'duck', memberName: 'Duck', score: 8},
+        {memberId: 'kei', memberName: 'Kei', score: 2},
+        {memberId: 'alice', memberName: 'Alice', score: -3},
+        {memberId: 'mari', memberName: 'Mari', score: -7},
       ],
     }),
   ],
@@ -131,10 +129,10 @@ describe('flattenCompletedMatches', () => {
       {
         _id: 'new-a-1',
         players: [
-          {memberId: 'duck', score: 8, placement: 1},
-          {memberId: 'kei', score: 2, placement: 2},
-          {memberId: 'alice', score: -3, placement: 3},
-          {memberId: 'mari', score: -7, placement: 4},
+          {memberId: 'duck', memberName: 'Duck', score: 8},
+          {memberId: 'kei', memberName: 'Kei', score: 2},
+          {memberId: 'alice', memberName: 'Alice', score: -3},
+          {memberId: 'mari', memberName: 'Mari', score: -7},
         ],
       },
     ])
@@ -176,22 +174,56 @@ describe('groupStagesForDisplay', () => {
     ])
   })
 
-  it('preserves official placements and exposes scores only for completed matches', () => {
+  it('calculates score-descending placements and exposes scores only for completed matches', () => {
     const [completed] = groupStagesForDisplay([olderStage], 'en')[0].matchTypes[0].matches
 
     expect(completed.status).toBe('completed')
     if (completed.status !== 'completed') throw new Error('Expected a completed match')
     expect(completed.detailsUrl).toBe('https://example.invalid/old-a-1')
-    expect(completed.players).toEqual(completedPlayers)
-    expect(completed.players.map((player) => player.placement)).toEqual([1, 2, 3, 4])
+    expect(completed.players).toEqual([
+      {memberId: 'duck', score: 30, placement: 1},
+      {memberId: 'kei', score: 10, placement: 2},
+      {memberId: 'mari', score: 0, placement: 3},
+      {memberId: 'alice', score: -40, placement: 4},
+    ])
 
     const cancelled = groupStagesForDisplay([olderStage], 'en')[0].matchTypes[1].matches[0]
     expect(cancelled.status).toBe('cancelled')
     expect(cancelled).not.toHaveProperty('detailsUrl')
     expect(cancelled.players).toEqual(pendingPlayers)
-    expect(cancelled.players.every((player) => !('score' in player) && !('placement' in player))).toBe(
-      true,
-    )
+    expect(cancelled.players.every((player) => !('score' in player))).toBe(true)
+  })
+
+  it('breaks equal scores alphabetically before assigning sequential placements', () => {
+    const [completed] = groupStagesForDisplay(
+      [
+        {
+          ...olderStage,
+          matches: [
+            match({
+              _id: 'tie-match',
+              sequence: 1,
+              status: 'completed',
+              players: [
+                {memberId: 'bob', memberName: 'Bob', score: 100},
+                {memberId: 'alice', memberName: 'Alice', score: 100},
+                {memberId: 'zoe', memberName: 'Zoe', score: 5},
+                {memberId: 'mari', memberName: 'Mari', score: 0},
+              ],
+            }),
+          ],
+        },
+      ],
+      'en',
+    )[0].matchTypes[0].matches
+
+    if (completed.status !== 'completed') throw new Error('Expected a completed match')
+    expect(completed.players).toEqual([
+      {memberId: 'alice', score: 100, placement: 1},
+      {memberId: 'bob', score: 100, placement: 2},
+      {memberId: 'zoe', score: 5, placement: 3},
+      {memberId: 'mari', score: 0, placement: 4},
+    ])
   })
 
   it('renders four members for scheduled matches without score, placement, or details data', () => {
@@ -200,8 +232,6 @@ describe('groupStagesForDisplay', () => {
     expect(scheduled.status).toBe('scheduled')
     expect(scheduled.players).toHaveLength(4)
     expect(scheduled).not.toHaveProperty('detailsUrl')
-    expect(scheduled.players.every((player) => !('score' in player) && !('placement' in player))).toBe(
-      true,
-    )
+    expect(scheduled.players.every((player) => !('score' in player))).toBe(true)
   })
 })

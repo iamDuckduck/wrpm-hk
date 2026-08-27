@@ -13,30 +13,28 @@ describe('calculateCompetitionStandings', () => {
     const matches: CompetitionCompletedMatch[] = [
       {
         _id: 'match-1',
-        title: 'Match 1',
         sequence: 1,
         status: 'completed',
         detailsUrl: 'https://example.invalid/match-1',
         matchType: {_id: 'type-a', title: 'A 組', slug: 'a'},
         players: [
-          {memberId: 'alice', score: 12, placement: 1},
-          {memberId: 'bob', score: 7, placement: 2},
-          {memberId: 'dave', score: 3, placement: 3},
-          {memberId: 'carol', score: -22, placement: 4},
+          {memberId: 'alice', memberName: 'Alice', score: 12},
+          {memberId: 'bob', memberName: 'Bob', score: 7},
+          {memberId: 'dave', memberName: 'Dave', score: 3},
+          {memberId: 'carol', memberName: 'Carol', score: -22},
         ],
       },
       {
         _id: 'match-2',
-        title: 'Match 2',
         sequence: 2,
         status: 'completed',
         detailsUrl: 'https://example.invalid/match-2',
         matchType: {_id: 'type-a', title: 'A 組', slug: 'a'},
         players: [
-          {memberId: 'alice', score: 3, placement: 1},
-          {memberId: 'bob', score: 8, placement: 2},
-          {memberId: 'dave', score: 2, placement: 3},
-          {memberId: 'carol', score: -13, placement: 4},
+          {memberId: 'alice', memberName: 'Alice', score: 3},
+          {memberId: 'bob', memberName: 'Bob', score: 8},
+          {memberId: 'dave', memberName: 'Dave', score: 2},
+          {memberId: 'carol', memberName: 'Carol', score: -13},
         ],
       },
     ]

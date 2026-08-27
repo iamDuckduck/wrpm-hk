@@ -172,7 +172,7 @@ test('defines the approved Match Player source contract', () => {
     matchPlayerSource,
     /export const matchPlayer = defineType\(\{\s*name:\s*'matchPlayer',\s*title:\s*'Match Player',\s*type:\s*'object'/,
   )
-  assert.deepEqual(fieldNames(matchPlayerSource), ['member', 'score', 'placement'])
+  assert.deepEqual(fieldNames(matchPlayerSource), ['member', 'score'])
 
   const memberField = fieldSource(matchPlayerSource, 'member')
   assert.match(memberField, /type:\s*'reference'/)
@@ -184,18 +184,10 @@ test('defines the approved Match Player source contract', () => {
   assert.match(scoreField, /status !== 'completed'/)
   assert.match(scoreField, /Completed matches require a score/)
 
-  const placementField = fieldSource(matchPlayerSource, 'placement')
-  assert.match(placementField, /type:\s*'number'/)
-  assert.match(placementField, /status !== 'completed'/)
-  assert.match(placementField, /Completed match placements/)
-  assert.match(placementField, /integer\(\)/)
-  assert.match(placementField, /min\(1\)/)
-  assert.match(placementField, /max\(4\)/)
 })
 
 test('defines the refactored Match source contract', () => {
   assert.deepEqual(fieldNames(matchSource), [
-    'title',
     'stage',
     'matchType',
     'sequence',
@@ -204,8 +196,7 @@ test('defines the refactored Match source contract', () => {
     'players',
   ])
 
-  assertFieldType(matchSource, 'title', 'localizedString')
-  assert.match(fieldSource(matchSource, 'title'), /Rule\.required\(\)/)
+  assert.doesNotMatch(matchSource, /name:\s*'title'/)
 
   const matchTypeReference = fieldSource(matchSource, 'matchType')
   assert.match(matchTypeReference, /type:\s*'reference'/)
@@ -242,15 +233,15 @@ test('defines the refactored Match source contract', () => {
   assert.match(playersField, /new Set\(memberIds\)\.size (?:===|!==) 4/)
   assert.match(playersField, /status === 'completed'/)
   assert.match(matchSource, /!==\s*'completed'/)
-  assert.match(playersField, /placement/)
   assert.match(playersField, /score/)
   assert.doesNotMatch(matchSource, /name:\s*'results'/)
 
   assert.doesNotMatch(matchSource, /name:\s*'(season|round|scheduledAt)'/)
-  assert.match(matchSource, /preview:\s*\{[\s\S]*titleZhHk: 'title\.zhHk'/)
+  assert.match(matchSource, /preview:\s*\{[\s\S]*sequence: 'sequence'/)
+  assert.doesNotMatch(matchSource, /titleZhHk: 'title\.zhHk'/)
+  assert.doesNotMatch(matchSource, /titleEn: 'title\.en'/)
   assert.match(matchSource, /stageTitleZhHk: 'stage\.title\.zhHk'/)
   assert.match(matchSource, /matchTypeTitleZhHk: 'matchType\.title\.zhHk'/)
-  assert.match(matchSource, /sequence: 'sequence'/)
   assert.match(matchSource, /detailsUrl: 'detailsUrl'/)
   assert.doesNotMatch(
     matchSource,

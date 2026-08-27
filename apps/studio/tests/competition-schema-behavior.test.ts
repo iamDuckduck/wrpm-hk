@@ -118,35 +118,18 @@ describe('match schema player validation', () => {
     expect(
       validatePlayers(fourPlayers({score: 1}), {document: {status: 'scheduled'}}),
     ).toContain('members only')
-    expect(
-      validatePlayers(fourPlayers({placement: 1}), {document: {status: 'cancelled'}}),
-    ).toContain('members only')
+    expect(validatePlayers(fourPlayers({score: 1}), {document: {status: 'cancelled'}})).toContain(
+      'members only',
+    )
   })
 
-  it('requires scores and the official 1-to-4 placement set for completed matches', () => {
-    expect(
-      validatePlayers(
-        fourPlayers({placement: 1}),
-        {document: {status: 'completed'}},
-      ),
-    ).toContain('score')
-    expect(
-      validatePlayers(
-        [
-          player('alice', {score: 4, placement: 1}),
-          player('bob', {score: 3, placement: 1}),
-          player('carol', {score: 2, placement: 3}),
-          player('dave', {score: 1, placement: 4}),
-        ],
-        {document: {status: 'completed'}},
-      ),
-    ).toContain('unique')
+  it('requires scores but calculates placements outside the stored document', () => {
+    expect(validatePlayers(fourPlayers(), {document: {status: 'completed'}})).toContain('score')
     expect(
       validatePlayers(
         fourPlayers().map((item, index) => ({
           ...item,
           score: index + 1,
-          placement: index + 1,
         })),
         {document: {status: 'completed'}},
       ),
@@ -203,14 +186,10 @@ describe('match schema player validation', () => {
     await expect(validateSequence(1, context)).resolves.toBe(true)
   })
 
-  it('gates score and placement fields by match status', () => {
+  it('gates the score field by match status', () => {
     const validateScore = getValidator(field(playerFields, 'score'))
-    const validatePlacement = getValidator(field(playerFields, 'placement'))
 
     expect(validateScore(undefined, {document: {status: 'completed'}})).toContain('score')
     expect(validateScore(1, {document: {status: 'scheduled'}})).toContain('must not')
-    expect(validatePlacement(1.5, {document: {status: 'completed'}})).toContain('integers')
-    expect(validatePlacement(5, {document: {status: 'completed'}})).toContain('1 to 4')
-    expect(validatePlacement(1, {document: {status: 'scheduled'}})).toContain('must not')
   })
 })

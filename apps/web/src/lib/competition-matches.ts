@@ -17,7 +17,6 @@ export type DisplayPendingMatchPlayer = {
 
 type DisplayMatchBase = {
   id: string
-  title: string | null
   sequence: number
 }
 
@@ -89,7 +88,7 @@ export function groupStagesForDisplay(
       startsOn: stage.startsOn,
       endsOn: stage.endsOn,
       dateLabel: formatStageDate(locale, stage.startsOn, stage.endsOn),
-      matchTypes: groupMatchTypes(stage.matches ?? []),
+      matchTypes: groupMatchTypes(stage.matches ?? [], locale),
     }))
 }
 
@@ -103,7 +102,7 @@ function formatIsoDate(locale: Locale, value: string): string {
   }).format(new Date(year, month - 1, day))
 }
 
-function groupMatchTypes(matches: CompetitionMatch[]): DisplayMatchType[] {
+function groupMatchTypes(matches: CompetitionMatch[], locale: Locale): DisplayMatchType[] {
   const ordered = [...matches].sort((left, right) => {
     if (left.sequence !== right.sequence) return left.sequence - right.sequence
     return left._id.localeCompare(right._id)
@@ -124,35 +123,47 @@ function groupMatchTypes(matches: CompetitionMatch[]): DisplayMatchType[] {
       order.push(typeId)
     }
 
-    groups.get(typeId)?.matches.push(toDisplayMatch(item))
+    groups.get(typeId)?.matches.push(toDisplayMatch(item, locale))
   }
 
   return order.map((id) => groups.get(id)).filter((group): group is DisplayMatchType => Boolean(group))
 }
 
-function toDisplayMatch(item: CompetitionMatch): DisplayMatch {
+function toDisplayMatch(item: CompetitionMatch, locale: Locale): DisplayMatch {
   if (item.status === 'completed') {
     return {
       id: item._id,
-      title: item.title,
       sequence: item.sequence,
       status: item.status,
       detailsUrl: item.detailsUrl,
       players: [...item.players]
-        .sort((left, right) => left.placement - right.placement)
-        .map((player) => ({
+        .sort((left, right) => compareCompletedPlayers(left, right, locale))
+        .map((player, index) => ({
           memberId: player.memberId,
           score: player.score,
-          placement: player.placement,
+          placement: index + 1,
         })),
     }
   }
 
   return {
     id: item._id,
-    title: item.title,
     sequence: item.sequence,
     status: item.status,
     players: item.players.map((player) => ({memberId: player.memberId})),
   }
+}
+
+function compareCompletedPlayers(
+  left: CompetitionCompletedMatch['players'][number],
+  right: CompetitionCompletedMatch['players'][number],
+  locale: Locale,
+): number {
+  if (left.score !== right.score) return right.score - left.score
+
+  const leftName = left.memberName?.trim() || left.memberId
+  const rightName = right.memberName?.trim() || right.memberId
+  const nameComparison = leftName.localeCompare(rightName, locale, {sensitivity: 'base'})
+
+  return nameComparison || left.memberId.localeCompare(right.memberId)
 }
