@@ -67,8 +67,7 @@ const imageSrcSet = buildSanityImageSrcSet(member?.profileImage, [480, 720, 960]
         <div class="member-detail__body">
           {member.mediaLinks && member.mediaLinks.length > 0 && (
             <section class="member-detail__section" aria-labelledby="member-links-title">
-              <p class="member-detail__label">{copy.memberLinks}</p>
-              <h2 id="member-links-title">{copy.memberLinks}</h2>
+              <h2 id="member-links-title" class="member-detail__label">{copy.memberLinks}</h2>
               <ul class="member-detail__links">
                 {member.mediaLinks.map((link) => (
                   <li>
@@ -203,14 +202,6 @@ const imageSrcSet = buildSanityImageSrcSet(member?.profileImage, [480, 720, 960]
   .member-detail__section {
     padding: 2rem 1.5rem;
     background: var(--color-surface-container);
-  }
-
-  .member-detail__section h2 {
-    margin: 0.5rem 0 0;
-    color: var(--color-on-background);
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    line-height: 1.2;
   }
 
   .member-detail__links {
