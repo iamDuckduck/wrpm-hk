@@ -17,7 +17,14 @@ describe('competition presentation and navigation', () => {
     expect(source).toContain('calculateCompetitionStandings')
     expect(source).not.toContain('calculateLeagueStandings')
     expect(source).toContain('flattenCompletedMatches')
-    expect(source).toContain('competition-ranking-grid')
+    expect(source).toContain('competition-ranking-list')
+    expect(source).toContain('competition-ranking-row')
+    expect(source).toMatch(
+      /\.competition-ranking-row\s*\{[\s\S]*?grid-template-columns:\s*2\.5rem\s+3\.5rem\s+minmax\(0,\s*1fr\)/,
+    )
+    expect(source).toMatch(
+      /@media\s*\(min-width:\s*48rem\)[\s\S]*?\.competition-ranking-row\s*\{[\s\S]*?grid-template-columns:\s*3rem\s+4rem\s+minmax\(0,\s*1fr\)\s+auto\s+auto/,
+    )
     expect(source).toContain('competition-season-selector')
     expect(source).toContain('/competitions/${competitionSlug}/')
     expect(source).not.toContain('LeagueOverviewPage')

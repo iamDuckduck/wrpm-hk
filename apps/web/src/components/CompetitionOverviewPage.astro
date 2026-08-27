@@ -105,7 +105,7 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
             </div>
 
             {hasRankedStandings ? (
-              <ol class="competition-ranking-grid">
+              <ol class="competition-ranking-list">
                 {standings.map((standing) => {
                   const participant = participantsById.get(standing.memberId)
                   const name = standing.name || copy.memberUnknown
@@ -114,10 +114,13 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
                   return (
                     <li>
                       <a
-                        class="competition-ranking-card"
+                        class="competition-ranking-row"
                         href={getLocalizedPath(locale, `/members/${standing.slug}`)}
                       >
-                        <span class="competition-ranking-card__avatar">
+                        <span class="competition-ranking-row__rank">
+                          #{standing.rank ?? '—'}
+                        </span>
+                        <span class="competition-ranking-row__avatar">
                           {imageUrl ? (
                             <img
                               src={imageUrl}
@@ -130,20 +133,17 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
                             <span aria-hidden="true">{name.slice(0, 1)}</span>
                           )}
                         </span>
-                        <span class="competition-ranking-card__content">
-                          <span class="competition-ranking-card__rank">
-                            #{standing.rank ?? '—'}
-                          </span>
+                        <span class="competition-ranking-row__content">
                           <strong>{name}</strong>
-                          <span class="competition-ranking-card__stats">
-                            <span>
-                              {copy.competitionScore}
-                              <b>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</b>
-                            </span>
-                            <span>
-                              {copy.competitionMatchesPlayed}
-                              <b>{standing.matchesPlayed > 0 ? standing.matchesPlayed : '—'}</b>
-                            </span>
+                        </span>
+                        <span class="competition-ranking-row__stats">
+                          <span>
+                            <span>{copy.competitionScore}</span>
+                            <b>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</b>
+                          </span>
+                          <span>
+                            <span>{copy.competitionMatchesPlayed}</span>
+                            <b>{standing.matchesPlayed > 0 ? standing.matchesPlayed : '—'}</b>
                           </span>
                         </span>
                       </a>
@@ -283,7 +283,7 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
     margin-bottom: 1.5rem;
   }
 
-  .competition-ranking-grid {
+  .competition-ranking-list {
     display: grid;
     gap: 1rem;
     margin: 0;
@@ -291,27 +291,43 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
     list-style: none;
   }
 
-  .competition-ranking-card {
+  .competition-ranking-row {
     display: grid;
-    min-height: 9rem;
-    grid-template-columns: 4rem minmax(0, 1fr);
+    min-height: 5.5rem;
+    grid-template-columns: 2.5rem 3.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'rank avatar content'
+      'rank avatar stats';
     align-items: center;
-    gap: 1rem;
+    column-gap: 0.75rem;
+    row-gap: 0.35rem;
     border: 1px solid var(--color-outline);
-    padding: 1rem;
+    padding: 0.85rem 1rem;
     color: var(--color-on-background);
     background: var(--color-surface-lowest);
     text-decoration: none;
   }
 
-  .competition-ranking-card:hover {
+  .competition-ranking-row:hover {
     border-color: var(--color-primary);
   }
 
-  .competition-ranking-card__avatar {
+  .competition-ranking-row__rank {
+    grid-area: rank;
+    align-self: start;
+    padding-top: 0.15rem;
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .competition-ranking-row__avatar {
+    grid-area: avatar;
     display: grid;
-    width: 4rem;
-    height: 4rem;
+    width: 3.5rem;
+    height: 3.5rem;
     place-items: center;
     overflow: hidden;
     border: 1px solid var(--color-outline);
@@ -322,27 +338,18 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
     font-size: 1.5rem;
   }
 
-  .competition-ranking-card__avatar img {
+  .competition-ranking-row__avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .competition-ranking-card__content {
-    display: grid;
+  .competition-ranking-row__content {
+    grid-area: content;
     min-width: 0;
-    gap: 0.35rem;
   }
 
-  .competition-ranking-card__rank {
-    color: var(--color-primary);
-    font-family: var(--font-label);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-  }
-
-  .competition-ranking-card__content > strong {
+  .competition-ranking-row__content > strong {
     overflow: hidden;
     font-family: var(--font-display);
     font-size: 1.25rem;
@@ -350,22 +357,74 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
     white-space: nowrap;
   }
 
-  .competition-ranking-card__stats {
-    display: grid;
-    gap: 0.25rem;
+  .competition-ranking-row__stats {
+    display: flex;
+    grid-area: stats;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.35rem 1rem;
+    min-width: 0;
     color: var(--color-on-surface-variant);
     font-family: var(--font-label);
     font-size: 0.72rem;
   }
 
-  .competition-ranking-card__stats > span {
+  .competition-ranking-row__stats > span {
     display: flex;
     justify-content: space-between;
     gap: 0.75rem;
+    min-width: 7.5rem;
   }
 
-  .competition-ranking-card__stats b {
+  .competition-ranking-row__stats b {
     color: var(--color-on-background);
+  }
+
+  @media (min-width: 48rem) {
+    .competition-ranking-row {
+      grid-template-columns: 3rem 4rem minmax(0, 1fr) auto auto;
+      grid-template-areas: 'rank avatar content stats stats';
+      column-gap: 1rem;
+      row-gap: 0;
+      padding: 0.75rem 1rem;
+    }
+
+    .competition-ranking-row__rank {
+      align-self: center;
+      padding-top: 0;
+    }
+
+    .competition-ranking-row__avatar {
+      width: 4rem;
+      height: 4rem;
+    }
+
+    .competition-ranking-row__stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(7.5rem, auto));
+      gap: 1.5rem;
+    }
+
+    .competition-ranking-row__stats > span {
+      min-width: 0;
+    }
+  }
+
+  /* Keep each participant's row readable on the narrowest viewports. */
+  @media (max-width: 23rem) {
+    .competition-ranking-row {
+      grid-template-columns: 2rem 3rem minmax(0, 1fr);
+      padding-inline: 0.75rem;
+    }
+
+    .competition-ranking-row__avatar {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .competition-ranking-row__stats > span {
+      min-width: 0;
+    }
   }
 
   .competition-overview__actions {
@@ -459,14 +518,5 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
       padding-inline: clamp(2rem, 5vw, 5rem);
     }
 
-    .competition-ranking-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (min-width: 72rem) {
-    .competition-ranking-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
   }
 </style>
