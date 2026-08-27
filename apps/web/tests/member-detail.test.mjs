@@ -38,4 +38,17 @@ describe('localized member detail', () => {
       /\.member-detail__heading\s*\{[\s\S]*?align-items:\s*flex-start[\s\S]*?text-align:\s*left/s,
     )
   })
+
+  it('uses a single small-red heading for related links', () => {
+    const source = readSource('components/MemberDetailPage.astro')
+
+    expect(source).toContain(
+      '<h2 id="member-links-title" class="member-detail__label">{copy.memberLinks}</h2>',
+    )
+    expect(source).not.toContain(
+      '<p class="member-detail__label">{copy.memberLinks}</p>',
+    )
+    expect(source).not.toContain('<h2 id="member-links-title">{copy.memberLinks}</h2>')
+    expect(source).not.toMatch(/\.member-detail__section h2\s*\{/)
+  })
 })
