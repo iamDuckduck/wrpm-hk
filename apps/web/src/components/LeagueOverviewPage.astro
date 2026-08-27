@@ -110,7 +110,7 @@ function formatMatchDate(value: string) {
                 </div>
 
                 {hasRankedStandings ? (
-                  <ol class="league-ranking-grid">
+                  <ol class="league-ranking-list">
                     {standings.map((standing) => {
                       const participant = participantsById.get(standing.memberId)
                       const name = standing.name || copy.memberUnknown
@@ -119,10 +119,13 @@ function formatMatchDate(value: string) {
                       return (
                         <li>
                           <a
-                            class="league-ranking-card"
+                            class="league-ranking-row"
                             href={getLocalizedPath(locale, `/members/${standing.slug}`)}
                           >
-                            <span class="league-ranking-card__avatar">
+                            <span class="league-ranking-row__rank">
+                              #{standing.rank ?? '—'}
+                            </span>
+                            <span class="league-ranking-row__avatar">
                               {imageUrl ? (
                                 <img
                                   src={imageUrl}
@@ -135,20 +138,17 @@ function formatMatchDate(value: string) {
                                 <span aria-hidden="true">{name.slice(0, 1)}</span>
                               )}
                             </span>
-                            <span class="league-ranking-card__content">
-                              <span class="league-ranking-card__rank">
-                                #{standing.rank ?? '—'}
-                              </span>
+                            <span class="league-ranking-row__content">
                               <strong>{name}</strong>
-                              <span class="league-ranking-card__stats">
-                                <span>
-                                  {copy.leagueScore}
-                                  <b>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</b>
-                                </span>
-                                <span>
-                                  {copy.leagueMatchesPlayed}
-                                  <b>{standing.matchesPlayed > 0 ? standing.matchesPlayed : '—'}</b>
-                                </span>
+                            </span>
+                            <span class="league-ranking-row__stats">
+                              <span>
+                                <span>{copy.leagueScore}</span>
+                                <b>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</b>
+                              </span>
+                              <span>
+                                <span>{copy.leagueMatchesPlayed}</span>
+                                <b>{standing.matchesPlayed > 0 ? standing.matchesPlayed : '—'}</b>
                               </span>
                             </span>
                           </a>
@@ -362,7 +362,7 @@ function formatMatchDate(value: string) {
     margin-bottom: 1.5rem;
   }
 
-  .league-ranking-grid,
+  .league-ranking-list,
   .league-rounds,
   .league-round__games,
   .league-game__results {
@@ -373,24 +373,39 @@ function formatMatchDate(value: string) {
     list-style: none;
   }
 
-  .league-ranking-card {
+  .league-ranking-row {
     display: grid;
-    min-height: 9rem;
-    grid-template-columns: 4rem minmax(0, 1fr);
+    min-height: 5.5rem;
+    grid-template-columns: 2.5rem 3.5rem minmax(0, 1fr);
+    grid-template-areas:
+      'rank avatar content'
+      'rank avatar stats';
     align-items: center;
-    gap: 1rem;
+    column-gap: 0.75rem;
+    row-gap: 0.35rem;
     border: 1px solid var(--color-outline);
-    padding: 1rem;
+    padding: 0.85rem 1rem;
     color: var(--color-on-background);
     background: var(--color-surface-lowest);
     text-decoration: none;
   }
 
-  .league-ranking-card:hover {
+  .league-ranking-row:hover {
     border-color: var(--color-primary);
   }
 
-  .league-ranking-card__avatar,
+  .league-ranking-row__rank {
+    grid-area: rank;
+    align-self: start;
+    padding-top: 0.15rem;
+    color: var(--color-primary);
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .league-ranking-row__avatar,
   .league-game-member__avatar {
     display: grid;
     place-items: center;
@@ -402,27 +417,26 @@ function formatMatchDate(value: string) {
     font-family: var(--font-display);
   }
 
-  .league-ranking-card__avatar {
-    width: 4rem;
-    height: 4rem;
+  .league-ranking-row__avatar {
+    grid-area: avatar;
+    width: 3.5rem;
+    height: 3.5rem;
     font-size: 1.5rem;
   }
 
-  .league-ranking-card__avatar img,
+  .league-ranking-row__avatar img,
   .league-game-member__avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
-  .league-ranking-card__content,
   .league-game-member__content {
     display: grid;
     min-width: 0;
     gap: 0.35rem;
   }
 
-  .league-ranking-card__rank,
   .league-game-member__place {
     color: var(--color-primary);
     font-family: var(--font-label);
@@ -431,7 +445,12 @@ function formatMatchDate(value: string) {
     letter-spacing: 0.08em;
   }
 
-  .league-ranking-card__content > strong {
+  .league-ranking-row__content {
+    grid-area: content;
+    min-width: 0;
+  }
+
+  .league-ranking-row__content > strong {
     overflow: hidden;
     font-family: var(--font-display);
     font-size: 1.25rem;
@@ -439,22 +458,73 @@ function formatMatchDate(value: string) {
     white-space: nowrap;
   }
 
-  .league-ranking-card__stats {
-    display: grid;
-    gap: 0.25rem;
+  .league-ranking-row__stats {
+    display: flex;
+    grid-area: stats;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.35rem 1rem;
+    min-width: 0;
     color: var(--color-on-surface-variant);
     font-family: var(--font-label);
     font-size: 0.72rem;
   }
 
-  .league-ranking-card__stats > span {
+  .league-ranking-row__stats > span {
     display: flex;
     justify-content: space-between;
     gap: 0.75rem;
+    min-width: 7.5rem;
   }
 
-  .league-ranking-card__stats b {
+  .league-ranking-row__stats b {
     color: var(--color-on-background);
+  }
+
+  @media (min-width: 48rem) {
+    .league-ranking-row {
+      grid-template-columns: 3rem 4rem minmax(0, 1fr) auto auto;
+      grid-template-areas: 'rank avatar content stats stats';
+      column-gap: 1rem;
+      row-gap: 0;
+      padding: 0.75rem 1rem;
+    }
+
+    .league-ranking-row__rank {
+      align-self: center;
+      padding-top: 0;
+    }
+
+    .league-ranking-row__avatar {
+      width: 4rem;
+      height: 4rem;
+    }
+
+    .league-ranking-row__stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(7.5rem, auto));
+      gap: 1.5rem;
+    }
+
+    .league-ranking-row__stats > span {
+      min-width: 0;
+    }
+  }
+
+  @media (max-width: 23rem) {
+    .league-ranking-row {
+      grid-template-columns: 2rem 3rem minmax(0, 1fr);
+      padding-inline: 0.75rem;
+    }
+
+    .league-ranking-row__avatar {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .league-ranking-row__stats > span {
+      min-width: 0;
+    }
   }
 
   .league-rounds {
@@ -599,9 +669,6 @@ function formatMatchDate(value: string) {
       padding: 3rem clamp(2rem, 5vw, 5rem);
     }
 
-    .league-ranking-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
   }
 
   @media (min-width: 64rem) {
@@ -610,9 +677,4 @@ function formatMatchDate(value: string) {
     }
   }
 
-  @media (min-width: 72rem) {
-    .league-ranking-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
 </style>
