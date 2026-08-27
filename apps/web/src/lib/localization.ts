@@ -20,7 +20,15 @@ export interface LocaleCopy {
   competitionMatchesPlayed: string
   competitionMatches: string
   competitionResults: string
+  competitionBackToSeason: string
+  competitionSelectedSeason: string
+  competitionStageSchedule: string
+  competitionStageSummary: (count: number) => string
   competitionRound: (round: number) => string
+  competitionMatchDetails: string
+  competitionMatchStatus: (status: 'scheduled' | 'completed' | 'cancelled') => string
+  competitionMatchSequence: (sequence: number) => string
+  competitionMatchTypeCount: (count: number) => string
   competitionResultsEmpty: string
   competitionSeasons: string
   competitionSeasonSelector: string
@@ -81,7 +89,16 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     competitionMatchesPlayed: '完成場數',
     competitionMatches: '查看賽事結果',
     competitionResults: '賽事結果',
+    competitionBackToSeason: '返回賽季總覽',
+    competitionSelectedSeason: '已選賽季',
+    competitionStageSchedule: '階段賽程',
+    competitionStageSummary: (count) => `${count} 個階段 · 日期由新至舊`,
     competitionRound: (round) => `第 ${round} 輪`,
+    competitionMatchDetails: '賽事詳情',
+    competitionMatchStatus: (status) =>
+      ({scheduled: '已排期', completed: '已完成', cancelled: '已取消'})[status],
+    competitionMatchSequence: (sequence) => `賽事 ${String(sequence).padStart(2, '0')}`,
+    competitionMatchTypeCount: (count) => `${count} 場賽事`,
     competitionResultsEmpty: '完成賽事後，結果將會顯示在這裡。',
     competitionSeasons: '比賽賽季',
     competitionSeasonSelector: '選擇比賽賽季',
@@ -146,7 +163,16 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     competitionMatchesPlayed: 'Matches played',
     competitionMatches: 'View match results',
     competitionResults: 'Match results',
+    competitionBackToSeason: 'Back to season overview',
+    competitionSelectedSeason: 'Selected season',
+    competitionStageSchedule: 'Stage schedule',
+    competitionStageSummary: (count) => `${count} stages · Newest first`,
     competitionRound: (round) => `Round ${round}`,
+    competitionMatchDetails: 'Match details',
+    competitionMatchStatus: (status) =>
+      ({scheduled: 'Scheduled', completed: 'Completed', cancelled: 'Cancelled'})[status],
+    competitionMatchSequence: (sequence) => `Match ${String(sequence).padStart(2, '0')}`,
+    competitionMatchTypeCount: (count) => (count === 1 ? '1 match' : `${count} matches`),
     competitionResultsEmpty: 'Completed match results will appear here.',
     competitionSeasons: 'Competition seasons',
     competitionSeasonSelector: 'Choose a competition season',
@@ -211,7 +237,16 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     competitionMatchesPlayed: '対戦数',
     competitionMatches: '試合結果を見る',
     competitionResults: '試合結果',
+    competitionBackToSeason: 'シーズン概要に戻る',
+    competitionSelectedSeason: '選択中のシーズン',
+    competitionStageSchedule: 'ステージ日程',
+    competitionStageSummary: (count) => `${count}ステージ・新しい順`,
     competitionRound: (round) => `第${round}ラウンド`,
+    competitionMatchDetails: '試合詳細',
+    competitionMatchStatus: (status) =>
+      ({scheduled: '予定', completed: '完了', cancelled: '中止'})[status],
+    competitionMatchSequence: (sequence) => `試合 ${String(sequence).padStart(2, '0')}`,
+    competitionMatchTypeCount: (count) => `${count} 試合`,
     competitionResultsEmpty: '試合が完了すると結果が表示されます。',
     competitionSeasons: '大会シーズン',
     competitionSeasonSelector: '大会シーズンを選択',

@@ -1,0 +1,79 @@
+import {describe, expect, it} from 'vitest'
+import type {CompetitionCompletedMatch} from '../queries/competition'
+import {calculateCompetitionStandings} from './competition-ranking'
+
+describe('calculateCompetitionStandings', () => {
+  it('sums native completed match players without converting them to result entries', () => {
+    const participants = [
+      {memberId: 'alice', name: 'Alice', slug: 'alice'},
+      {memberId: 'bob', name: 'Bob', slug: 'bob'},
+      {memberId: 'carol', name: 'Carol', slug: 'carol'},
+      {memberId: 'dave', name: 'Dave', slug: 'dave'},
+    ]
+    const matches: CompetitionCompletedMatch[] = [
+      {
+        _id: 'match-1',
+        title: 'Match 1',
+        sequence: 1,
+        status: 'completed',
+        detailsUrl: 'https://example.invalid/match-1',
+        matchType: {_id: 'type-a', title: 'A 組', slug: 'a'},
+        players: [
+          {memberId: 'alice', score: 12, placement: 1},
+          {memberId: 'bob', score: 7, placement: 2},
+          {memberId: 'dave', score: 3, placement: 3},
+          {memberId: 'carol', score: -22, placement: 4},
+        ],
+      },
+      {
+        _id: 'match-2',
+        title: 'Match 2',
+        sequence: 2,
+        status: 'completed',
+        detailsUrl: 'https://example.invalid/match-2',
+        matchType: {_id: 'type-a', title: 'A 組', slug: 'a'},
+        players: [
+          {memberId: 'alice', score: 3, placement: 1},
+          {memberId: 'bob', score: 8, placement: 2},
+          {memberId: 'dave', score: 2, placement: 3},
+          {memberId: 'carol', score: -13, placement: 4},
+        ],
+      },
+    ]
+
+    expect(calculateCompetitionStandings(participants, matches)).toEqual([
+      {
+        memberId: 'alice',
+        name: 'Alice',
+        slug: 'alice',
+        totalScore: 15,
+        matchesPlayed: 2,
+        rank: 1,
+      },
+      {
+        memberId: 'bob',
+        name: 'Bob',
+        slug: 'bob',
+        totalScore: 15,
+        matchesPlayed: 2,
+        rank: 1,
+      },
+      {
+        memberId: 'dave',
+        name: 'Dave',
+        slug: 'dave',
+        totalScore: 5,
+        matchesPlayed: 2,
+        rank: 3,
+      },
+      {
+        memberId: 'carol',
+        name: 'Carol',
+        slug: 'carol',
+        totalScore: -35,
+        matchesPlayed: 2,
+        rank: 4,
+      },
+    ])
+  })
+})

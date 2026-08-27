@@ -5,6 +5,7 @@
   "main": "package.json",
   "license": "UNLICENSED",
   "scripts": {
+    "test": "node --test tests/competition-schema.test.mjs && node ../web/node_modules/vitest/vitest.mjs run tests/competition-schema-behavior.test.ts",
     "build": "sanity build",
     "deploy": "sanity deploy",
     "deploy-graphql": "sanity graphql deploy",

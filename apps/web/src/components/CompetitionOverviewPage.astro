@@ -6,7 +6,8 @@ import {
   getSanityLocaleKey,
   type Locale,
 } from '../lib/localization'
-import {calculateLeagueStandings} from '../lib/league-ranking'
+import {flattenCompletedMatches} from '../lib/competition-matches'
+import {calculateCompetitionStandings} from '../lib/competition-ranking'
 import {buildSanityImageUrl} from '../lib/sanity-image'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
@@ -39,21 +40,18 @@ const [homepage, competition] = await Promise.all([
 
 const selectedSeason = competition?.season ?? null
 const participants = selectedSeason?.participants ?? []
-const matches = selectedSeason?.matches ?? []
+const matches = flattenCompletedMatches(selectedSeason?.stages)
 const participantsById = new Map(
   participants.map((participant) => [participant.memberId, participant]),
 )
 const standings = selectedSeason
-  ? calculateLeagueStandings(
+  ? calculateCompetitionStandings(
       participants.map((participant) => ({
         memberId: participant.memberId,
         name: participant.name || copy.memberUnknown,
         slug: participant.slug,
       })),
-      matches.map((match) => ({
-        id: match._id,
-        results: match.results ?? [],
-      })),
+      matches,
     )
   : []
 const hasRankedStandings = standings.some((standing) => standing.rank !== null)
