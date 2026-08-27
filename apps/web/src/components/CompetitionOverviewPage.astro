@@ -75,11 +75,15 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
     <header class="competition-overview-page__header">
       <p class="competition-overview-page__eyebrow">{copy.competition}</p>
       <h1 id="competition-overview-title">{pageTitle}</h1>
-      {seasonTitle && <p class="competition-overview-page__season">{seasonTitle}</p>}
-      {selectedSeason && (
-        <p class="competition-overview-page__status">
-          {formatCompetitionStatus(selectedSeason.seasonStatus)}
-        </p>
+      {(seasonTitle || selectedSeason) && (
+        <div class="competition-overview-page__season-row">
+          {seasonTitle && <p class="competition-overview-page__season">{seasonTitle}</p>}
+          {selectedSeason && (
+            <p class="competition-overview-page__status">
+              {formatCompetitionStatus(selectedSeason.seasonStatus)}
+            </p>
+          )}
+        </div>
       )}
       {competition?.intro?.trim() && (
         <p class="competition-overview-page__intro">{competition.intro}</p>
@@ -235,9 +239,17 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
     line-height: 1.6;
   }
 
+  .competition-overview-page__season-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin: 0.75rem 0 0;
+  }
+
   .competition-overview-page__season,
   .competition-overview-page__status {
-    margin: 0.75rem 0 0;
+    margin: 0;
     color: var(--color-on-surface-variant);
     font-family: var(--font-label);
     font-size: 0.8rem;
