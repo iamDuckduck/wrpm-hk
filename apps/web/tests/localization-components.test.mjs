@@ -20,7 +20,7 @@ describe('localized homepage chrome', () => {
     expect(source).toContain('mobile-language-switcher')
     expect(source).toContain('copy.localeNames[supportedLocale]')
     expect(source).toContain('class:site-brand--has-logo={hasLogo}')
-    expect(source).toContain('getLocalePath(supportedLocale)')
+    expect(source).toContain('getLocalizedHref(supportedLocale, currentPath)')
   })
 
   it('renders localized Home, Members, and dynamic Competition drawer links', () => {
