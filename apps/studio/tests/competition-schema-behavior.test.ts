@@ -2,18 +2,8 @@ import {describe, expect, it} from 'vitest'
 import {match} from '../schemaTypes/documents/match'
 import {matchPlayer} from '../schemaTypes/objects/match-player'
 
-type ValidationDocument = {
-  _id?: string
-  status?: string
-  stage?: {_ref?: string}
-  matchType?: {_ref?: string}
-}
-type ValidationClient = {
-  fetch: (query: string, params: Record<string, unknown>) => Promise<unknown>
-}
 type ValidationContext = {
-  document?: ValidationDocument
-  getClient?: (options: {apiVersion: string}) => ValidationClient
+  document?: {_id?: string; status?: string}
 }
 type Validator = (
   value: unknown,
@@ -48,11 +38,6 @@ function getValidator(field: {validation?: (rule: unknown) => unknown}): Validat
   return validator ?? (() => 'Expected a custom validator')
 }
 
-function getAsyncValidator(field: {validation?: (rule: unknown) => unknown}) {
-  const validator = getValidator(field)
-  return async (value: unknown, context: ValidationContext) => validator(value, context)
-}
-
 function player(memberId: string, fields: Record<string, unknown> = {}) {
   return {member: {_ref: memberId}, ...fields}
 }
@@ -73,33 +58,8 @@ function field(fields: Array<{name: string; validation?: (rule: unknown) => unkn
   return found
 }
 
-function sequenceContext(otherSequences: number[]) {
-  const calls: Array<{query: string; params: Record<string, unknown>}> = []
-
-  return {
-    calls,
-    context: {
-      document: {
-        _id: 'match-current',
-        stage: {_ref: 'stage-a'},
-        matchType: {_ref: 'type-a'},
-      },
-      getClient: () => ({
-        fetch: async (query: string, params: Record<string, unknown>) => {
-          calls.push({query, params})
-          return otherSequences.map((sequence, index) => ({
-            _id: `match-other-${index}`,
-            sequence,
-          }))
-        },
-      }),
-    } satisfies ValidationContext,
-  }
-}
-
 describe('match schema player validation', () => {
   const validatePlayers = getValidator(field(matchFields, 'players'))
-  const validateSequence = getAsyncValidator(field(matchFields, 'sequence'))
 
   it('requires exactly four unique members for every status', () => {
     expect(validatePlayers(fourPlayers(), {document: {status: 'scheduled'}})).toBe(true)
@@ -153,37 +113,27 @@ describe('match schema player validation', () => {
     )
   })
 
-  it('accepts a contiguous sequence within one stage and match type', async () => {
-    const {context, calls} = sequenceContext([1, 2])
-
-    await expect(validateSequence(3, context)).resolves.toBe(true)
-    expect(calls).toHaveLength(1)
-    expect(calls[0].query).toContain('stage._ref == $stageId')
-    expect(calls[0].query).toContain('matchType._ref == $matchTypeId')
-    expect(calls[0].params).toMatchObject({stageId: 'stage-a', matchTypeId: 'type-a'})
-  })
-
-  it('rejects duplicate, gapped, and non-one-starting group sequences', async () => {
-    await expect(validateSequence(2, sequenceContext([1, 2]).context)).resolves.toContain('unique')
-    await expect(validateSequence(4, sequenceContext([1, 3]).context)).resolves.toContain(
-      'consecutive',
-    )
-    await expect(validateSequence(4, sequenceContext([2, 3]).context)).resolves.toContain(
-      'start at 1',
-    )
-  })
-
-  it('skips the group lookup safely when stage or match type is missing', async () => {
-    const context: ValidationContext = {
-      document: {_id: 'match-current'},
-      getClient: () => ({
-        fetch: async () => {
-          throw new Error('A missing reference must not query the client')
-        },
-      }),
+  it('does not constrain sequence uniqueness or contiguity', () => {
+    const sequenceField = field(matchFields, 'sequence')
+    let customCalled = false
+    const rule = {
+      required() {
+        return rule
+      },
+      integer() {
+        return rule
+      },
+      min() {
+        return rule
+      },
+      custom() {
+        customCalled = true
+        return rule
+      },
     }
 
-    await expect(validateSequence(1, context)).resolves.toBe(true)
+    sequenceField.validation?.(rule)
+    expect(customCalled).toBe(false)
   })
 
   it('gates the score field by match status', () => {

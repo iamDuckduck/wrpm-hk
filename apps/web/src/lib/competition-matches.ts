@@ -103,30 +103,36 @@ function formatIsoDate(locale: Locale, value: string): string {
 }
 
 function groupMatchTypes(matches: CompetitionMatch[], locale: Locale): DisplayMatchType[] {
-  const ordered = [...matches].sort((left, right) => {
-    if (left.sequence !== right.sequence) return left.sequence - right.sequence
-    return left._id.localeCompare(right._id)
-  })
-  const groups = new Map<string, DisplayMatchType>()
+  const groups = new Map<string, CompetitionMatch[]>()
   const order: string[] = []
 
-  for (const item of ordered) {
+  for (const item of matches) {
     const typeId = item.matchType._id
 
     if (!groups.has(typeId)) {
-      groups.set(typeId, {
-        id: typeId,
-        title: item.matchType.title?.trim() || '',
-        slug: item.matchType.slug,
-        matches: [],
-      })
+      groups.set(typeId, [])
       order.push(typeId)
     }
 
-    groups.get(typeId)?.matches.push(toDisplayMatch(item, locale))
+    groups.get(typeId)?.push(item)
   }
 
-  return order.map((id) => groups.get(id)).filter((group): group is DisplayMatchType => Boolean(group))
+  return order.map((id) => {
+    const items = groups.get(id)!
+    const matchType = items[0].matchType
+
+    return {
+      id,
+      title: matchType.title?.trim() || '',
+      slug: matchType.slug,
+      matches: [...items]
+        .sort((left, right) => {
+          if (left.sequence !== right.sequence) return left.sequence - right.sequence
+          return left._id.localeCompare(right._id)
+        })
+        .map((item) => toDisplayMatch(item, locale)),
+    }
+  })
 }
 
 function toDisplayMatch(item: CompetitionMatch, locale: Locale): DisplayMatch {

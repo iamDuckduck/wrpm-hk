@@ -208,6 +208,13 @@ test('defines the refactored Match source contract', () => {
   assert.match(sequenceField, /Rule\.required\(\)/)
   assert.match(sequenceField, /\.integer\(\)/)
   assert.match(sequenceField, /\.min\(1\)/)
+  assert.match(sequenceField, /description:/)
+  assert.doesNotMatch(sequenceField, /\.custom/)
+  assert.doesNotMatch(matchSource, /validateMatchSequence/)
+  assert.doesNotMatch(matchSource, /MATCH_SEQUENCE_QUERY/)
+  assert.doesNotMatch(matchSource, /must be unique/)
+  assert.doesNotMatch(matchSource, /must be consecutive/)
+  assert.doesNotMatch(matchSource, /must start at 1/)
 
   const statusField = fieldSource(matchSource, 'status')
   assert.match(statusField, /initialValue:\s*'scheduled'/)

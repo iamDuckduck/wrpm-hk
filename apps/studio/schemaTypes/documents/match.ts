@@ -3,15 +3,8 @@ import {firstPreviewText, joinPreviewParts} from '../utils/preview'
 
 type MatchStatus = 'scheduled' | 'completed' | 'cancelled'
 
-type MatchReference = {
-  _ref?: string
-}
-
 type MatchDocument = {
   status?: MatchStatus
-  _id?: string
-  stage?: MatchReference
-  matchType?: MatchReference
 }
 
 type MatchPlayerDraft = {
@@ -19,78 +12,8 @@ type MatchPlayerDraft = {
   score?: number
 }
 
-type MatchSequenceRecord = {
-  sequence?: unknown
-}
-
-type MatchValidationContext = {
-  document?: MatchDocument
-  getClient?: (options: {apiVersion: string}) => {
-    fetch: <Result>(query: string, params: Record<string, unknown>) => Promise<Result>
-  }
-}
-
-const MATCH_SEQUENCE_QUERY = `*[
-  _type == "match" &&
-  stage._ref == $stageId &&
-  matchType._ref == $matchTypeId &&
-  !(_id in $excludedIds)
-] {
-  sequence
-}`
-
 function matchStatus(document: unknown): MatchStatus | undefined {
   return (document as MatchDocument | undefined)?.status
-}
-
-function matchReferenceId(reference: MatchReference | undefined): string | undefined {
-  return typeof reference?._ref === 'string' && reference._ref ? reference._ref : undefined
-}
-
-async function validateMatchSequence(
-  value: unknown,
-  context: MatchValidationContext,
-): Promise<true | string> {
-  if (typeof value !== 'number' || !Number.isInteger(value) || value < 1) return true
-
-  const stageId = matchReferenceId(context.document?.stage)
-  const matchTypeId = matchReferenceId(context.document?.matchType)
-  if (!stageId || !matchTypeId || !context.getClient) return true
-
-  const documentId = context.document?._id?.replace(/^drafts\./, '')
-  const excludedIds = documentId ? [...new Set([documentId, `drafts.${documentId}`])] : []
-  const client = context.getClient({apiVersion: '2025-02-19'})
-  const records = await client.fetch<MatchSequenceRecord[]>(MATCH_SEQUENCE_QUERY, {
-    stageId,
-    matchTypeId,
-    excludedIds,
-  })
-  const existingSequences = (Array.isArray(records) ? records : []).map((record) => record.sequence)
-
-  if (
-    existingSequences.some(
-      (sequence) =>
-        typeof sequence !== 'number' || !Number.isInteger(sequence) || sequence < 1,
-    )
-  ) {
-    return 'Match sequences must be positive integers.'
-  }
-
-  const sequences = [...(existingSequences as number[]), value]
-  if (new Set(sequences).size !== sequences.length) {
-    return 'Match sequences within a stage and match type must be unique.'
-  }
-
-  const orderedSequences = [...sequences].sort((left, right) => left - right)
-  if (orderedSequences[0] !== 1) {
-    return 'Match sequences within a stage and match type must start at 1.'
-  }
-
-  if (orderedSequences.some((sequence, index) => sequence !== index + 1)) {
-    return 'Match sequences within a stage and match type must be consecutive.'
-  }
-
-  return true
 }
 
 export const match = defineType({
@@ -115,12 +38,10 @@ export const match = defineType({
     defineField({
       name: 'sequence',
       title: 'Sequence',
+      description:
+        'Public match number (賽事 01). Used for display and sort order. Does not need to be unique; duplicates and gaps are allowed so you can change 2 to 1 without swapping first.',
       type: 'number',
-      validation: (Rule) =>
-        Rule.required()
-          .integer()
-          .min(1)
-          .custom((value, context) => validateMatchSequence(value, context)),
+      validation: (Rule) => Rule.required().integer().min(1),
     }),
     defineField({
       name: 'status',
