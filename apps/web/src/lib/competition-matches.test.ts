@@ -70,16 +70,16 @@ const olderStage: CompetitionMatchStage = {
   endsOn: '2026-08-03',
   matches: [
     match({
-      _id: 'old-b-2',
-      sequence: 2,
-      status: 'scheduled',
-      matchType: typeB,
-    }),
-    match({
       _id: 'old-a-2',
       sequence: 2,
       status: 'scheduled',
       matchType: typeA,
+    }),
+    match({
+      _id: 'old-b-2',
+      sequence: 2,
+      status: 'scheduled',
+      matchType: typeB,
     }),
     match({
       _id: 'old-a-1',
@@ -172,6 +172,44 @@ describe('groupStagesForDisplay', () => {
       [1, 2],
       [1, 2],
     ])
+  })
+
+  it('orders match types by first appearance and sequences only within each type', () => {
+    const stages = groupStagesForDisplay(
+      [
+        {
+          _id: 'stage-seq',
+          title: 'Section 1',
+          startsOn: '2026-07-27',
+          endsOn: '2026-07-27',
+          matches: [
+            match({
+              _id: 'live-2',
+              sequence: 2,
+              status: 'completed',
+              matchType: typeA,
+            }),
+            match({
+              _id: 'non-live-2',
+              sequence: 2,
+              status: 'cancelled',
+              matchType: typeB,
+            }),
+            match({
+              _id: 'non-live-1',
+              sequence: 1,
+              status: 'completed',
+              matchType: typeB,
+            }),
+          ],
+        },
+      ],
+      'en',
+    )
+
+    expect(stages[0].matchTypes.map((type) => type.slug)).toEqual(['a', 'b'])
+    expect(stages[0].matchTypes[0].matches.map((item) => item.sequence)).toEqual([2])
+    expect(stages[0].matchTypes[1].matches.map((item) => item.sequence)).toEqual([1, 2])
   })
 
   it('calculates score-descending placements and exposes scores only for completed matches', () => {

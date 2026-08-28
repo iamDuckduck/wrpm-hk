@@ -98,7 +98,7 @@ const seasonProjection = `
     "matches": *[
       _type == "match" &&
       stage._ref == ^._id
-    ] | order(sequence asc, _createdAt asc) {
+    ] | order(_createdAt asc) {
       _id,
       sequence,
       status,

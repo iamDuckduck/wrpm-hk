@@ -38,7 +38,7 @@ describe('competition queries', () => {
       expect(query).toContain('season._ref == ^._id')
       expect(query).toContain('startsOn desc')
       expect(query).toContain('stage._ref == ^._id')
-      expect(query).toContain('sequence asc')
+      expect(query).toContain('_createdAt asc')
       expect(query).toContain('matchType')
       expect(query).toContain('"players"')
       expect(query).toContain('memberName')
