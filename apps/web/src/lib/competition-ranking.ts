@@ -1,17 +1,30 @@
 import type {CompetitionCompletedMatch} from '../queries/competition'
 import {cleanScore} from './format-score'
-import type {LeagueStanding, RankingParticipant} from './league-ranking'
+
+export interface RankingParticipant {
+  memberId: string
+  name: string
+  slug: string
+}
+
+export interface CompetitionStanding {
+  memberId: string
+  name: string
+  slug: string
+  totalScore: number
+  matchesPlayed: number
+  rank: number | null
+}
 
 /**
  * Calculate standings from the competition match contract.
  *
- * Competition matches expose their four players directly. The legacy League
- * ranking helper intentionally remains result-entry based for League pages.
+ * Competition matches expose their four players directly.
  */
 export function calculateCompetitionStandings(
   participants: RankingParticipant[],
   matches: CompetitionCompletedMatch[],
-): LeagueStanding[] {
+): CompetitionStanding[] {
   const totals = new Map(
     participants.map((participant) => [
       participant.memberId,

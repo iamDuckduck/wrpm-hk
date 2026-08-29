@@ -92,7 +92,7 @@ describe('competition presentation and navigation', () => {
     expect(source).toContain('aria-current')
   })
 
-  it('provides localized Competition copy without removing League copy', () => {
+  it('provides localized Competition copy without leftover League copy', () => {
     const source = readSource('lib/localization.ts')
 
     expect(source).toContain('competitions: string')
@@ -103,6 +103,7 @@ describe('competition presentation and navigation', () => {
     expect(source).toContain('competitionMatchStatus')
     expect(source).toContain('competitionMatchSequence')
     expect(source).toContain('competitionNotFound: string')
-    expect(source).toContain('leagueOverview: string')
+    expect(source).not.toContain('leagueOverview: string')
+    expect(source).not.toContain('league: string')
   })
 })
