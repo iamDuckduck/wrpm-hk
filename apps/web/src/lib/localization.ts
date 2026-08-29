@@ -50,8 +50,6 @@ export interface LocaleCopy {
   leagueNotFound: string
   leagueNoRankings: string
   members: string
-  memberListTitle: string
-  memberListDescription: string
   memberListEmpty: string
   memberUnknown: string
   viewMember: (name: string) => string
@@ -121,8 +119,6 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     leagueNotFound: '目前沒有進行中的聯賽。',
     leagueNoRankings: '完成賽事後，排名將會顯示在這裡。',
     members: '成員',
-    memberListTitle: 'WRPM 成員',
-    memberListDescription: '認識 WRPM 香港分部的成員。',
     memberListEmpty: '成員資料準備中。',
     memberUnknown: 'WRPM 成員',
     viewMember: (name) => `查看 ${name} 的成員資料`,
@@ -195,8 +191,6 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     leagueNotFound: 'There is no ongoing league at the moment.',
     leagueNoRankings: 'Rankings will appear here after completed matches.',
     members: 'Members',
-    memberListTitle: 'WRPM Members',
-    memberListDescription: 'Meet the members of WRPM Hong Kong Branch.',
     memberListEmpty: 'Member profiles are being prepared.',
     memberUnknown: 'WRPM Member',
     viewMember: (name) => `View ${name}'s member profile`,
@@ -269,8 +263,6 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     leagueNotFound: '現在開催中のリーグはありません。',
     leagueNoRankings: '試合が完了するとランキングが表示されます。',
     members: 'メンバー',
-    memberListTitle: 'WRPM メンバー',
-    memberListDescription: 'WRPM 香港支部のメンバーをご紹介します。',
     memberListEmpty: 'メンバー情報を準備中です。',
     memberUnknown: 'WRPM メンバー',
     viewMember: (name) => `${name}のプロフィールを見る`,
