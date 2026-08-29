@@ -22,4 +22,14 @@ describe('localized member list', () => {
     expect(source).toContain('members.length > 0')
     expect(source).toContain('copy.memberListEmpty')
   })
+
+  it('renders CMS members page title and description', () => {
+    const source = readSource('components/MemberListPage.astro')
+
+    expect(source).toContain('MEMBERS_PAGE_QUERY')
+    expect(source).toContain('membersPage?.title?.trim()')
+    expect(source).toContain('membersPage?.description?.trim()')
+    expect(source).not.toContain('copy.memberListTitle')
+    expect(source).not.toContain('copy.memberListDescription')
+  })
 })

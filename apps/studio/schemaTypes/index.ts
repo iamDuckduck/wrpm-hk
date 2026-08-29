@@ -7,6 +7,7 @@ import {matchStage} from './documents/match-stage'
 import {matchType} from './documents/match-type'
 import {member} from './documents/member'
 import {memberCategory} from './documents/member-category'
+import {membersPage} from './documents/members-page'
 import {siteSettings} from './documents/site-settings'
 import {heroSlide} from './objects/hero-slide'
 import {localizedString} from './objects/localized-string'
@@ -22,6 +23,7 @@ export const schemaTypes = [
   matchPlayer,
   siteSettings,
   homePage,
+  membersPage,
   memberCategory,
   member,
   competition,

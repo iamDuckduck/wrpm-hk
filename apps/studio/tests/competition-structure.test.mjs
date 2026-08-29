@@ -35,6 +35,11 @@ test('hides nested competition types from the flat document list', () => {
   )
 })
 
+test('exposes Members Page as a singleton next to Home Page', () => {
+  assert.match(structureSource, /'membersPage'/)
+  assert.match(structureSource, /singletonListItem\(S, 'membersPage', 'Members Page'\)/)
+})
+
 test('pre-fills parent references from nested create templates', () => {
   for (const source of [structureSource, configSource]) {
     assert.match(source, /season-from-competition/)

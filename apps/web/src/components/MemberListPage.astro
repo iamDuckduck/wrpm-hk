@@ -4,7 +4,7 @@ import {getLocalizedPath, getLocaleCopy, getSanityLocaleKey, type Locale} from '
 import {buildSanityImageSrcSet, buildSanityImageUrl} from '../lib/sanity-image'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
-import {MEMBER_LIST_QUERY, type MemberListItem} from '../queries/members'
+import {MEMBER_LIST_QUERY, MEMBERS_PAGE_QUERY, type MemberListItem, type MembersPage} from '../queries/members'
 
 interface Props {
   locale: Locale
@@ -14,10 +14,14 @@ const {locale} = Astro.props
 const copy = getLocaleCopy(locale)
 const queryParams = {locale: getSanityLocaleKey(locale)}
 
-const [homepage, members] = await Promise.all([
+const [homepage, members, membersPage] = await Promise.all([
   sanityClient.fetch<HomePageQueryResult>(HOME_PAGE_QUERY, queryParams),
   sanityClient.fetch<MemberListItem[]>(MEMBER_LIST_QUERY, queryParams),
+  sanityClient.fetch<MembersPage | null>(MEMBERS_PAGE_QUERY, queryParams),
 ])
+
+const title = membersPage?.title?.trim()
+const description = membersPage?.description?.trim()
 
 function getMemberPath(slug: string) {
   return getLocalizedPath(locale, `/members/${slug}`)
@@ -32,8 +36,8 @@ function getMemberPath(slug: string) {
   <section class="member-list-page container" aria-labelledby="member-list-title">
     <header class="member-list-page__header">
       <p class="member-list-page__eyebrow">{copy.members}</p>
-      <h1 id="member-list-title">{copy.memberListTitle}</h1>
-      <p class="member-list-page__description">{copy.memberListDescription}</p>
+      <h1 id="member-list-title">{title}</h1>
+      <p class="member-list-page__description">{description}</p>
     </header>
 
     {members.length > 0 ? (

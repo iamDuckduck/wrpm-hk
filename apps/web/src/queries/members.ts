@@ -27,6 +27,28 @@ const MEMBER_FIELDS = /* groq */ `
   )
 `
 
+export const MEMBERS_PAGE_QUERY = defineQuery(/* groq */ `
+  *[_id == "membersPage"][0] {
+    _id,
+    "title": coalesce(
+      select(
+        $locale == "en" => title.en,
+        $locale == "ja" => title.ja,
+        title.zhHk
+      ),
+      title.zhHk
+    ),
+    "description": coalesce(
+      select(
+        $locale == "en" => description.en,
+        $locale == "ja" => description.ja,
+        description.zhHk
+      ),
+      description.zhHk
+    )
+  }
+`)
+
 export const MEMBER_LIST_QUERY = defineQuery(/* groq */ `
   *[_type == "member" && status == "active"] | order(name.zhHk asc) {
     ${MEMBER_FIELDS}
@@ -49,6 +71,12 @@ export const MEMBER_BY_SLUG_QUERY = defineQuery(/* groq */ `
     }
   }
 `)
+
+export type MembersPage = {
+  _id: string
+  title: string | null
+  description: string | null
+}
 
 export type MemberListItem = {
   _id: string

@@ -1,6 +1,6 @@
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
 
-export const singletonTypes = new Set(['siteSettings', 'homePage'])
+export const singletonTypes = new Set(['siteSettings', 'homePage', 'membersPage'])
 export const nestedDeskTypes = new Set(['competition', 'competitionSeason', 'matchStage', 'match'])
 
 function singletonListItem(S: StructureBuilder, schemaType: string, title: string) {
@@ -108,6 +108,7 @@ export const structure: StructureResolver = (S) =>
     .items([
       singletonListItem(S, 'siteSettings', 'Site Settings'),
       singletonListItem(S, 'homePage', 'Home Page'),
+      singletonListItem(S, 'membersPage', 'Members Page'),
       S.divider(),
       competitionsListItem(S),
       ...S.documentTypeListItems().filter((listItem) => {

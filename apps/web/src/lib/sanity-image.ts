@@ -14,7 +14,11 @@ export function buildSanityImageUrl(
   source: SanityImageSource | null | undefined,
   {width}: ImageUrlOptions,
 ) {
-  if (!source || (typeof source === 'object' && !('asset' in source))) {
+  if (!source) {
+    return null
+  }
+
+  if (typeof source === 'object' && (!('asset' in source) || source.asset == null)) {
     return null
   }
 

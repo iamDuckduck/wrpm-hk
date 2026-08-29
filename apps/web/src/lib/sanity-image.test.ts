@@ -17,6 +17,7 @@ describe('buildSanityImageUrl', () => {
   it('returns null when the image has no asset reference', () => {
     expect(buildSanityImageUrl(null, {width: 640})).toBeNull()
     expect(buildSanityImageUrl({}, {width: 640})).toBeNull()
+    expect(buildSanityImageUrl({asset: null}, {width: 640})).toBeNull()
   })
 
   it('requests an optimized image at the requested width', () => {
