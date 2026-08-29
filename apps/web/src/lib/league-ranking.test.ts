@@ -65,6 +65,81 @@ describe('calculateLeagueStandings', () => {
       },
     ])
   })
+
+  it('snaps summed decimal scores so totals and tied ranks stay exact', () => {
+    const standings = calculateLeagueStandings(
+      [
+        {memberId: 'alice', name: 'Alice', slug: 'alice'},
+        {memberId: 'bob', name: 'Bob', slug: 'bob'},
+        {memberId: 'carol', name: 'Carol', slug: 'carol'},
+        {memberId: 'dave', name: 'Dave', slug: 'dave'},
+      ],
+      [
+        {
+          id: 'match-1',
+          results: [
+            {memberId: 'alice', score: 0.1},
+            {memberId: 'bob', score: 0.3},
+            {memberId: 'carol', score: -3.4},
+            {memberId: 'dave', score: -11.2},
+          ],
+        },
+        {
+          id: 'match-2',
+          results: [
+            {memberId: 'alice', score: 0.2},
+            {memberId: 'bob', score: 0},
+            {memberId: 'carol', score: -4.1},
+            {memberId: 'dave', score: -11.2},
+          ],
+        },
+        {
+          id: 'match-3',
+          results: [
+            {memberId: 'alice', score: 0},
+            {memberId: 'bob', score: 0},
+            {memberId: 'carol', score: -3.1},
+            {memberId: 'dave', score: -11.2},
+          ],
+        },
+      ],
+    )
+
+    expect(standings).toEqual([
+      {
+        memberId: 'alice',
+        name: 'Alice',
+        slug: 'alice',
+        totalScore: 0.3,
+        matchesPlayed: 3,
+        rank: 1,
+      },
+      {
+        memberId: 'bob',
+        name: 'Bob',
+        slug: 'bob',
+        totalScore: 0.3,
+        matchesPlayed: 3,
+        rank: 1,
+      },
+      {
+        memberId: 'carol',
+        name: 'Carol',
+        slug: 'carol',
+        totalScore: -10.6,
+        matchesPlayed: 3,
+        rank: 3,
+      },
+      {
+        memberId: 'dave',
+        name: 'Dave',
+        slug: 'dave',
+        totalScore: -33.6,
+        matchesPlayed: 3,
+        rank: 4,
+      },
+    ])
+  })
 })
 
 describe('groupMatchesByRound', () => {

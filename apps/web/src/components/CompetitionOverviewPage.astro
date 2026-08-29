@@ -8,6 +8,7 @@ import {
 } from '../lib/localization'
 import {flattenCompletedMatches} from '../lib/competition-matches'
 import {calculateCompetitionStandings} from '../lib/competition-ranking'
+import {formatScore} from '../lib/format-score'
 import {buildSanityImageUrl} from '../lib/sanity-image'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
@@ -143,7 +144,7 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
                         <span class="competition-ranking-row__stats">
                           <span>
                             <span>{copy.competitionScore}</span>
-                            <b>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</b>
+                            <b>{standing.matchesPlayed > 0 ? formatScore(standing.totalScore) : '—'}</b>
                           </span>
                           <span>
                             <span>{copy.competitionMatchesPlayed}</span>
