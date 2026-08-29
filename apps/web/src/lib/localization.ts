@@ -36,19 +36,6 @@ export interface LocaleCopy {
   competitionStatus: (status: 'upcoming' | 'ongoing' | 'completed') => string
   competitionNotFound: string
   competitionNoRankings: string
-  league: string
-  leagueOverview: string
-  leagueRanking: string
-  leagueScore: string
-  leagueMatchesPlayed: string
-  leagueResults: string
-  leagueRound: (round: number) => string
-  leagueResultsEmpty: string
-  leagueSeasons: string
-  leagueSeasonSelector: string
-  leagueSeasonCurrent: string
-  leagueNotFound: string
-  leagueNoRankings: string
   members: string
   memberListEmpty: string
   memberUnknown: string
@@ -105,19 +92,6 @@ const localeCopies: Record<Locale, LocaleCopy> = {
       ({upcoming: '即將開始', ongoing: '進行中', completed: '已完成'})[status],
     competitionNotFound: '目前沒有可用的比賽。',
     competitionNoRankings: '完成賽事後，排名將會顯示在這裡。',
-    league: '聯賽',
-    leagueOverview: '聯賽概覽',
-    leagueRanking: '排名',
-    leagueScore: '總分',
-    leagueMatchesPlayed: '完成場數',
-    leagueResults: '賽事結果',
-    leagueRound: (round) => `第 ${round} 輪`,
-    leagueResultsEmpty: '完成賽事後，結果將會顯示在這裡。',
-    leagueSeasons: '聯賽賽季',
-    leagueSeasonSelector: '選擇聯賽賽季',
-    leagueSeasonCurrent: '目前賽季',
-    leagueNotFound: '目前沒有進行中的聯賽。',
-    leagueNoRankings: '完成賽事後，排名將會顯示在這裡。',
     members: '成員',
     memberListEmpty: '成員資料準備中。',
     memberUnknown: 'WRPM 成員',
@@ -177,19 +151,6 @@ const localeCopies: Record<Locale, LocaleCopy> = {
       ({upcoming: 'Upcoming', ongoing: 'Ongoing', completed: 'Completed'})[status],
     competitionNotFound: 'There is no competition available at the moment.',
     competitionNoRankings: 'Rankings will appear here after completed matches.',
-    league: 'League',
-    leagueOverview: 'League Overview',
-    leagueRanking: 'Ranking',
-    leagueScore: 'Total score',
-    leagueMatchesPlayed: 'Matches played',
-    leagueResults: 'Match results',
-    leagueRound: (round) => `Round ${round}`,
-    leagueResultsEmpty: 'Completed match results will appear here.',
-    leagueSeasons: 'League seasons',
-    leagueSeasonSelector: 'Choose a league season',
-    leagueSeasonCurrent: 'Current season',
-    leagueNotFound: 'There is no ongoing league at the moment.',
-    leagueNoRankings: 'Rankings will appear here after completed matches.',
     members: 'Members',
     memberListEmpty: 'Member profiles are being prepared.',
     memberUnknown: 'WRPM Member',
@@ -249,19 +210,6 @@ const localeCopies: Record<Locale, LocaleCopy> = {
       ({upcoming: '開催予定', ongoing: '開催中', completed: '完了'})[status],
     competitionNotFound: '現在利用できる大会はありません。',
     competitionNoRankings: '試合が完了するとランキングが表示されます。',
-    league: 'リーグ',
-    leagueOverview: 'リーグ概要',
-    leagueRanking: 'ランキング',
-    leagueScore: '合計スコア',
-    leagueMatchesPlayed: '対戦数',
-    leagueResults: '試合結果',
-    leagueRound: (round) => `第${round}ラウンド`,
-    leagueResultsEmpty: '試合が完了すると結果が表示されます。',
-    leagueSeasons: 'リーグシーズン',
-    leagueSeasonSelector: 'リーグシーズンを選択',
-    leagueSeasonCurrent: '現在のシーズン',
-    leagueNotFound: '現在開催中のリーグはありません。',
-    leagueNoRankings: '試合が完了するとランキングが表示されます。',
     members: 'メンバー',
     memberListEmpty: 'メンバー情報を準備中です。',
     memberUnknown: 'WRPM メンバー',

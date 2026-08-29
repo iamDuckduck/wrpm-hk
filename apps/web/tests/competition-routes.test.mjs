@@ -75,4 +75,17 @@ describe('localized competition routes', () => {
       'locale={locale}',
     ])
   })
+
+  it('does not keep the retired league overview routes', () => {
+    const retiredRoutes = [
+      'pages/league/index.astro',
+      'pages/league/[seasonSlug].astro',
+      'pages/[locale]/league.astro',
+      'pages/[locale]/league/[seasonSlug].astro',
+    ]
+
+    for (const path of retiredRoutes) {
+      expect(existsSync(new URL(`../src/${path}`, import.meta.url))).toBe(false)
+    }
+  })
 })
