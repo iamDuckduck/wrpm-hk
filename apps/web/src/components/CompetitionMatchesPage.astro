@@ -7,6 +7,7 @@ import {
   type Locale,
 } from '../lib/localization'
 import {groupStagesForDisplay} from '../lib/competition-matches'
+import {formatScore} from '../lib/format-score'
 import {buildSanityImageUrl} from '../lib/sanity-image'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
@@ -45,10 +46,6 @@ const seasonTitle = selectedSeason?.seasonTitle?.trim() || seasonSlug
 const overviewPath = selectedSeason
   ? `/competitions/${competitionSlug}/${selectedSeason.seasonSlug}`
   : `/competitions/${competitionSlug}`
-
-function formatScore(score: number) {
-  return score > 0 ? `+${score}` : String(score)
-}
 
 function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
   return copy.competitionStatus(status)
@@ -193,7 +190,7 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
                                               'competition-match-player__score--negative',
                                           ]}
                                         >
-                                          {formatScore(completedPlayer.score)}
+                                          {formatScore(completedPlayer.score, true)}
                                         </strong>
                                       ) : null}
                                     </span>

@@ -1,3 +1,5 @@
+import {cleanScore} from './format-score'
+
 export interface RankingParticipant {
   memberId: string
   name: string
@@ -72,6 +74,7 @@ export function calculateLeagueStandings(
       return {
         ...participant,
         ...total,
+        totalScore: cleanScore(total.totalScore),
         rank: null as number | null,
       }
     })

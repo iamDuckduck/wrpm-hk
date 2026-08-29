@@ -1,4 +1,5 @@
 import type {CompetitionCompletedMatch} from '../queries/competition'
+import {cleanScore} from './format-score'
 import type {LeagueStanding, RankingParticipant} from './league-ranking'
 
 /**
@@ -38,6 +39,7 @@ export function calculateCompetitionStandings(
       return {
         ...participant,
         ...total,
+        totalScore: cleanScore(total.totalScore),
         rank: null as number | null,
       }
     })

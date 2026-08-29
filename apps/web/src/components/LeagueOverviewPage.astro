@@ -10,6 +10,7 @@ import {
   calculateLeagueStandings,
   groupMatchesByRound,
 } from '../lib/league-ranking'
+import {formatScore} from '../lib/format-score'
 import {buildSanityImageUrl} from '../lib/sanity-image'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
@@ -144,7 +145,7 @@ function formatMatchDate(value: string) {
                             <span class="league-ranking-row__stats">
                               <span>
                                 <span>{copy.leagueScore}</span>
-                                <b>{standing.matchesPlayed > 0 ? standing.totalScore : '—'}</b>
+                                <b>{standing.matchesPlayed > 0 ? formatScore(standing.totalScore) : '—'}</b>
                               </span>
                               <span>
                                 <span>{copy.leagueMatchesPlayed}</span>
@@ -225,7 +226,7 @@ function formatMatchDate(value: string) {
                                         ) : (
                                           <span>{name}</span>
                                         )}
-                                        <strong>{result.score}</strong>
+                                        <strong>{formatScore(result.score)}</strong>
                                       </span>
                                     </li>
                                   )
