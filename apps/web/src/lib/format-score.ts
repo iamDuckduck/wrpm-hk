@@ -4,6 +4,6 @@ export function cleanScore(value: number): number {
 
 export function formatScore(score: number, signed = false): string {
   const cleaned = cleanScore(score)
-  const text = String(cleaned)
+  const text = cleaned.toFixed(1)
   return signed && cleaned > 0 ? `+${text}` : text
 }
