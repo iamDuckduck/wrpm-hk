@@ -19,8 +19,14 @@ describe('localized homepage chrome', () => {
 
     expect(source).toContain('mobile-language-switcher')
     expect(source).toContain('copy.localeNames[supportedLocale]')
-    expect(source).toContain('class:site-brand--has-logo={hasLogo}')
     expect(source).toContain('getLocalizedHref(supportedLocale, currentPath)')
+  })
+
+  it('always renders the complete organization name beside the logo', () => {
+    const source = readComponent('Navbar.astro')
+
+    expect(source).toContain('<span>{branding.organizationName}</span>')
+    expect(source).not.toContain('class:site-brand--has-logo')
   })
 
   it('renders localized Home, Members, and dynamic Competition drawer links', () => {
