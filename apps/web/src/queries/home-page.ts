@@ -46,12 +46,9 @@ export const HOME_PAGE_QUERY = defineQuery(/* groq */ `
           description.zhHk
         )
       },
-      "aboutHeading": coalesce(
-        select(
-          $locale == "en" => aboutHeading.en,
-          $locale == "ja" => aboutHeading.ja,
-          aboutHeading.zhHk
-        ),
+      "aboutHeading": select(
+        $locale == "en" => aboutHeading.en,
+        $locale == "ja" => aboutHeading.ja,
         aboutHeading.zhHk
       ),
       "aboutText": coalesce(

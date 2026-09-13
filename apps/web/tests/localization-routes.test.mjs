@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs'
+import {existsSync, readFileSync} from 'node:fs'
 import {describe, expect, it} from 'vitest'
 
 const readSource = (path) =>
@@ -26,5 +26,12 @@ describe('localized homepage routes', () => {
     expect(readSource('layouts/BaseLayout.astro')).toContain(
       '<html lang={locale}>',
     )
+  })
+
+  it('uses the supplied logo as the primary browser tab icon', () => {
+    expect(readSource('layouts/BaseLayout.astro')).toContain(
+      '<link rel="icon" type="image/png" href="/favicon.png" />',
+    )
+    expect(existsSync(new URL('../public/favicon.png', import.meta.url))).toBe(true)
   })
 })

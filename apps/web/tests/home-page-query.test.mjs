@@ -7,7 +7,7 @@ const querySource = readFileSync(
 )
 
 describe('homepage query localization', () => {
-  it('selects English and Japanese values with a Traditional Chinese fallback', () => {
+  it('selects localized content with a Traditional Chinese fallback where configured', () => {
     expect(querySource).toContain('$locale')
     expect(querySource).toContain('$locale == "en" =>')
     expect(querySource).toContain('$locale == "ja" =>')
@@ -17,5 +17,7 @@ describe('homepage query localization', () => {
     expect(querySource).toContain('description.zhHk')
     expect(querySource).toContain('aboutHeading.zhHk')
     expect(querySource).toContain('aboutText.zhHk')
+    expect(querySource).toContain('"aboutHeading": select(')
+    expect(querySource).not.toContain('"aboutHeading": coalesce(')
   })
 })
