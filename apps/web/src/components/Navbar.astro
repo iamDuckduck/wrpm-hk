@@ -30,7 +30,9 @@ function isCurrentRoute(path: string, includeChildren = false) {
 }
 
 function localeShortName(supportedLocale: Locale) {
-  return supportedLocale === 'zh-HK' ? '繁中' : supportedLocale.toUpperCase()
+  if (supportedLocale === 'zh-HK') return '繁中'
+  if (supportedLocale === 'ja') return '日本語'
+  return supportedLocale.toUpperCase()
 }
 ---
 
