@@ -1,6 +1,6 @@
 export const SUPPORTED_LOCALES = ['zh-HK', 'en', 'ja'] as const
-export const PUBLIC_LOCALES = ['en', 'ja'] as const
-export const DEFAULT_LOCALE = 'zh-HK' as const
+export const PUBLIC_LOCALES = ['zh-HK', 'ja'] as const
+export const DEFAULT_LOCALE = 'en' as const
 
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
 export type SanityLocaleKey = 'zhHk' | 'en' | 'ja'

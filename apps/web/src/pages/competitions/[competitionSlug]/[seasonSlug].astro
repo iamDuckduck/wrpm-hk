@@ -10,7 +10,7 @@ import {
 export async function getStaticPaths() {
   const seasons = await sanityClient.fetch<CompetitionSeasonSlug[]>(
     COMPETITION_SEASON_SLUGS_QUERY,
-    {locale: getSanityLocaleKey('zh-HK')},
+    {locale: getSanityLocaleKey('en')},
   )
 
   return seasons.map(({competitionSlug, seasonSlug}) => ({
@@ -26,7 +26,7 @@ const {competitionSlug, seasonSlug} = Astro.props as {
 ---
 
 <CompetitionOverviewPage
-  locale="zh-HK"
+  locale="en"
   competitionSlug={competitionSlug}
   seasonSlug={seasonSlug}
 />

@@ -7,7 +7,7 @@ const readSource = (path) =>
 describe('localized member list', () => {
   it('uses one shared member list page for the default and public locale routes', () => {
     expect(readSource('pages/members/index.astro')).toContain(
-      '<MemberListPage locale="zh-HK" />',
+      '<MemberListPage locale="en" />',
     )
     expect(readSource('pages/[locale]/members.astro')).toContain(
       '<MemberListPage locale={locale} />',

@@ -7,14 +7,14 @@ const readSource = (path) =>
 describe('localized homepage routes', () => {
   it('uses one shared homepage component for the default route', () => {
     expect(readSource('pages/index.astro')).toContain(
-      '<HomePage locale="zh-HK" />',
+      '<HomePage locale="en" />',
     )
     expect(readSource('components/HomePage.astro')).toContain(
       'getSanityLocaleKey(locale)',
     )
   })
 
-  it('generates only the English and Japanese locale routes', () => {
+  it('generates only the Traditional Chinese and Japanese locale routes', () => {
     const routeSource = readSource('pages/[locale].astro')
 
     expect(routeSource).toContain('getStaticPaths')

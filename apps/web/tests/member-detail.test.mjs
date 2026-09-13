@@ -9,6 +9,9 @@ describe('localized member detail', () => {
     expect(readSource('pages/members/[slug].astro')).toContain(
       'MEMBER_SLUGS_QUERY',
     )
+    expect(readSource('pages/members/[slug].astro')).toContain(
+      '<MemberDetailPage locale="en" slug={slug} />',
+    )
     expect(readSource('pages/[locale]/members/[slug].astro')).toContain(
       'PUBLIC_LOCALES',
     )

@@ -115,7 +115,7 @@ describe('WRPM visual foundation', () => {
   })
 
   it('renders the CMS-backed About section on the homepage', () => {
-    expect(homepageSource).toContain('<HomePage locale="zh-HK" />')
+    expect(homepageSource).toContain('<HomePage locale="en" />')
     expect(homepageComponentSource).toContain("import AboutSection from './AboutSection.astro'")
     expect(homepageComponentSource).toContain('<AboutSection')
     expect(homepageComponentSource).toContain('heading={homepage.homePage?.aboutHeading}')

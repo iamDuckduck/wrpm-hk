@@ -11,39 +11,39 @@ import {
 } from './localization'
 
 describe('localization', () => {
-  it('defines Traditional Chinese as the default locale', () => {
-    expect(DEFAULT_LOCALE).toBe('zh-HK')
+  it('defines English as the default locale', () => {
+    expect(DEFAULT_LOCALE).toBe('en')
     expect(SUPPORTED_LOCALES).toEqual(['zh-HK', 'en', 'ja'])
-    expect(PUBLIC_LOCALES).toEqual(['en', 'ja'])
+    expect(PUBLIC_LOCALES).toEqual(['zh-HK', 'ja'])
   })
 
   it('maps public locales to their static paths', () => {
-    expect(getLocalePath('zh-HK')).toBe('/')
-    expect(getLocalePath('en')).toBe('/en')
+    expect(getLocalePath('zh-HK')).toBe('/zh-HK')
+    expect(getLocalePath('en')).toBe('/')
     expect(getLocalePath('ja')).toBe('/ja')
   })
 
   it('strips public locale prefixes from pathnames', () => {
     expect(getPathWithoutLocale('/')).toBe('/')
-    expect(getPathWithoutLocale('/en')).toBe('/')
+    expect(getPathWithoutLocale('/zh-HK')).toBe('/')
     expect(getPathWithoutLocale('/ja')).toBe('/')
     expect(getPathWithoutLocale('/members/alice')).toBe('/members/alice')
-    expect(getPathWithoutLocale('/en/members/alice')).toBe('/members/alice')
+    expect(getPathWithoutLocale('/zh-HK/members/alice')).toBe('/members/alice')
     expect(getPathWithoutLocale('/ja/competitions/foo/bar/matches')).toBe(
       '/competitions/foo/bar/matches',
     )
-    expect(getPathWithoutLocale('/en/members/alice/')).toBe('/members/alice')
+    expect(getPathWithoutLocale('/zh-HK/members/alice/')).toBe('/members/alice')
   })
 
   it('rebuilds the current page path for a target locale', () => {
-    expect(getLocalizedHref('en', '/members/alice')).toBe('/en/members/alice')
-    expect(getLocalizedHref('zh-HK', '/en/competitions/foo/bar/matches')).toBe(
-      '/competitions/foo/bar/matches',
+    expect(getLocalizedHref('en', '/members/alice')).toBe('/members/alice')
+    expect(getLocalizedHref('zh-HK', '/ja/competitions/foo/bar/matches')).toBe(
+      '/zh-HK/competitions/foo/bar/matches',
     )
-    expect(getLocalizedHref('en', '/ja')).toBe('/en')
-    expect(getLocalizedHref('zh-HK', '/en')).toBe('/')
+    expect(getLocalizedHref('en', '/ja')).toBe('/')
+    expect(getLocalizedHref('zh-HK', '/ja')).toBe('/zh-HK')
     expect(getLocalizedHref('ja', '/')).toBe('/ja')
-    expect(getLocalizedHref('en', '/members/alice/')).toBe('/en/members/alice')
+    expect(getLocalizedHref('en', '/members/alice/')).toBe('/members/alice')
   })
 
   it('maps URL locales to Sanity localized field keys', () => {

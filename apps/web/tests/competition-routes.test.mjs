@@ -18,7 +18,7 @@ describe('localized competition routes', () => {
       'getStaticPaths',
       'competitionSlug',
       '<CompetitionOverviewPage',
-      'locale="zh-HK"',
+      'locale="en"',
     ])
   })
 
@@ -40,7 +40,7 @@ describe('localized competition routes', () => {
       'competitionSlug',
       'seasonSlug',
       '<CompetitionOverviewPage',
-      'locale="zh-HK"',
+      'locale="en"',
     ])
   })
 
@@ -63,7 +63,7 @@ describe('localized competition routes', () => {
       'competitionSlug',
       'seasonSlug',
       '<CompetitionMatchesPage',
-      'locale="zh-HK"',
+      'locale="en"',
     ])
     expectRoute('pages/[locale]/competitions/[competitionSlug]/[seasonSlug]/matches.astro', [
       'PUBLIC_LOCALES',
