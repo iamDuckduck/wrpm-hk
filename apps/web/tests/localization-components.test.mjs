@@ -12,6 +12,7 @@ describe('localized homepage chrome', () => {
     expect(source).toContain('SUPPORTED_LOCALES')
     expect(source).toContain('language-switcher')
     expect(source).toContain('aria-current')
+    expect(source).toContain("if (supportedLocale === 'ja') return '日本語'")
   })
 
   it('uses native mobile language details with localized routes', () => {
