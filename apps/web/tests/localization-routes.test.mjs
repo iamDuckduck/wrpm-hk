@@ -33,5 +33,8 @@ describe('localized homepage routes', () => {
       '<link rel="icon" type="image/png" href="/favicon.png" />',
     )
     expect(existsSync(new URL('../public/favicon.png', import.meta.url))).toBe(true)
+    expect(readFileSync(new URL('../public/favicon.ico', import.meta.url)).byteLength).toBeGreaterThan(
+      1000,
+    )
   })
 })
