@@ -1,0 +1,46 @@
+---
+import {toRichTextHtml, type RichTextValue} from '../lib/rich-text'
+
+interface Props {
+  value: RichTextValue
+  class?: string
+}
+
+const {value, class: className} = Astro.props
+const html = toRichTextHtml(value)
+---
+
+{html && <div class:list={['rich-text', className]} set:html={html}></div>}
+
+<style>
+  .rich-text {
+    overflow-wrap: anywhere;
+  }
+
+  .rich-text :global(p),
+  .rich-text :global(ul),
+  .rich-text :global(ol) {
+    margin: 0;
+  }
+
+  .rich-text :global(p + p),
+  .rich-text :global(p + ul),
+  .rich-text :global(p + ol),
+  .rich-text :global(ul + p),
+  .rich-text :global(ol + p),
+  .rich-text :global(ul + ul),
+  .rich-text :global(ol + ol) {
+    margin-top: 0.85em;
+  }
+
+  .rich-text :global(ul),
+  .rich-text :global(ol) {
+    padding-left: 1.4em;
+  }
+
+  .rich-text :global(a) {
+    color: var(--color-primary);
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.15em;
+  }
+</style>
