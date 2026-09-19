@@ -5,6 +5,8 @@ import {
 } from '../lib/sanity-image'
 import {getLocaleCopy, type Locale} from '../lib/localization'
 import type {HeroSlide} from '../queries/home-page'
+import {hasRichText} from '../lib/rich-text'
+import RichText from './RichText.astro'
 
 interface Props {
   locale: Locale
@@ -19,9 +21,6 @@ function slideTitle(slide: HeroSlide) {
   return slide.title?.trim() || 'WRPM'
 }
 
-function slideDescription(slide: HeroSlide) {
-  return slide.description?.trim() || ''
-}
 ---
 
 <section
@@ -40,7 +39,7 @@ function slideDescription(slide: HeroSlide) {
     <div class="hero-carousel__viewport" data-carousel-viewport>
       {slides.map((slide, index) => {
         const title = slideTitle(slide)
-        const description = slideDescription(slide)
+        const description = slide.description
         const imageUrl = buildSanityImageUrl(slide.image, {width: 1600})
         const imageSrcSet = buildSanityImageSrcSet(slide.image, imageWidths)
         const imageAlt = slide.image?.alt?.trim() || title
@@ -70,7 +69,9 @@ function slideDescription(slide: HeroSlide) {
 
             <div class="hero-carousel__content">
               {index === 0 ? <h1>{title}</h1> : <h2>{title}</h2>}
-              {description && <p class="hero-carousel__description">{description}</p>}
+              {hasRichText(description) && (
+                <RichText class="hero-carousel__description" value={description} />
+              )}
             </div>
           </article>
         )

@@ -20,9 +20,16 @@ export const homePage = defineType({
     }),
     defineField({
       name: 'aboutText',
-      title: 'About Text',
+      title: 'About text (legacy plain text)',
       type: 'localizedText',
-      validation: (Rule) => Rule.required(),
+      deprecated: {reason: 'Use Formatted about text instead.'},
+      readOnly: true,
+      hidden: ({value}) => value === undefined,
+    }),
+    defineField({
+      name: 'aboutTextRich',
+      title: 'Formatted about text',
+      type: 'localizedPortableText',
     }),
   ],
 })

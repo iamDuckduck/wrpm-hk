@@ -28,9 +28,16 @@ export const heroSlide = defineType({
     }),
     defineField({
       name: 'description',
-      title: 'Description',
+      title: 'Description (legacy plain text)',
       type: 'localizedText',
-      validation: (Rule) => Rule.required(),
+      deprecated: {reason: 'Use Formatted description instead.'},
+      readOnly: true,
+      hidden: ({value}) => value === undefined,
+    }),
+    defineField({
+      name: 'descriptionRich',
+      title: 'Formatted description',
+      type: 'localizedPortableText',
     }),
   ],
 })

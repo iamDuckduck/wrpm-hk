@@ -21,15 +21,29 @@ export const competition = defineType({
     }),
     defineField({
       name: 'intro',
-      title: 'Introduction',
+      title: 'Introduction (legacy plain text)',
       type: 'localizedText',
-      validation: (Rule) => Rule.required(),
+      deprecated: {reason: 'Use Formatted introduction instead.'},
+      readOnly: true,
+      hidden: ({value}) => value === undefined,
+    }),
+    defineField({
+      name: 'introRich',
+      title: 'Formatted introduction',
+      type: 'localizedPortableText',
     }),
     defineField({
       name: 'description',
-      title: 'Description',
+      title: 'Description (legacy plain text)',
       type: 'localizedText',
-      validation: (Rule) => Rule.required(),
+      deprecated: {reason: 'Use Formatted description instead.'},
+      readOnly: true,
+      hidden: ({value}) => value === undefined,
+    }),
+    defineField({
+      name: 'descriptionRich',
+      title: 'Formatted description',
+      type: 'localizedPortableText',
     }),
   ],
   preview: {

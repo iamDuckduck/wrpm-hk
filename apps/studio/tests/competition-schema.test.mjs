@@ -74,11 +74,20 @@ test('defines the approved Competition source contract', () => {
     competitionSource,
     /export const competition = defineType\(\{\s*name:\s*'competition',\s*title:\s*'Competition',\s*type:\s*'document'/,
   )
-  assert.deepEqual(fieldNames(competitionSource), ['title', 'slug', 'intro', 'description'])
+  assert.deepEqual(fieldNames(competitionSource), [
+    'title',
+    'slug',
+    'intro',
+    'introRich',
+    'description',
+    'descriptionRich',
+  ])
   assertFieldType(competitionSource, 'title', 'localizedString')
   assertFieldType(competitionSource, 'slug', 'slug')
   assertFieldType(competitionSource, 'intro', 'localizedText')
+  assertFieldType(competitionSource, 'introRich', 'localizedPortableText')
   assertFieldType(competitionSource, 'description', 'localizedText')
+  assertFieldType(competitionSource, 'descriptionRich', 'localizedPortableText')
 })
 
 test('defines the approved Competition Season source contract', () => {

@@ -1,6 +1,7 @@
 ---
 import AboutSection from './AboutSection.astro'
 import HeroCarousel from './HeroCarousel.astro'
+import {hasRichText} from '../lib/rich-text'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import {sanityClient} from '../lib/sanity'
 import {
@@ -32,7 +33,7 @@ const heroSlides = homepage.homePage?.heroSlides ?? []
   siteSettings={homepage.siteSettings}
 >
   <HeroCarousel slides={heroSlides} locale={locale} />
-  {(homepage.homePage?.aboutHeading?.trim() || homepage.homePage?.aboutText?.trim()) && (
+  {(homepage.homePage?.aboutHeading?.trim() || hasRichText(homepage.homePage?.aboutText)) && (
     <AboutSection
       heading={homepage.homePage?.aboutHeading}
       locale={locale}

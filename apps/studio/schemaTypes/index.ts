@@ -12,12 +12,14 @@ import {siteSettings} from './documents/site-settings'
 import {heroSlide} from './objects/hero-slide'
 import {localizedString} from './objects/localized-string'
 import {localizedText} from './objects/localized-text'
+import {localizedPortableText} from './objects/localized-portable-text'
 import {matchPlayer} from './objects/match-player'
 import {memberLink} from './objects/member-link'
 
 export const schemaTypes = [
   localizedString,
   localizedText,
+  localizedPortableText,
   heroSlide,
   memberLink,
   matchPlayer,

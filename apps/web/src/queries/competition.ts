@@ -12,6 +12,12 @@ const localizedCompetitionFields = `
   "slug": slug.current,
   "intro": coalesce(
     select(
+      $locale == "en" => introRich.en,
+      $locale == "ja" => introRich.ja,
+      introRich.zhHk
+    ),
+    introRich.zhHk,
+    select(
       $locale == "en" => intro.en,
       $locale == "ja" => intro.ja,
       intro.zhHk
@@ -19,6 +25,12 @@ const localizedCompetitionFields = `
     intro.zhHk
   ),
   "description": coalesce(
+    select(
+      $locale == "en" => descriptionRich.en,
+      $locale == "ja" => descriptionRich.ja,
+      descriptionRich.zhHk
+    ),
+    descriptionRich.zhHk,
     select(
       $locale == "en" => description.en,
       $locale == "ja" => description.ja,
@@ -370,8 +382,8 @@ export type CompetitionPageData = {
   competitionId: string
   title: string | null
   slug: string
-  intro: string | null
-  description: string | null
+  intro: import('../lib/rich-text').RichTextValue
+  description: import('../lib/rich-text').RichTextValue
   season: CompetitionSeason | null
   seasons: CompetitionSeasonSummary[] | null
 }

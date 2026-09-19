@@ -2,6 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro'
 import {getLocalizedPath, getLocaleCopy, getSanityLocaleKey, type Locale} from '../lib/localization'
 import {compareMembersByEnglishName} from '../lib/member-sort'
+import {hasRichText} from '../lib/rich-text'
+import RichText from './RichText.astro'
 import {buildSanityImageSrcSet, buildSanityImageUrl} from '../lib/sanity-image'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
@@ -22,7 +24,7 @@ const [homepage, members, membersPage] = await Promise.all([
 ])
 
 const title = membersPage?.title?.trim()
-const description = membersPage?.description?.trim()
+const description = membersPage?.description
 const sortedMembers = [...members].sort(compareMembersByEnglishName)
 
 function getMemberPath(slug: string) {
@@ -39,7 +41,9 @@ function getMemberPath(slug: string) {
     <header class="member-list-page__header">
       <p class="member-list-page__eyebrow">{copy.members}</p>
       <h1 id="member-list-title">{title}</h1>
-      <p class="member-list-page__description">{description}</p>
+      {hasRichText(description) && (
+        <RichText class="member-list-page__description" value={description} />
+      )}
     </header>
 
     {sortedMembers.length > 0 ? (

@@ -24,6 +24,12 @@ const MEMBER_DETAIL_FIELDS = /* groq */ `
   ${MEMBER_LIST_FIELDS},
   "intro": coalesce(
     select(
+      $locale == "en" => introRich.en,
+      $locale == "ja" => introRich.ja,
+      introRich.zhHk
+    ),
+    introRich.zhHk,
+    select(
       $locale == "en" => intro.en,
       $locale == "ja" => intro.ja,
       intro.zhHk
@@ -44,6 +50,12 @@ export const MEMBERS_PAGE_QUERY = defineQuery(/* groq */ `
       title.zhHk
     ),
     "description": coalesce(
+      select(
+        $locale == "en" => descriptionRich.en,
+        $locale == "ja" => descriptionRich.ja,
+        descriptionRich.zhHk
+      ),
+      descriptionRich.zhHk,
       select(
         $locale == "en" => description.en,
         $locale == "ja" => description.ja,
@@ -80,7 +92,7 @@ export const MEMBER_BY_SLUG_QUERY = defineQuery(/* groq */ `
 export type MembersPage = {
   _id: string
   title: string | null
-  description: string | null
+  description: import('../lib/rich-text').RichTextValue
 }
 
 export type MemberListItem = {
@@ -113,7 +125,7 @@ export type MemberSlug = {
 }
 
 export type MemberDetail = MemberListItem & {
-  intro: string | null
+  intro: import('../lib/rich-text').RichTextValue
   mediaLinks: Array<{
     _key: string
     label: string

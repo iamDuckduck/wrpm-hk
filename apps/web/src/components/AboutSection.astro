@@ -1,16 +1,17 @@
 ---
 import {getLocaleCopy, type Locale} from '../lib/localization'
+import {hasRichText, type RichTextValue} from '../lib/rich-text'
+import RichText from './RichText.astro'
 
 interface Props {
   heading: string | null
   locale: Locale
-  text: string | null
+  text: RichTextValue
 }
 
 const {heading, locale, text} = Astro.props
 const copy = getLocaleCopy(locale)
 const aboutHeading = heading?.trim() || copy.about
-const aboutText = text?.trim() || ''
 ---
 
 <section class="about-section" aria-labelledby="about-heading">
@@ -19,7 +20,7 @@ const aboutText = text?.trim() || ''
 
     <div class="about-section__content">
       <h2 id="about-heading" class="about-section__eyebrow">{aboutHeading}</h2>
-      {aboutText && <p class="about-section__text">{aboutText}</p>}
+      {hasRichText(text) && <RichText class="about-section__text" value={text} />}
     </div>
   </div>
 </section>
