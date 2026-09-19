@@ -42,6 +42,13 @@ describe('localized member detail', () => {
     )
   })
 
+  it('uses a 9:13 portrait without cropping its logo', () => {
+    const source = readSource('components/MemberDetailPage.astro')
+
+    expect(source).toContain('aspect-ratio: 9 / 13')
+    expect(source).toContain('object-fit: contain')
+  })
+
   it('uses a single small-red heading for related links', () => {
     const source = readSource('components/MemberDetailPage.astro')
 
