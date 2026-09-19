@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
 import {getLocalizedPath, getLocaleCopy, getSanityLocaleKey, type Locale} from '../lib/localization'
+import {compareMembersByEnglishName} from '../lib/member-sort'
 import {buildSanityImageSrcSet, buildSanityImageUrl} from '../lib/sanity-image'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
@@ -22,6 +23,7 @@ const [homepage, members, membersPage] = await Promise.all([
 
 const title = membersPage?.title?.trim()
 const description = membersPage?.description?.trim()
+const sortedMembers = [...members].sort(compareMembersByEnglishName)
 
 function getMemberPath(slug: string) {
   return getLocalizedPath(locale, `/members/${slug}`)
@@ -40,9 +42,9 @@ function getMemberPath(slug: string) {
       <p class="member-list-page__description">{description}</p>
     </header>
 
-    {members.length > 0 ? (
+    {sortedMembers.length > 0 ? (
       <ul class="member-list-page__grid">
-        {members.map((member) => {
+        {sortedMembers.map((member) => {
           const name = member.name?.trim() || copy.memberUnknown
           const imageUrl = buildSanityImageUrl(member.profileImage, {width: 640})
           const imageSrcSet = buildSanityImageSrcSet(member.profileImage, [320, 480, 640])
@@ -67,7 +69,6 @@ function getMemberPath(slug: string) {
                 </div>
                 <div class="member-card__body">
                   <h2>{name}</h2>
-                  {member.intro?.trim() && <p>{member.intro}</p>}
                   <span class="member-card__arrow" aria-hidden="true">↗</span>
                 </div>
               </a>
@@ -165,7 +166,7 @@ function getMemberPath(slug: string) {
 
   .member-card__body {
     position: relative;
-    min-height: 9rem;
+    min-height: 4.5rem;
     padding: 1.25rem;
   }
 
@@ -176,13 +177,6 @@ function getMemberPath(slug: string) {
     font-family: var(--font-display);
     font-size: 1.25rem;
     line-height: 1.2;
-  }
-
-  .member-card__body p {
-    margin: 0.75rem 0 0;
-    color: var(--color-on-surface-variant);
-    font-size: 0.875rem;
-    line-height: 1.5;
   }
 
   .member-card__arrow {
