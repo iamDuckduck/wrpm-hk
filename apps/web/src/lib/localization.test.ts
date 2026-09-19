@@ -62,6 +62,16 @@ describe('localization', () => {
     expect(getLocaleCopy('en').competitionMatchSequence(1)).toBe('Hanchan 01')
     expect(getLocaleCopy('ja').competitionMatchSequence(1)).toBe('半荘 01')
     expect(getLocaleCopy('ja').competitionMatchDetails).toBe('半荘詳細')
+  })
+
+  it('keeps language names in their native language', () => {
+    for (const locale of SUPPORTED_LOCALES) {
+      expect(getLocaleCopy(locale).localeNames).toEqual({
+        'zh-HK': '中文',
+        en: 'English',
+        ja: '日本語',
+      })
+    }
     expect(getLocaleCopy('en').competitionBackToSeason).toBe('Back to season overview')
     expect(getLocaleCopy('en').competitionSelectedSeason).toBe('Selected season')
     expect(getLocaleCopy('en').competitionStageSchedule).toBe('Stage schedule')

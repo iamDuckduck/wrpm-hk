@@ -6,6 +6,7 @@ import {
   getLocalizedHref,
   getLocalizedPath,
   getLocalePath,
+  LOCALE_NAMES,
   SUPPORTED_LOCALES,
   type Locale,
 } from '../lib/localization'
@@ -29,11 +30,12 @@ function isCurrentRoute(path: string, includeChildren = false) {
     : currentPath === normalizedPath
 }
 
-function localeShortName(supportedLocale: Locale) {
-  if (supportedLocale === 'zh-HK') return '繁中'
+function localeIndicator(supportedLocale: Locale) {
+  if (supportedLocale === 'zh-HK') return '中文'
   if (supportedLocale === 'ja') return '日本語'
-  return supportedLocale.toUpperCase()
+  return 'EN'
 }
+
 ---
 
 <header class="site-header">
@@ -110,8 +112,8 @@ function localeShortName(supportedLocale: Locale) {
     </a>
 
     <details class="mobile-language-switcher">
-      <summary aria-label={`${copy.languageSwitcher}: ${copy.localeNames[locale]}`}>
-        <span>{localeShortName(locale)}</span>
+      <summary aria-label={`${copy.languageSwitcher}: ${LOCALE_NAMES[locale]}`}>
+        <span>{localeIndicator(locale)}</span>
         <span aria-hidden="true">⌄</span>
       </summary>
       <nav class="mobile-language-switcher__panel" aria-label={copy.languageSwitcher}>
@@ -121,7 +123,7 @@ function localeShortName(supportedLocale: Locale) {
             href={`${getLocalizedHref(supportedLocale, currentPath)}${currentSearch}`}
             aria-current={supportedLocale === locale ? 'page' : undefined}
           >
-            {copy.localeNames[supportedLocale]}
+            {LOCALE_NAMES[supportedLocale]}
           </a>
         ))}
       </nav>
@@ -133,10 +135,10 @@ function localeShortName(supportedLocale: Locale) {
           class="language-switcher__link"
           class:language-switcher__link--current={supportedLocale === locale}
           href={`${getLocalizedHref(supportedLocale, currentPath)}${currentSearch}`}
-          aria-label={copy.localeNames[supportedLocale]}
+          aria-label={LOCALE_NAMES[supportedLocale]}
           aria-current={supportedLocale === locale ? 'page' : undefined}
         >
-          {localeShortName(supportedLocale)}
+          {LOCALE_NAMES[supportedLocale]}
         </a>
       ))}
     </nav>

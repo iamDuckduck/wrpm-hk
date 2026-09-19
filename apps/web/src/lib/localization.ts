@@ -5,6 +5,12 @@ export const DEFAULT_LOCALE = 'en' as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
 export type SanityLocaleKey = 'zhHk' | 'en' | 'ja'
 
+export const LOCALE_NAMES: Record<Locale, string> = {
+  'zh-HK': '中文',
+  en: 'English',
+  ja: '日本語',
+}
+
 export interface LocaleCopy {
   pageTitle: string
   pageDescription: string
@@ -100,11 +106,7 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     memberNotFound: '找不到這位成員。',
     backToMembers: '返回成員列表',
     languageSwitcher: '選擇語言',
-    localeNames: {
-      'zh-HK': '繁體中文',
-      en: 'English',
-      ja: '日本語',
-    },
+    localeNames: LOCALE_NAMES,
     heroLabel: '首頁主視覺',
     heroControls: '主視覺控制',
     previousSlide: '上一張主視覺',
@@ -159,11 +161,7 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     memberNotFound: 'This member could not be found.',
     backToMembers: 'Back to members',
     languageSwitcher: 'Choose language',
-    localeNames: {
-      'zh-HK': 'Traditional Chinese',
-      en: 'English',
-      ja: 'Japanese',
-    },
+    localeNames: LOCALE_NAMES,
     heroLabel: 'Homepage hero',
     heroControls: 'Hero carousel controls',
     previousSlide: 'Previous hero slide',
@@ -218,11 +216,7 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     memberNotFound: 'このメンバーは見つかりませんでした。',
     backToMembers: 'メンバー一覧へ戻る',
     languageSwitcher: '言語を選択',
-    localeNames: {
-      'zh-HK': '繁体字中国語',
-      en: '英語',
-      ja: '日本語',
-    },
+    localeNames: LOCALE_NAMES,
     heroLabel: 'ホームのメインビジュアル',
     heroControls: 'メインビジュアル操作',
     previousSlide: '前のメインビジュアル',

@@ -13,13 +13,15 @@ describe('localized homepage chrome', () => {
     expect(source).toContain('language-switcher')
     expect(source).toContain('aria-current')
     expect(source).toContain("if (supportedLocale === 'ja') return '日本語'")
+    expect(source).toContain('LOCALE_NAMES[supportedLocale]')
+    expect(source).toContain("return 'EN'")
   })
 
   it('uses native mobile language details with localized routes', () => {
     const source = readComponent('Navbar.astro')
 
     expect(source).toContain('mobile-language-switcher')
-    expect(source).toContain('copy.localeNames[supportedLocale]')
+    expect(source).toContain('LOCALE_NAMES[supportedLocale]')
     expect(source).toContain('getLocalizedHref(supportedLocale, currentPath)')
   })
 
