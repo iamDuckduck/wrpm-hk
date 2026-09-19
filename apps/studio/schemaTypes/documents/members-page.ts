@@ -13,9 +13,16 @@ export const membersPage = defineType({
     }),
     defineField({
       name: 'description',
-      title: 'Page Description',
+      title: 'Page description (legacy plain text)',
       type: 'localizedText',
-      validation: (Rule) => Rule.required(),
+      deprecated: {reason: 'Use Formatted page description instead.'},
+      readOnly: true,
+      hidden: ({value}) => value === undefined,
+    }),
+    defineField({
+      name: 'descriptionRich',
+      title: 'Formatted page description',
+      type: 'localizedPortableText',
     }),
   ],
 })

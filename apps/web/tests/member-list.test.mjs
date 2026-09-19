@@ -46,7 +46,8 @@ describe('localized member list', () => {
 
     expect(source).toContain('MEMBERS_PAGE_QUERY')
     expect(source).toContain('membersPage?.title?.trim()')
-    expect(source).toContain('membersPage?.description?.trim()')
+    expect(source).toContain('hasRichText(description)')
+    expect(source).toContain('<RichText class="member-list-page__description"')
     expect(source).not.toContain('copy.memberListTitle')
     expect(source).not.toContain('copy.memberListDescription')
   })

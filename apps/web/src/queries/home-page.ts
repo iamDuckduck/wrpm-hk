@@ -39,6 +39,12 @@ export const HOME_PAGE_QUERY = defineQuery(/* groq */ `
         ),
         "description": coalesce(
           select(
+            $locale == "en" => descriptionRich.en,
+            $locale == "ja" => descriptionRich.ja,
+            descriptionRich.zhHk
+          ),
+          descriptionRich.zhHk,
+          select(
             $locale == "en" => description.en,
             $locale == "ja" => description.ja,
             description.zhHk
@@ -52,6 +58,12 @@ export const HOME_PAGE_QUERY = defineQuery(/* groq */ `
         aboutHeading.zhHk
       ),
       "aboutText": coalesce(
+        select(
+          $locale == "en" => aboutTextRich.en,
+          $locale == "ja" => aboutTextRich.ja,
+          aboutTextRich.zhHk
+        ),
+        aboutTextRich.zhHk,
         select(
           $locale == "en" => aboutText.en,
           $locale == "ja" => aboutText.ja,
@@ -99,14 +111,14 @@ export type HeroSlide = {
   _key: string
   image: SanityImage | null
   title: string | null
-  description: string | null
+  description: import('../lib/rich-text').RichTextValue
 }
 
 export type HomePage = {
   _id: string
   heroSlides: HeroSlide[] | null
   aboutHeading: string | null
-  aboutText: string | null
+  aboutText: import('../lib/rich-text').RichTextValue
 }
 
 export type HomePageQueryResult = {

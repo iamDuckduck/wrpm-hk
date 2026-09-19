@@ -7,6 +7,8 @@ import {
   type Locale,
 } from '../lib/localization'
 import {flattenCompletedMatches} from '../lib/competition-matches'
+import {hasRichText} from '../lib/rich-text'
+import RichText from './RichText.astro'
 import {calculateCompetitionStandings} from '../lib/competition-ranking'
 import {formatScore} from '../lib/format-score'
 import {buildSanityImageUrl} from '../lib/sanity-image'
@@ -86,21 +88,21 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
           )}
         </div>
       )}
-      {competition?.intro?.trim() && (
-        <p class="competition-overview-page__intro">{competition.intro}</p>
+      {hasRichText(competition?.intro) && (
+        <RichText class="competition-overview-page__intro" value={competition?.intro} />
       )}
     </header>
 
     {competition && selectedSeason ? (
       <>
         <article class="competition-overview">
-          {competition.description?.trim() && (
+          {hasRichText(competition.description) && (
             <section
               class="competition-overview__description"
               aria-labelledby="competition-description-title"
             >
               <h2 id="competition-description-title">{copy.competitionOverview}</h2>
-              <p>{competition.description}</p>
+              <RichText class="competition-overview__description-text" value={competition.description} />
             </section>
           )}
 
@@ -284,7 +286,7 @@ function formatCompetitionStatus(status: 'upcoming' | 'ongoing' | 'completed') {
     line-height: 1.2;
   }
 
-  .competition-overview__description > p:last-child {
+  .competition-overview__description-text {
     max-width: 50rem;
     margin: 1rem 0 0;
     color: var(--color-on-surface-variant);
