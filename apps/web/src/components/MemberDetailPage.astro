@@ -10,6 +10,8 @@ import {buildSanityImageSrcSet, buildSanityImageUrl} from '../lib/sanity-image'
 import {sanityClient} from '../lib/sanity'
 import {HOME_PAGE_QUERY, type HomePageQueryResult} from '../queries/home-page'
 import {MEMBER_BY_SLUG_QUERY, type MemberDetail} from '../queries/members'
+import {hasRichText} from '../lib/rich-text'
+import RichText from './RichText.astro'
 
 interface Props {
   locale: Locale
@@ -60,7 +62,9 @@ const imageSrcSet = buildSanityImageSrcSet(member?.profileImage, [480, 720, 960]
           <div class="member-detail__heading">
             <p class="member-detail__eyebrow">{copy.members}</p>
             <h1 id="member-detail-title">{name}</h1>
-            {member.intro?.trim() && <p class="member-detail__intro">{member.intro}</p>}
+            {hasRichText(member.intro) && (
+              <RichText class="member-detail__intro" value={member.intro} />
+            )}
           </div>
         </header>
 
