@@ -6,11 +6,12 @@ interface Props {
   class?: string
 }
 
-const {value, class: className} = Astro.props
+// Forward Astro's parent scope attributes so page-specific typography and accents apply.
+const {value, class: className, ...attributes} = Astro.props
 const html = toRichTextHtml(value)
 ---
 
-{html && <div class:list={['rich-text', className]} set:html={html}></div>}
+{html && <div {...attributes} class:list={['rich-text', className]} set:html={html}></div>}
 
 <style>
   .rich-text {

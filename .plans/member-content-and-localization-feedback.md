@@ -136,6 +136,13 @@ Definition of done: all six requested behaviors meet their acceptance criteria, 
 - Portrait source images are square, so `object-fit: contain` creates letterboxing inside the 9:13 frame. This keeps the full portrait and embedded logo visible without distorting the source or overriding editorial crop data.
 - Live migration and deployment remain rollout steps and were not executed.
 
+## Follow-up style regression review
+
+- Confirmed that RichText discarded parent `data-astro-cid-*` attributes, preventing existing scoped typography, spacing, and red borders from matching its wrapper.
+- Forwarded remaining Astro props to the root element; existing page styles now apply without global CSS overrides.
+- Added `node apps/web/scripts/check-rich-text-scopes.mjs` (run after the web build). Verified all 45 rendered rich-text sections across three locales retain their parent styling scope.
+- Re-ran all 87 web tests and the 39-page web build successfully. Browser computed styles confirmed the biography's rose text and red top divider, hero's translucent white text and red left border, and About text color.
+
 ## Suggested later goal-mode prompt
 
 > Implement the tasks in `.plans/member-content-and-localization-feedback.md`, using its working assumptions. Keep the plan current, verify all three locales on mobile and desktop, and report tests and remaining rollout steps. Prepare and dry-run any content migration; do not mutate the live CMS or deploy without separate authorization.
