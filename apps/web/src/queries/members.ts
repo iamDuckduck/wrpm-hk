@@ -1,6 +1,6 @@
 import {defineQuery} from 'groq'
 
-const MEMBER_FIELDS = /* groq */ `
+const MEMBER_LIST_FIELDS = /* groq */ `
   _id,
   "name": coalesce(
     select(
@@ -10,13 +10,18 @@ const MEMBER_FIELDS = /* groq */ `
     ),
     name.zhHk
   ),
+  "englishName": name.en,
   "slug": slug.current,
   profileImage {
     asset,
     alt,
     crop,
     hotspot
-  },
+  }
+`
+
+const MEMBER_DETAIL_FIELDS = /* groq */ `
+  ${MEMBER_LIST_FIELDS},
   "intro": coalesce(
     select(
       $locale == "en" => intro.en,
@@ -50,8 +55,8 @@ export const MEMBERS_PAGE_QUERY = defineQuery(/* groq */ `
 `)
 
 export const MEMBER_LIST_QUERY = defineQuery(/* groq */ `
-  *[_type == "member" && status == "active"] | order(name.zhHk asc) {
-    ${MEMBER_FIELDS}
+  *[_type == "member" && status == "active"] {
+    ${MEMBER_LIST_FIELDS}
   }
 `)
 
@@ -63,7 +68,7 @@ export const MEMBER_SLUGS_QUERY = defineQuery(/* groq */ `
 
 export const MEMBER_BY_SLUG_QUERY = defineQuery(/* groq */ `
   *[_type == "member" && status == "active" && slug.current == $slug][0] {
-    ${MEMBER_FIELDS},
+    ${MEMBER_DETAIL_FIELDS},
     mediaLinks[] {
       _key,
       label,
@@ -81,6 +86,7 @@ export type MembersPage = {
 export type MemberListItem = {
   _id: string
   name: string | null
+  englishName: string | null
   slug: string
   profileImage: {
     asset: {_ref: string; _type: 'reference'} | null
@@ -100,7 +106,6 @@ export type MemberListItem = {
       width: number
     } | null
   } | null
-  intro: string | null
 }
 
 export type MemberSlug = {
@@ -108,6 +113,7 @@ export type MemberSlug = {
 }
 
 export type MemberDetail = MemberListItem & {
+  intro: string | null
   mediaLinks: Array<{
     _key: string
     label: string
