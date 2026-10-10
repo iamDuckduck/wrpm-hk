@@ -23,6 +23,7 @@ export interface LocaleCopy {
   competitionOverview: string
   competitionRanking: string
   competitionScore: string
+  competitionDiff: string
   competitionMatchesPlayed: string
   competitionMatches: string
   competitionResults: string
@@ -77,6 +78,7 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     competitionOverview: '比賽概覽',
     competitionRanking: '排名',
     competitionScore: '總分',
+    competitionDiff: '點差',
     competitionMatchesPlayed: '完成半莊數',
     competitionMatches: '查看半莊結果',
     competitionResults: '半莊結果',
@@ -132,6 +134,7 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     competitionOverview: 'Competition Overview',
     competitionRanking: 'Ranking',
     competitionScore: 'Total score',
+    competitionDiff: 'Diff',
     competitionMatchesPlayed: 'Hanchans played',
     competitionMatches: 'View hanchan results',
     competitionResults: 'Hanchan results',
@@ -187,6 +190,7 @@ const localeCopies: Record<Locale, LocaleCopy> = {
     competitionOverview: '大会概要',
     competitionRanking: 'ランキング',
     competitionScore: '合計スコア',
+    competitionDiff: '点差',
     competitionMatchesPlayed: '半荘数',
     competitionMatches: '半荘結果を見る',
     competitionResults: '半荘結果',

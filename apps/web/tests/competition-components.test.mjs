@@ -23,7 +23,7 @@ describe('competition presentation and navigation', () => {
       /\.competition-ranking-row\s*\{[\s\S]*?grid-template-columns:\s*2\.5rem\s+3\.5rem\s+minmax\(0,\s*1fr\)/,
     )
     expect(source).toMatch(
-      /@media\s*\(min-width:\s*48rem\)[\s\S]*?\.competition-ranking-row\s*\{[\s\S]*?grid-template-columns:\s*3rem\s+4rem\s+minmax\(0,\s*1fr\)\s+auto\s+auto/,
+      /@media\s*\(min-width:\s*64rem\)[\s\S]*?\.competition-ranking-row\s*\{[\s\S]*?grid-template-columns:\s*3rem\s+4rem\s+minmax\(0,\s*1fr\)\s+minmax\(24rem,\s*1fr\)/,
     )
     expect(source).toContain('competition-season-selector')
     expect(source).toContain('/competitions/${competitionSlug}/')
