@@ -47,6 +47,7 @@ describe('calculateCompetitionStandings', () => {
         totalScore: 15,
         matchesPlayed: 2,
         rank: 1,
+        diff: null,
       },
       {
         memberId: 'bob',
@@ -55,6 +56,7 @@ describe('calculateCompetitionStandings', () => {
         totalScore: 15,
         matchesPlayed: 2,
         rank: 1,
+        diff: 0,
       },
       {
         memberId: 'dave',
@@ -63,6 +65,7 @@ describe('calculateCompetitionStandings', () => {
         totalScore: 5,
         matchesPlayed: 2,
         rank: 3,
+        diff: 10,
       },
       {
         memberId: 'carol',
@@ -71,6 +74,7 @@ describe('calculateCompetitionStandings', () => {
         totalScore: -35,
         matchesPlayed: 2,
         rank: 4,
+        diff: 40,
       },
     ])
   })
@@ -132,6 +136,7 @@ describe('calculateCompetitionStandings', () => {
         totalScore: 0.3,
         matchesPlayed: 3,
         rank: 1,
+        diff: null,
       },
       {
         memberId: 'bob',
@@ -140,6 +145,7 @@ describe('calculateCompetitionStandings', () => {
         totalScore: 0.3,
         matchesPlayed: 3,
         rank: 1,
+        diff: 0,
       },
       {
         memberId: 'carol',
@@ -148,6 +154,7 @@ describe('calculateCompetitionStandings', () => {
         totalScore: -10.6,
         matchesPlayed: 3,
         rank: 3,
+        diff: 10.9,
       },
       {
         memberId: 'dave',
@@ -156,7 +163,52 @@ describe('calculateCompetitionStandings', () => {
         totalScore: -33.6,
         matchesPlayed: 3,
         rank: 4,
+        diff: 23,
       },
     ])
+  })
+})
+
+
+describe('reference leaderboard ordering and gaps', () => {
+  const participants = [
+    'Jimmy', 'Wing', 'Russell', 'Leo', 'Hugh', 'Shun Hei', 'Kaka', 'Kelvin',
+  ].map((name) => ({memberId: name, name, slug: name.toLowerCase()}))
+
+  it('ranks unplayed zero totals above negative scores and compares adjacent rows', () => {
+    const matches: CompetitionCompletedMatch[] = [{
+      _id: 'match-reference', sequence: 1, status: 'completed',
+      detailsUrl: 'https://example.invalid/match',
+      matchType: {_id: 'a', title: 'A', slug: 'a'},
+      players: [
+        {memberId: 'Jimmy', memberName: 'Jimmy', score: 31.7},
+        {memberId: 'Wing', memberName: 'Wing', score: 5.6},
+        {memberId: 'Kaka', memberName: 'Kaka', score: -6},
+        {memberId: 'Kelvin', memberName: 'Kelvin', score: -63.3},
+      ],
+    }]
+    const standings = calculateCompetitionStandings(participants, matches)
+    expect(standings.map(({name, totalScore, matchesPlayed, rank, diff}) =>
+      [name, totalScore, matchesPlayed, rank, diff],
+    )).toEqual([
+      ['Jimmy', 31.7, 1, 1, null],
+      ['Wing', 5.6, 1, 2, 26.1],
+      ['Hugh', 0, 0, 3, 5.6],
+      ['Leo', 0, 0, 3, 0],
+      ['Russell', 0, 0, 3, 0],
+      ['Shun Hei', 0, 0, 3, 0],
+      ['Kaka', -6, 1, 7, 6],
+      ['Kelvin', -63.3, 1, 8, 57.3],
+    ])
+  })
+
+  it('shows participants before the first match and handles an empty participant list', () => {
+    expect(calculateCompetitionStandings([], [])).toEqual([])
+    const standings = calculateCompetitionStandings(participants, [])
+    expect(standings).toHaveLength(8)
+    expect(standings.every(({totalScore, matchesPlayed, rank}) =>
+      totalScore === 0 && matchesPlayed === 0 && rank === 1,
+    )).toBe(true)
+    expect(standings.map(({diff}) => diff)).toEqual([null, 0, 0, 0, 0, 0, 0, 0])
   })
 })

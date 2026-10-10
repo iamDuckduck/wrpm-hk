@@ -143,3 +143,26 @@ describe('match schema player validation', () => {
     expect(validateScore(1, {document: {status: 'scheduled'}})).toContain('must not')
   })
 })
+
+
+describe('match player list preview', () => {
+  const prepare = (selection: Partial<Record<'nameZhHk' | 'nameEn' | 'nameJa' | 'score' | 'media', unknown>>) =>
+    matchPlayer.preview!.prepare!({
+      nameZhHk: undefined, nameEn: undefined, nameJa: undefined, score: undefined, media: undefined,
+      ...selection,
+    })
+
+  it('shows a localized member name, avatar, and an entered zero score', () => {
+    expect(prepare({nameZhHk: '玩家', nameEn: 'Player', score: 0, media: {asset: {_ref: 'image-id'}}})).toEqual({
+      title: '玩家', subtitle: 'Score: 0.0', media: {asset: {_ref: 'image-id'}},
+    })
+  })
+
+  it('uses available English or Japanese names and distinguishes an unset score', () => {
+    expect(prepare({nameZhHk: ' ', nameEn: 'Player', score: -6})).toMatchObject({
+      title: 'Player', subtitle: 'Score: -6.0',
+    })
+    expect(prepare({nameJa: '選手'})).toMatchObject({title: '選手', subtitle: 'No score entered'})
+    expect(prepare({})).toMatchObject({title: 'Select a member', subtitle: 'No score entered'})
+  })
+})

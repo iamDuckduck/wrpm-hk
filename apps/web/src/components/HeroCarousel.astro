@@ -148,9 +148,27 @@ function slideTitle(slide: HeroSlide) {
     }
 
     let activeIndex = 0
-    let pointerStartX: number | null = null
+    let pointerStart: {id: number; x: number; y: number} | null = null
+    let suppressClick = false
+    let hovered = window.matchMedia('(hover: hover)').matches && carousel.matches(':hover')
+    let timer: ReturnType<typeof setTimeout> | undefined
 
-    const selectSlide = (index: number) => {
+    const stopTimer = () => {
+      clearTimeout(timer)
+      timer = undefined
+    }
+
+    const restartTimer = () => {
+      stopTimer()
+      const keyboardFocused = carousel.matches(':focus-visible') || carousel.querySelector(':focus-visible')
+      if (slides.length < 2 || hovered || keyboardFocused || document.hidden || pointerStart) return
+
+      timer = setTimeout(() => {
+        selectSlide(getNextCarouselIndex(activeIndex, slides.length, 1), false)
+      }, 10_000)
+    }
+
+    const selectSlide = (index: number, announce = true) => {
       activeIndex = (index + slides.length) % slides.length
 
       slides.forEach((slide, slideIndex) => {
@@ -168,12 +186,15 @@ function slideTitle(slide: HeroSlide) {
       })
 
       if (status) {
+        // Automatic changes should not interrupt screen-reader users every ten seconds.
+        status.setAttribute('aria-live', announce ? 'polite' : 'off')
         const title = slides[activeIndex].dataset.title || 'WRPM'
         status.textContent = statusTemplate
           ?.replace('__INDEX__', String(activeIndex + 1))
           .replace('__TOTAL__', String(slides.length))
           .replace('__TITLE__', title) || title
       }
+      restartTimer()
     }
 
     previous?.addEventListener('click', () => {
@@ -215,30 +236,64 @@ function slideTitle(slide: HeroSlide) {
       }
     })
 
+    carousel.addEventListener('pointerenter', (event) => {
+      if (event.pointerType !== 'mouse') return
+      hovered = true
+      stopTimer()
+    })
+
+    carousel.addEventListener('pointerleave', (event) => {
+      if (event.pointerType !== 'mouse') return
+      hovered = false
+      restartTimer()
+    })
+
+    carousel.addEventListener('focusin', restartTimer)
+    carousel.addEventListener('focusout', () => queueMicrotask(restartTimer))
+    document.addEventListener('visibilitychange', restartTimer)
+
     viewport?.addEventListener('pointerdown', (event) => {
-      pointerStartX = event.clientX
+      suppressClick = false
+      if (!event.isPrimary || event.button !== 0) return
+      if ((event.target as Element).closest('button, a')) return
+
+      pointerStart = {id: event.pointerId, x: event.clientX, y: event.clientY}
+      viewport.setPointerCapture(event.pointerId)
+      stopTimer()
     })
 
     viewport?.addEventListener('pointerup', (event) => {
-      if (pointerStartX === null) {
-        return
+      if (!pointerStart || pointerStart.id !== event.pointerId) return
+
+      const dx = event.clientX - pointerStart.x
+      const dy = event.clientY - pointerStart.y
+      pointerStart = null
+
+      if (Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy) * 1.25) {
+        suppressClick = true
+        selectSlide(getNextCarouselIndex(activeIndex, slides.length, dx < 0 ? 1 : -1))
+      } else {
+        restartTimer()
       }
-
-      const distance = event.clientX - pointerStartX
-      pointerStartX = null
-
-      if (Math.abs(distance) < 40) {
-        return
-      }
-
-      selectSlide(
-        getNextCarouselIndex(activeIndex, slides.length, distance < 0 ? 1 : -1),
-      )
     })
 
-    viewport?.addEventListener('pointercancel', () => {
-      pointerStartX = null
-    })
+    const cancelSwipe = () => {
+      pointerStart = null
+      restartTimer()
+    }
+    viewport?.addEventListener('pointercancel', cancelSwipe)
+    viewport?.addEventListener('lostpointercapture', cancelSwipe)
+    viewport?.addEventListener('dragstart', (event) => event.preventDefault())
+    viewport?.addEventListener('click', (event) => {
+      if (!suppressClick) return
+      event.preventDefault()
+      event.stopPropagation()
+      suppressClick = false
+    }, true)
+
+    window.addEventListener('pagehide', stopTimer)
+    window.addEventListener('pageshow', restartTimer)
+    restartTimer()
   })
 </script>
 
@@ -251,6 +306,7 @@ function slideTitle(slide: HeroSlide) {
     position: relative;
     min-height: clamp(30rem, 72svh, 46rem);
     overflow: hidden;
+    touch-action: pan-y pinch-zoom;
     background: var(--color-surface-lowest);
   }
 

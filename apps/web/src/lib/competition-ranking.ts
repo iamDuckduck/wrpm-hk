@@ -13,7 +13,8 @@ export interface CompetitionStanding {
   slug: string
   totalScore: number
   matchesPlayed: number
-  rank: number | null
+  rank: number
+  diff: number | null
 }
 
 /**
@@ -53,14 +54,11 @@ export function calculateCompetitionStandings(
         ...participant,
         ...total,
         totalScore: cleanScore(total.totalScore),
-        rank: null as number | null,
+        rank: 0,
+        diff: null as number | null,
       }
     })
     .sort((left, right) => {
-      const leftPlayed = left.matchesPlayed > 0
-      const rightPlayed = right.matchesPlayed > 0
-
-      if (leftPlayed !== rightPlayed) return leftPlayed ? -1 : 1
       if (left.totalScore !== right.totalScore) {
         return right.totalScore - left.totalScore
       }
@@ -70,9 +68,8 @@ export function calculateCompetitionStandings(
 
   let previousScore: number | null = null
   for (const [index, standing] of standings.entries()) {
-    if (standing.matchesPlayed === 0) continue
-
     standing.rank = standing.totalScore === previousScore ? standings[index - 1].rank : index + 1
+    standing.diff = index === 0 ? null : cleanScore(standings[index - 1].totalScore - standing.totalScore)
     previousScore = standing.totalScore
   }
 

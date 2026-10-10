@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {firstPreviewText} from '../utils/preview'
 
 type MatchStatus = 'scheduled' | 'completed' | 'cancelled'
 
@@ -43,4 +44,20 @@ export const matchPlayer = defineType({
         }),
     }),
   ],
+  preview: {
+    select: {
+      nameZhHk: 'member.name.zhHk',
+      nameEn: 'member.name.en',
+      nameJa: 'member.name.ja',
+      score: 'score',
+      media: 'member.profileImage',
+    },
+    prepare({nameZhHk, nameEn, nameJa, score, media}) {
+      return {
+        title: firstPreviewText(nameZhHk, nameEn, nameJa) ?? 'Select a member',
+        subtitle: typeof score === 'number' ? `Score: ${score.toFixed(1)}` : 'No score entered',
+        media,
+      }
+    },
+  },
 })
